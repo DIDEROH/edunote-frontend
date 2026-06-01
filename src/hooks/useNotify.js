@@ -1,6 +1,6 @@
 import { toast } from 'sonner'
 
-export  function useNotify() {
+export function useNotify() {
   
     // Fonction de suppression
     const deleteToast = (text, onAction) => {

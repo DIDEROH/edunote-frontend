@@ -1,12 +1,11 @@
 import axios from "axios";
 import { API_URL } from "./constants";
-import i18n from "../i18n";
 
 // ============================================
 // Configuration globale sécurisée
 // ============================================
 
-export const TOKEN_KEY = "user_token_durinfo";
+export const TOKEN_KEY = "user_token_edunote";
 const DEFAULT_LANGUAGE = "fr";
 let loaderCallbacks = { setLoading: null, setProgress: null };
 let logoutCallback = null;
@@ -22,10 +21,6 @@ function normalizeLanguage(language) {
 function getSelectedLanguage(config = {}) {
   if (config.language) {
     return normalizeLanguage(config.language);
-  }
-
-  if (i18n?.language) {
-    return normalizeLanguage(i18n.language);
   }
 
   if (typeof navigator !== "undefined" && navigator.language) {
