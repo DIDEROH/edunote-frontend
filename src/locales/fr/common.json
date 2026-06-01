@@ -1,0 +1,55 @@
+{
+  "navigation": {
+    "home": "Accueil",
+    "services": "Nos services",
+    "lab": "Lab DURINFO",
+    "formations": "Formations",
+    "realisations": "Réalisations",
+    "apropos": "À propos de moi",
+    "contact": "Disponibilité et contacts",
+    "settings": "Paramètres"
+  },
+  "buttons": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "login": "Connexion"
+  },
+  "languages": {
+    "fr": "Français",
+    "en": "English"
+  },
+  "layout": {
+    "languageModalTitle": "Changer de langue",
+    "languageModalSubtitle": "Sélectionnez une langue"
+  },
+  "errors": {
+    "required": "Ce champ est obligatoire.",
+    "server": "Le serveur ne répond pas."
+  },
+  "footer": {
+    "description": "Expertise en ingénierie web moderne. Conception d'architectures scalables et d'interfaces haute performance pour les entreprises ambitieuses.",
+    "servicesTitle": "Services Web",
+    "services": {
+      "saas": "Développement SaaS",
+      "apis": "APIs & Architectures Backend",
+      "dashboards": "Dashboards Analytiques",
+      "seo": "Optimisation SEO & Performance"
+    },
+    "ecosystemTitle": "Écosystème",
+    "ecosystem": {
+      "portfolio": "Portfolio Projets",
+      "lab": "Lab de Code",
+      "academy": "Académie (Formations)",
+      "contact": "Contact Direct"
+    },
+    "availabilityTitle": "Disponibilité",
+    "availabilityText": "Actuellement ouvert aux nouveaux projets et collaborations stratégiques.",
+    "available": "Disponible pour mission",
+    "copyright": "© 2026 DURINFO. Bâti avec excellence.",
+    "privacy": "Confidentialité",
+    "legal": "Mentions légales",
+    "by": "Par",
+    "author": "Dideroh Durel Ayile"
+  }
+}

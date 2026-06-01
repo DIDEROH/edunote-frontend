@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "title": "DURINFO - Développement Web & Applications Sur-Mesure",
+    "description": "DURINFO conçois et développe des solutions web complètes, alliant la robustesse du backend Python/Django à la fluidité des interfaces React. Transformez vos idées en plateformes numériques performantes.",
+    "keywords": "développement web, react, django, applications sur mesure, saas, e-commerce, frontend, backend",
+    "ogTitle": "DURINFO - Développement Web & Applications Sur-Mesure",
+    "ogDescription": "DURINFO conçois et développe des solutions web complètes, alliant la robustesse du backend Python/Django à la fluidité des interfaces React. Transformez vos idées en plateformes numériques performantes."
+  },
+
+  "welcome": "Bienvenue chez les développeurs web DURINFO !",
+  "description": "✨ Que vous soyez un boss du CSS, un magicien du JavaScript ou un débutant domptant sa première balise <div>, vous êtes à la maison. Ici, on lâche la pression et on vit le code autrement ! \n \n ✨Oubliez les forums froids. Place aux défis ludiques, aux astuces explosives et à l'entraide décontractée. C'est l'espace idéal pour propulser vos compétences en partageant des rires avec des passionnés du monde entier !",
+
+  "hero": {
+    "badge": "CODE • PERFORMANCE • ÉVOLUTIVITÉ",
+    "subtitlePrefix": "Développement Web",
+    "subtitleHighlight": "& Applications Sur-Mesure",
+    "text": "DURINFO conçois et développe des solutions web complètes, alliant la robustesse du backend Python/Django à la fluidité des interfaces React. Transformez vos idées en plateformes numériques performantes.",
+    "ctaProject": "Démarrer un projet",
+    "ctaPortfolio": "Voir mon portfolio",
+    "cards": {
+      "web": {
+        "title": "Sites web",
+        "subtitle": " Des interfaces web responsives, des performances d'affichage optimisées et des architectures SEO-friendly qui propulsent votre visibilité en ligne. ",
+        "linkText": "Découvrir nos interfaces"
+      },
+      "app": {
+        "title": "Web Apps",
+        "subtitle": "Des architectures cloud évolutives, des interfaces de gestion intuitives et des visualisations de données en temps réel qui optimisent le pilotage de votre activité"
+      },
+      "backend": {
+        "title": "Backends",
+        "subtitle": "Des API robustes, une gestion de bases de données complexes et des architectures sécurisées qui soutiennent la croissance de votre application.",
+        "linkText": "Explorer le backend"
+      },
+      "responsive": {
+        "title": "Responsive",
+        "subtitle": "Mobile, Tablette, Desktop"
+      },
+      "solutions": {
+        "title": "Solutions Métiers",
+        "subtitle": "Développement d'outils sur mesure : plateformes SaaS, tableaux de bord analytiques et e-commerce haute performance adaptés à vos besoins.",
+        "linkText": "Voir nos solutions"
+      }
+    }
+  },
+  
+  "socialProof": {
+    "title": "Technologies maîtrisées & standards de l'industrie"
+  },
+
+  "expertise": {
+    "heading": "Une expertise centrée sur ",
+    "highlight": "le Web",
+    "text": "DURINFO vous accompagne de la conception de l'interface jusqu'au déploiement de vos sites web. Bâtissons ensemble des architectures logicielles fiables, rapides et évolutives.",
+    "imageAlt": "Assistant code DURINFO"
+  },
+
+  "technical": {
+    "heading": "Expertise Technique",
+    "titlePrefix": "L'Optimisation par le ",
+    "titleHighlight": "Code Propre",
+    "text": "Chaque projet bénéficie d'une attention rigoureuse sur la qualité du code. Découvrez comment des requêtes optimisées en Django couplées à un rendu asynchrone en React permettent de garantir une expérience utilisateur sans latence.",
+    "list": {
+      "scalable": "Architectures Scalables & Modulaires",
+      "security": "Sécurité des données (OWASP)",
+      "seo": "Optimisation SEO & Temps de chargement",
+      "cleanCode": "Code propre et maintenable"
+    },
+    "cta": "Voir ma méthode de travail"
+  },
+  
+  "portfolio": {
+    "heading": "Réalisations à Fort Impact.",
+    "subheading": "Découvrez comment nos architectures logicielles résolvent les défis complexes de nos clients sur le web.",
+    "cta": "Voir tout le portfolio"
+  },
+  
+  "quote": {
+    "text": "Le code n'est qu'un outil. L'architecture logicielle, la performance et l'expérience utilisateur sont les véritables clés d'un produit numérique réussi.",
+    "author": "Dideroh Durel Ayile",
+    "role": "Développeur Web Fullstack",
+    "imageAlt": "Portrait de Dideroh Durel Ayile"
+  },
+  "contact": {
+    "headline": "Prêt à lancer votre projet web ?",
+    "text": "Que vous ayez besoin d'une application métier sur-mesure ou d'un site vitrine haut de gamme, discutons de votre vision technique.",
+    "ctaContact": "Me contacter",
+    "ctaPrices": "Voir mes tarifs"
+  }
+}

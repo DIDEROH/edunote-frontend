@@ -1,0 +1,109 @@
+/* Importation directe depuis Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap');
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: all;
+}
+
+@theme {
+  --animate-marquee: marquee 25s linear infinite;
+  --animate-bounce-slow: bounce 5s infinite;
+  --animate-lince: lince 5s infinite;
+
+  @keyframes marquee {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-50%); }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-25px); }
+  }
+
+  @keyframes bounce-x {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-20px); }
+  }
+
+  @keyframes edge-line {
+    0% { background-position: 0 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes lince {
+    0%, 100% { 
+      transform: translate(0, 0) rotate(0deg); 
+    }
+    25% {
+      transform: translate(-40%, 16px) rotate(-2.5deg);
+    }
+    50% { 
+      transform: translate(-100%, 25px) rotate(7.5deg); 
+    }
+    75% { 
+      transform: translate(25px, 10px) rotate(-5deg); 
+    }
+  }
+
+}
+
+
+/* * CONFIGURATION TYPOGRAPHIQUE DURINFO
+ * 1. Plus Jakarta Sans (Titres - 500, 700, 800)
+ * 2. Inter (Corps de texte - 400, 500)
+ * 3. JetBrains Mono (Lab/Code - 400, 600)
+ */
+
+
+:root {
+  /* Variables de polices pour une réutilisation facile dans votre projet React */
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Application globale des styles */
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, .brand-name {
+  font-family: var(--font-heading);
+  letter-spacing: -0.02em; /* Améliore le rendu des titres modernes */
+}
+
+code, .lab-data, .arduino-script {
+  font-family: var(--font-mono);
+}
+
+.animate-bounce-x {
+  animation: bounce-x 5s infinite;
+}
+
+.animate-edge-stroke {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-edge-stroke::before,
+.animate-edge-stroke::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.9) 40%, rgba(56,189,248,0.9) 60%, transparent 100%);
+  background-size: 200% 100%;
+  animation: edge-line 3s linear infinite;
+}
+
+.animate-edge-stroke::before {
+  top: 0;
+}
+
+.animate-edge-stroke::after {
+  bottom: 0;
+  animation-delay: 1.5s;
+}

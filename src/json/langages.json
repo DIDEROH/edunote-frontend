@@ -1,0 +1,18 @@
+
+[  {
+    "langage": "React",
+    "logo": "/vectors/React.svg"
+  },
+ {
+    "langage": "Next.js",
+    "logo": "/vectors/Next.js.svg"
+  },
+  {
+    "langage": "Django",
+    "logo": "/vectors/Django.svg"
+  },
+  {
+    "langage": "Laravel",
+    "logo": "/vectors/Laravel.svg"
+  }
+]
