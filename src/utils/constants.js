@@ -1,5 +1,5 @@
 // Les versions du projet
-export const VERSION = "1.0";
+export const VERSION = "2.0";
 
 // les tailles pour les icones 
 export const SIZE_ICON_BIG = 200;

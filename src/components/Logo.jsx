@@ -1,7 +1,9 @@
-import Logo from "/logo.webp";
+import React from 'react'
 
-export default function LogoComponent({size}) {
-    return (
-        <img src={Logo} alt="Logo Edunote by Durinfo" className={`${size == "sm" ? "w-10 h-10" : "w-16 h-16"}`} />
-    );
+function Logo(props) {
+  return (
+    <img src="/logo.webp" alt="" {...props} />
+  )
 }
+
+export default Logo

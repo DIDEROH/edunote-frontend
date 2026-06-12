@@ -1,0 +1,26 @@
+.loader-dots .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  opacity: 0.2;
+  animation: fadeDots 1s infinite;
+}
+
+.loader-dots .dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.loader-dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.loader-dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes fadeDots {
+  0%, 80%, 100% {
+    opacity: 0.2;
+  }
+  40% {
+    opacity: 1;
+  }
+}
