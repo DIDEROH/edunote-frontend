@@ -1,7 +1,7 @@
 import './App.css'
 import AxiosProvider from './providers/AxiosProvider'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Layout from './components/Layout'
+import Layout from './components/elements/Layout'
 import PrivateRoute from './routes/PrivateRoutes'
 import GuestRoute from './components/GuestRoute'
 import { useHasRole } from './hooks/UseHasRole'
@@ -13,12 +13,12 @@ import NotFound from './pages/Others/NotFound'
 import Login from './pages/Login'
 import Register from './pages/Register'
 
-import Dashboard from './pages/Admin/Dashboard'
-import Effectifs from './pages/Admin/Effectifs'
-import Personnel from './pages/Admin/Personnel'
-import SkillsConfig from './pages/Admin/SkillsConfig'
-import SuccessRates from './pages/Admin/SuccessRates'
-import TermLockConfig from './pages/Admin/TermLockConfig'
+import Dashboard from './pages/Dashboard'
+import Effectifs from './pages/Effectifs'
+import Personnel from './pages/Personnel'
+import SkillsConfig from './pages/SkillsConfig'
+import SuccessRates from './pages/SuccessRates'
+import TermLockConfig from './pages/TermLockConfig'
 
 import DirectorAssignment from './pages/Directors/DirectorAssignment'
 import DirectorClassroomReports from './pages/Directors/DirectorClassroomReports'
@@ -67,9 +67,9 @@ function App() {
           <Routes>
             <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
             <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
-            <Route path="/" element={<Navigate to="/edunote" replace />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
 
-            <Route path="/edunote" element={<PrivateRoute><Layout /></PrivateRoute>}>
+            <Route path="/home" element={<PrivateRoute><Layout /></PrivateRoute>}>
               {isAdmin && <Route index element={<SuccessRates />} />}
               {isTeacher && <Route index element={<SkillMarkHub />} />}
               {isDirector && <Route index element={<DirectorStudentList />} />}

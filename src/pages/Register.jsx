@@ -4,8 +4,9 @@ import { toast } from "sonner";
 import { FiUserPlus, FiUser, FiLock, FiMail } from "react-icons/fi";
 import { api } from "../utils/AxiosClient";
 import AuthCard from "../components/ui/AuthCard";
-import Button from "../components/ui/Button";
 import TextInput from "../components/ui/TextInput";
+import { CtaNeon } from "../components/ui/ButtonsComponents";
+import { useAuth } from "../context/AuthContext";
 
 function Register() {
   const navigate = useNavigate();
@@ -15,22 +16,23 @@ function Register() {
     watch,
     formState: { errors, isSubmitting },
   } = useForm({ mode: "onTouched" });
-
+  const { login } = useAuth();
   const password = watch("password", "");
 
-  const onSubmit = async ({ name, email, password, confirmPassword }) => {
+  const onSubmit = async ({ firstName, lastName, email, password, confirmPassword }) => {
     try {
-      const response = await api.postNoAuth("/register", {
-        name,
+      const response = await ap
+      i.postNoAuth("/register", {
+        firstName,
+        lastName,
         email,
         password,
         password_confirmation: confirmPassword,
       });
 
-      const { token, roles } = response.data || {};
+      const { token, user } = response.data || {};
       if (token) {
-        localStorage.setItem("user_token_edunote", token);
-        localStorage.setItem("edunote_roles", JSON.stringify(roles || ["Admin"]));
+        login(token, user);
         toast.success("Inscription réussie");
         navigate("/home", { replace: true });
       } else {
@@ -58,14 +60,25 @@ function Register() {
       }
     >
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+
         <TextInput
-          id="name"
-          label="Nom complet"
+          id="firstName"
+          label="Nom de famille"
           type="text"
-          placeholder="Votre nom"
+          placeholder="Votre nom de famille"
           icon={FiUser}
-          error={errors.name}
-          {...register("name", { required: "Le nom est requis." })}
+          error={errors.firstName}
+          {...register("firstName", { required: "Le nom de famille est requis." })}
+        />
+
+        <TextInput
+          id="lastName"
+          label="Prénom"
+          type="text"
+          placeholder="Votre prénom"
+          icon={FiUser}
+          error={errors.lastName}
+          {...register("lastName", { required: "Le prénom est requis." })}
         />
 
         <TextInput
@@ -113,9 +126,9 @@ function Register() {
           })}
         />
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
+        <CtaNeon type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? "Création en cours..." : "S'inscrire"}
-        </Button>
+        </CtaNeon>
       </form>
     </AuthCard>
   );

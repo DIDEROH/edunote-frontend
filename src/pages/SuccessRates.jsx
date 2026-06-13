@@ -4,11 +4,11 @@ import {
     FilterX, ArrowDownCircle, ArrowUpCircle, Users2, 
     UserCheck2, UserX2
 } from "lucide-react";
-import axiosClient from "../../utils/AxiosClient";
-import Navbar from "../../components/Navbar";
-import TitleComponent from "../../components/TitleComponent";
-import LoadingSkeletoon from "../../components/LoadingSkeletoon";
-import BackComponent from "../../components/BackComponent";
+import axiosClient from "../utils/AxiosClient";
+import Navbar from "../components/Navbar";
+import TitleComponent from "../components/TitleComponent";
+import LoadingSkeletoon from "../components/LoadingSkeletoon";
+import BackComponent from "../components/BackComponent";
 
 function SuccessRates() {
     const [stats, setStats] = useState(null);

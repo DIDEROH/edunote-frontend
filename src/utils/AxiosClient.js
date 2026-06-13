@@ -150,25 +150,25 @@ axiosClient.interceptors.response.use(
       } else {
         window.location.href = "/login";
       }
-      return Promise.reject(new Error("Session expired. Please login again."));
+      return Promise.reject(new Error("Session expirée. Veuillez vous reconnecter."));
     }
 
     if (response?.status === 403) {
       console.warn("[AxiosClient] Access forbidden:", error);
-      return Promise.reject(new Error("You don't have permission to access this resource."));
+      return Promise.reject(new Error("Vous n'avez pas la permission d'accéder à cette ressource."));
     }
 
     if (response?.status === 500) {
       console.error("[AxiosClient] Server error:", error);
-      return Promise.reject(new Error("Server error. Please try again later."));
+      return Promise.reject(new Error("Erreur du serveur. Veuillez réessayer plus tard."));
     }
 
     if (error.code === "ECONNABORTED") {
-      return Promise.reject(new Error("Request timeout. Please check your connection."));
+      return Promise.reject(new Error("Délai d'attente dépassé. Veuillez vérifier votre connexion."));
     }
 
     if (error.message === "Network Error") {
-      return Promise.reject(new Error("Network error. Please check your internet connection."));
+      return Promise.reject(new Error("Erreur de réseau. Veuillez vérifier votre connexion internet."));
     }
 
     return Promise.reject(error);

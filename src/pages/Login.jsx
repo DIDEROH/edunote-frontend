@@ -4,8 +4,9 @@ import { toast } from "sonner";
 import { FiLogIn, FiUser, FiLock } from "react-icons/fi";
 import { api } from "../utils/AxiosClient";
 import AuthCard from "../components/ui/AuthCard";
-import Button from "../components/ui/Button";
 import TextInput from "../components/ui/TextInput";
+import { CtaNeon } from "../components/ui/ButtonsComponents";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const navigate = useNavigate();
@@ -15,27 +16,37 @@ function Login() {
     formState: { errors, isSubmitting },
   } = useForm({ mode: "onTouched" });
 
+  const { login } = useAuth();
+
   const onSubmit = async ({ email, password }) => {
     try {
-      const response = await api.postNoAuth("/login", {
-        email,
-        password,
-      });
+      const response = await api.postNoAuth("/login", { email, password });
 
-      const { token } = response.data || {};
+      // 1. On vérifie d'abord si le backend a renvoyé un message d'erreur personnalisé
+      if (response.data?.message) {
+        toast.error(response.data.message);
+        return; // On arrête l'exécution ici
+      }
+
+      // 2. Si pas d'erreur, on cherche le token
+      const { token, user } = response.data || {};
       if (token) {
-        localStorage.setItem("user_token_edunote", token);
+        // Utiliser le contexte d'auth pour synchroniser l'app entière
+        login(token, user);
         toast.success("Connexion réussie");
         navigate("/home", { replace: true });
       } else {
         toast.error("Identifiants invalides, veuillez réessayer.");
       }
     } catch (error) {
+      console.error("Erreur lors de la connexion:", error);
+      // Ce bloc ne gérera plus que les pannes réseau ou les erreurs 500
       toast.error(
-        error?.response?.data?.message || "Impossible de se connecter. Vérifiez votre connexion."
+        error?.message || "Impossible de se connecter. Veuillez réessayer."
       );
     }
   };
+
 
   return (
     <AuthCard
@@ -80,9 +91,9 @@ function Login() {
           })}
         />
 
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? "Connexion..." : "Se connecter"}
-        </Button>
+        <CtaNeon type="submit" disabled={isSubmitting} className="w-full">
+          {isSubmitting ? <span>Connexion... <span className="loading"></span></span> : <span>Se connecter</span>}
+        </CtaNeon>
       </form>
     </AuthCard>
   );

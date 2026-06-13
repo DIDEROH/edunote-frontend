@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Lock, Unlock, ShieldAlert, School, Calendar, Layers, RefreshCw, ShieldCheck } from "lucide-react";
-import axiosClient from "../../utils/AxiosClient";
+import axiosClient from "../utils/AxiosClient";
 import { toast } from "react-toastify";
-import Navbar from "../../components/Navbar";
-import TitleComponent from "../../components/TitleComponent";
-import Loading from "../../components/Loading";
-import BackComponent from "../../components/BackComponent";
-import { useHasRole } from "../../hooks/UseHasRole";
+import Navbar from "../components/Navbar";
+import TitleComponent from "../components/TitleComponent";
+import Loading from "../components/Loading";
+import BackComponent from "../components/BackComponent";
+import { useHasRole } from "../hooks/UseHasRole";
 
 function TermLockConfig() {
     const isAdmin = useHasRole('Admin');

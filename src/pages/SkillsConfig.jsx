@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { BookOpen, GraduationCap, Plus, Save, Trash2, GripVertical, Award, Star } from "lucide-react";
-import axiosClient from "../../utils/AxiosClient";
+import axiosClient from "../utils/AxiosClient";
 import { toast } from "react-toastify";
-import Navbar from "../../components/Navbar";
-import TitleComponent from "../../components/TitleComponent";
-import Loading from "../../components/Loading";
+import Navbar from "../components/Navbar";
+import TitleComponent from "../components/TitleComponent";
+import Loading from "../components/Loading";
 
 function SkillsConfig() {
     const [subjects, setSubjects] = useState([]);

@@ -5,12 +5,12 @@ import {
     TrendingUp, Activity, Lock, Unlock, Globe
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import axiosClient from "../../utils/AxiosClient";
-import Navbar from "../../components/Navbar";
-import TitleComponent from "../../components/TitleComponent";
-import Loading from "../../components/Loading";
-import LoadingSkeletoon from "../../components/LoadingSkeletoon";
-import BackComponent from "../../components/BackComponent";
+import axiosClient from "../utils/AxiosClient";
+import Navbar from "../components/Navbar";
+import TitleComponent from "../components/TitleComponent";
+import Loading from "../components/Loading";
+import LoadingSkeletoon from "../components/LoadingSkeletoon";
+import BackComponent from "../components/BackComponent";
 
 function Effectifs() {
     const [stats, setStats] = useState(null);
