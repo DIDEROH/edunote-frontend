@@ -5,7 +5,6 @@ import Layout from './components/elements/Layout'
 import PrivateRoute from './routes/PrivateRoutes'
 import GuestRoute from './components/GuestRoute'
 import { useHasRole } from './hooks/UseHasRole'
-import { ConfirmProvider } from './providers/ConfirmProvider'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -62,7 +61,6 @@ function App() {
   return (
     <BrowserRouter>
       <AxiosProvider>
-        <ConfirmProvider>
           <ToastContainer position="bottom-center" autoClose={3000} />
           <Routes>
             <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
@@ -114,7 +112,6 @@ function App() {
 
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </ConfirmProvider>
       </AxiosProvider>
     </BrowserRouter>
   )

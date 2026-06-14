@@ -32,8 +32,8 @@ function Lnk(props) {
         target={props.target || "_self"}
         rel="noopener noreferrer"
         onClick={() => handleClick(props.onAction)}
-        className={`${props.abs ? " after:absolute after:inset-0 " : ""}  ${props.hoverColor ? `hover:text-${props.hoverColor}` : ""} ${props.color ? `text-${props.color}` : ""} ${props.className}`}>
-            {props.text}
+        className={`${props.abs ? " after:absolute after:inset-0 " : ""}  ${props.hoverColor ? `hover:${props.hoverColor}` : ""} ${props.color ? `${props.color}` : ""} ${props.className}`}>
+            {props.children}
             {Icon && <Icon className={props.classIcon} size={16} />}
         </Link>
     )

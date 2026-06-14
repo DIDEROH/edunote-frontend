@@ -1,5 +1,5 @@
 // src/useShowConfirm.js
-import { useConfirm } from "./ConfirmProvider";
+import { useConfirm } from "../providers/ConfirmProvider";
 
 export default function useShowConfirm() {
   const confirm = useConfirm();

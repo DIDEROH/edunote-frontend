@@ -21,8 +21,7 @@ function Register() {
 
   const onSubmit = async ({ firstName, lastName, email, password, confirmPassword }) => {
     try {
-      const response = await ap
-      i.postNoAuth("/register", {
+      const response = await api.postNoAuth("/register", {
         firstName,
         lastName,
         email,
