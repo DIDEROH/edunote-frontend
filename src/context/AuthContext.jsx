@@ -5,36 +5,41 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [roles, setRoles] = useState([]);
-  const [userName, setUserName] = useState(null);
-  const [userEmail, setUserEmail] = useState(null);
-  const [loading, setLoading] = useState(true); // 👈 important
+  
+  // Initialisation réactive depuis le localStorage
+  const [roles, setRoles] = useState(() => {
+    const saved = localStorage.getItem("user_role_edunote");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [userName, setUserName] = useState(() => localStorage.getItem("user_name_edunote") || null);
+  const [userEmail, setUserEmail] = useState(() => localStorage.getItem("user_email_edunote") || null);
+  const [loading, setLoading] = useState(true);
 
   // 🔓 Connexion
   const login = (token, userData) => {
+    // 🟢 Extraction basée UNIQUEMENT sur .name mis en minuscules
+    const userRoles = Array.isArray(userData.roles)
+      ? userData.roles.map((r) => (typeof r === 'string' ? r.toLowerCase() : (r.name ? r.name.toLowerCase() : '')))
+      : [];
+
     localStorage.setItem("user_token_edunote", token);
-    localStorage.setItem(
-      "user_role_edunote", JSON.stringify(userData.roles || [])
-    );
-    localStorage.setItem("user_name_edunote", userData.name || ""); // 👈 stocker le nom de l'utilisateur
-    localStorage.setItem("user_email_edunote", userData.email || ""); // 👈 stocker l'email de l'utilisateur
+    localStorage.setItem("user_role_edunote", JSON.stringify(userRoles));
+    localStorage.setItem("user_name_edunote", userData.name || "");
+    localStorage.setItem("user_email_edunote", userData.email || "");
 
     setUser(userData);
-    setRoles(userData.roles || []);
-    setUserName(userData.name || ""); // 👈 mettre à jour le nom dans le state
-    setUserEmail(userData.email || ""); // 👈 mettre à jour l'email dans le state
+    setRoles(userRoles);
+    setUserName(userData.name || "");
+    setUserEmail(userData.email || "");
   };
 
   // 🔒 Déconnexion
-  // 🔒 Déconnexion complète (Front + Back)
   const logout = async () => {
     try {
-      // On tente d'avertir le serveur pour supprimer le token en BDD
       await axiosClient.post("/logout"); 
     } catch (error) {
       console.error("Erreur lors de la déconnexion serveur", error);
     } finally {
-      // Dans tous les cas, on nettoie le navigateur
       localStorage.removeItem("user_token_edunote");
       localStorage.removeItem("user_role_edunote");
       localStorage.removeItem("user_name_edunote"); 
@@ -55,21 +60,26 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    axiosClient.get("/user")
+    // 🔴 On cible la route /me gérée par votre AuthController
+    axiosClient.get("/me") 
       .then(({ data }) => {
         setUser(data.user);
+        setUserName(data.user.name || "");
+        setUserEmail(data.user.email || "");
 
+        // 🟢 Extraction basée UNIQUEMENT sur .name mis en minuscules (évite le [""])
         const userRoles = Array.isArray(data.user.roles)
-          ? data.user.roles.map((role) => (typeof role === 'string' ? role : role.name || ''))
+          ? data.user.roles.map((r) => (typeof r === 'string' ? r.toLowerCase() : (r.name ? r.name.toLowerCase() : '')))
           : [];
 
         setRoles(userRoles);
 
-        // sync localStorage (sécurité)
+        localStorage.setItem("user_name_edunote", data.user.name || "");
+        localStorage.setItem("user_email_edunote", data.user.email || "");
         localStorage.setItem("user_role_edunote", JSON.stringify(userRoles));
       })
       .catch(() => {
-        logout(); // token invalide
+        logout(); 
       })
       .finally(() => {
         setLoading(false);
@@ -85,9 +95,11 @@ export const AuthProvider = ({ children }) => {
         userName,
         userEmail,
         loading,
-        login,
+        login,  
         logout,
         isAuthenticated: !!user,
+        // On vérifie en minuscules pour correspondre au stockage
+        hasRole: (roleName) => roles.includes(roleName.toLowerCase()), 
       }}
     >
       {children}
