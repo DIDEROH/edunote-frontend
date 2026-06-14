@@ -34,7 +34,7 @@ function Login() {
         // Utiliser le contexte d'auth pour synchroniser l'app entière
         login(token, user);
         toast.success("Connexion réussie");
-        navigate("/home", { replace: true });
+        navigate("/", { replace: true });
       } else {
         toast.error("Identifiants invalides, veuillez réessayer.");
       }

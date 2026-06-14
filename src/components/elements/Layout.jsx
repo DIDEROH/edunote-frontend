@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { Menu, X, Search, User2, Pencil } from 'lucide-react';
+import { Outlet, useLocation } from 'react-router-dom'; // 👈 Ajout de useNavigate pour le bouton retour
+import { Menu, X, Search, User2, Pencil, Plus, Filter, Printer, ArrowLeft } from 'lucide-react'; // 👈 Import des 4 icônes demandées
 import { FiLogOut, FiInfo } from 'react-icons/fi';
 import { LuBookMarked, LuBookOpen, LuCalendarRange, LuFileText, LuLayoutDashboard, LuPresentation, LuSettings, LuShieldCheck, LuUsers } from 'react-icons/lu';
 import { TbSchool } from 'react-icons/tb';
@@ -19,11 +19,12 @@ export default function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const mainRef = useRef(null);
   const location = useLocation();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const searchInputRef = useRef(null);
 
   // Gestion de l'affichage des details
   const [showDetails, setShowDetails] = useState(false);
+
+  // 🟢 Gestion des actions dynamiques de la Navbar partagées avec l'Outlet
+  const [navbarActions, setNavbarActions] = useState({});
   
 
   // Gestion de la carte utilisateur
@@ -33,9 +34,6 @@ export default function Layout() {
     setUserCard(prev => !prev);
   }
 
-  const toggleSearch = () => {
-    setIsSearchOpen(prev => !prev);
-  }
   const pages = useNavigationPages();
 
   // Gestion de la deconnexion
@@ -180,25 +178,41 @@ export default function Layout() {
                 <Menu size={20} className="group-hover:rotate-12 transition-transform" />
               </button>
 
-
-              {/* BARRE DE RECHERCHE POUR UNE UTILISATION ULTERIEURE */}
-              <div className={`relative transition-all duration-500 ease-out flex items-center ${isSearchOpen ? 'flex-1 mx-4' : 'w-10'}`}>
-                <button onClick={toggleSearch} className="p-2 hover:bg-base-content/10 rounded-full z-10 transition-colors cursor-pointer">
-                  {isSearchOpen ? <X size={20} /> : <Search size={20} />}
-                </button>
-                <input 
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Rechercher..."
-                  className={`absolute left-0 pl-12 pr-6 py-2 bg-base-200 border border-base-content/10 rounded-full outline-none focus:border-primary/50 transition-all duration-500 ${isSearchOpen ? 'w-full opacity-100' : 'w-0 opacity-0 pointer-events-none'}`}
-                />
-              </div>
             </div>
+
+            {/* 🟢 BLOC DES QUATRE ICÔNES DYNAMIQUES DEMANDÉES (S'affichent uniquement si la page active les définit) */}
+              <div className="flex items-center gap-1.5 mr-2">
+                {navbarActions.onSearch && (
+                  <button onClick={() => navbarActions.onSearch()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Rechercher">
+                    <Search size={17} />
+                  </button>
+                )}
+                {navbarActions.onAdd && (
+                  <button onClick={() => navbarActions.onAdd()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Ajouter">
+                    <Plus size={17} />
+                  </button>
+                )}
+                {navbarActions.onFilter && (
+                  <button onClick={() => navbarActions.onFilter()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Filtrer">
+                    <Filter size={17} />
+                  </button>
+                )}
+                {navbarActions.onPrint && (
+                  <button onClick={() => navbarActions.onPrint()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Imprimer">
+                    <Printer size={17} />
+                  </button>
+                )}
+                {navbarActions.onBack && (
+                  <button onClick={() => navbarActions.onBack()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Retour">
+                    <ArrowLeft size={17} />
+                  </button>
+                )}
+              </div>
 
             {/* Cadre de l'ivone de l'utilisateur  */}
             <div>
               <button className='btn btn-circle btn-ghost' onClick={handleShowUserCard}>
-                <User2 size={20} />
+                <User2 size={17} />
               </button>
             </div>
             
@@ -207,7 +221,9 @@ export default function Layout() {
         </header>
         
         {/* Zonne d'aafichage de mes pages */}
-        <Outlet />
+        <div className="p-4 md:p-6 lg:p-8">
+          <Outlet context={{ setNavbarActions }} />
+        </div>
         
       </main>
 

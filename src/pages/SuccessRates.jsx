@@ -1,16 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { 
-    TrendingUp, Award, School, Layers, Search, Activity,
-    FilterX, ArrowDownCircle, ArrowUpCircle, Users2, 
-    UserCheck2, UserX2
+    TrendingUp, Layers, Search,
 } from "lucide-react";
 import axiosClient from "../utils/AxiosClient";
-import Navbar from "../components/Navbar";
 import TitleComponent from "../components/TitleComponent";
 import LoadingSkeletoon from "../components/LoadingSkeletoon";
-import BackComponent from "../components/BackComponent";
 
 function SuccessRates() {
+    const { setNavbarActions } = useOutletContext();
+    const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(false);
     const [years, setYears] = useState([]);
@@ -19,8 +18,8 @@ function SuccessRates() {
     const [expandedSchool, setExpandedSchool] = useState(null);
     const [filters, setFilters] = useState({ year_id: "", term_id: "", school_id: "" });
 
-    useEffect(() => { fetchInitialData(); }, []);
 
+    
     const fetchInitialData = async () => {
         try {
             const [yRes, tRes] = await Promise.all([
@@ -32,6 +31,7 @@ function SuccessRates() {
         } catch (error) { console.error("Erreur filtres", error); }
     };
 
+    
     const fetchPerformance = async () => {
         if (!filters.year_id || !filters.term_id) return;
         setLoading(true);
@@ -41,6 +41,22 @@ function SuccessRates() {
         } catch (error) { console.error("Erreur stats", error); }
         finally { setLoading(false); }
     };
+
+    useEffect(() => {
+        fetchInitialData();
+
+
+            // Configuration des actions de la Navbar pour cette page
+        setNavbarActions({
+            // Exemple d'action partagée : un bouton de retour
+            onBack: () => navigate(-1), // Permet de revenir à la page précédente
+            onPrint: () => window.print(), // Permet d'imprimer la page
+            onFilter: () => alert("Ouvrir les filtres avancés (à implémenter)"), // Placeholder pour les filtres avancés
+            onSearch: () => alert("recherche active") // Focalise sur la barre de recherche
+        });
+        return () => setNavbarActions({}); // Nettoie les actions à la sortie de la page
+    }, [setNavbarActions]);
+
 
     const filteredDetails = useMemo(() => {
         if (!stats?.details) return [];
@@ -60,27 +76,6 @@ function SuccessRates() {
 
     return (
         <main className="min-h-screen bg-slate-50/50 pb-20 font-sans">
-            <Navbar>
-                <Navbar.Left><TitleComponent>Analyse de Réussite</TitleComponent></Navbar.Left>
-                <Navbar.Right>
-                    <div className="flex items-center gap-3">
-                        <select className="bg-white border-none rounded-xl px-4 py-2 text-[10px] font-black uppercase shadow-sm cursor-pointer" 
-                            value={filters.year_id} onChange={(e) => setFilters({...filters, year_id: e.target.value})}>
-                            <option value="">Année...</option>
-                            {years.map(y => <option key={y.id} value={y.id}>{y.name}</option>)}
-                        </select>
-                        <select className="bg-white border-none rounded-xl px-4 py-2 text-[10px] font-black uppercase shadow-sm cursor-pointer"
-                            value={filters.term_id} onChange={(e) => setFilters({...filters, term_id: e.target.value})}>
-                            <option value="">Trimestre...</option>
-                            {terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                        </select>
-                        <button onClick={fetchPerformance} className="p-2.5 bg-indigo-600 text-white rounded-xl shadow-lg hover:bg-indigo-700 transition-all">
-                            <Search size={18} strokeWidth={3} />
-                        </button>
-                    </div>
-                    <BackComponent />
-                </Navbar.Right>
-            </Navbar>
 
             <div className="max-w-7xl mx-auto p-4 md:p-8">
                 {loading ? <LoadingSkeletoon /> : !stats ? (

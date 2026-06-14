@@ -1,9 +1,8 @@
 import './App.css'
 import AxiosProvider from './providers/AxiosProvider'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import PrivateRoute from './routes/PrivateRoutes'
 import GuestRoute from './components/GuestRoute'
-import { useHasRole } from './hooks/UseHasRole'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -11,11 +10,10 @@ import Layout from './components/elements/Layout'
 import NotFound from './pages/Others/NotFound'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import DashboardHome from './components/elements/DashboardHome'
+import Others from './pages/Others'
 
 function App() {
-  const isAdmin = useHasRole('Admin')
-  const isTeacher = useHasRole('Teacher')
-  const isDirector = useHasRole('Director')
 
   return (
     <BrowserRouter>
@@ -26,11 +24,14 @@ function App() {
             <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
 
             <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-              {/* {isAdmin && <Route index element={<SuccessRates />} />}
-              {isTeacher && <Route index element={<SkillMarkHub />} />}
-              {isDirector && <Route index element={<DirectorStudentList />} />} */}
+              {/* On affiche un composant d'accueil unique */}
+              <Route index element={<DashboardHome />} />
+              <Route path="home" element={<DashboardHome />} />
 
+
+              <Route path="others" element={<Others />} />
             </Route>
+
 
             <Route path="*" element={<NotFound />} />
           </Routes>

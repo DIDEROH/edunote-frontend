@@ -33,7 +33,7 @@ function Register() {
       if (token) {
         login(token, user);
         toast.success("Inscription réussie");
-        navigate("/home", { replace: true });
+        navigate("/", { replace: true });
       } else {
         toast.error("Impossible de s'inscrire pour le moment.");
       }
