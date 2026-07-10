@@ -17,18 +17,22 @@ export const useNavigationPages = () => {
 
 
     // Base des pages visibles par tout le monde connecté
-    const pages = [
-        { name: 'Tableau de bord', to: '/home', icon: 'Dashboard' },
-        { name: 'Pédagogie', to: '/pedagogie', icon: 'Pedagogie' }
-    ]; 
+    const pages = []; 
     
     // Les access des admins et directeurs
-    if (isAdmin || isDirector) {
+    if (isDirector || isAdmin) {
         pages.push(
-            { name: 'Enseignants', to: '/teachers', icon: 'Teachers' },
+            { name: 'Tableau de bord', to: '/home', icon: 'Dashboard' }
         )
     }
-
+    
+    // Les access des admins et directeurs
+    if (isDirector) {
+        pages.push(
+            { name: 'Affectations enseignants', to: '/director/teachers', icon: 'Teachers' },
+        )
+    }
+    
     // Les access des admins, directeurs et moderateurs
     if (isAdmin || isModerator || isDirector) {
         pages.push(
@@ -36,31 +40,33 @@ export const useNavigationPages = () => {
             { name: 'Bulletins', to: '/report-card', icon: 'ReportCard' },
         )
     }
-
+    
     if (isAdmin) {
         pages.push(
             { name: 'Écoles', to: '/schools', icon: 'Schools' },
             { name: 'Classes', to: '/classrooms', icon: 'Classrooms' },
-            { name: 'Roles', to: '/roles', icon: 'Roles' }
+            { name: 'Matières et Compétences', to: '/pedagogie', icon: 'Subjects' }
         );
     }
 
     if (isTeacher) {
         pages.push(
-            { name: 'Saisie des notes', to: '/marks/entry', icon: 'Settings' },
-            { name: 'Hub des notes', to: '/marks/hub', icon: 'Bulletins' }
+            { name: 'Hub des notes', to: '/marks/hub', icon: 'HubMark' },
+            { name: 'Saisie des notes', to: '/marks/entry', icon: 'MarkEntry' }
         );
     }
 
-    if (isDirector || isAdmin) {
+    
+    if (isDirector) {
         pages.push(
             { name: 'Vérouillage des trimestres', to: '/term', icon: 'Terms' }
         );
     }
-
-    pages.push(
-        {name: 'Autres', to: '/others', icon: 'Others'}
-    )
+    if (isAdmin) {
+        pages.push(
+            {name: 'Autres', to: '/others', icon: 'Others'}
+        )
+    }
 
     return pages;
 };

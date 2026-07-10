@@ -1,7 +1,6 @@
 import { useAuth } from "../../context/AuthContext";
 import SuccessRates from "../../pages/SuccessRates";
-// import SkillMarkHub from "./SkillMarkHub";
-// import DirectorStudentList from "./DirectorStudentList";
+import TeacherMarkHub from "../../pages/Teachers/TeacherMarkHub";
 
 const DashboardHome = () => {
   const { hasRole, loading } = useAuth();
@@ -12,9 +11,10 @@ const DashboardHome = () => {
   }
 
   if (hasRole("admin")) return <SuccessRates />;
-//   if (hasRole("teacher")) return <SkillMarkHub />;
-//   if (hasRole("director")) return <DirectorStudentList />;
-
+    if (hasRole("teacher")) return <TeacherMarkHub />;
+    if (hasRole("user")) return <SuccessRates />;
+    
+  //   if (hasRole("director")) return <DirectorStudentList />;
   return <div>Accès non autorisé ou aucun rôle défini.</div>;
 };
 

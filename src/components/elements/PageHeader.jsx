@@ -13,7 +13,7 @@ export default function PageHeader({
     useAnimations(containerRef);
 
   return (
-    <header ref={containerRef} className="relative overflow-hidden rounded-xl w-full min-h-[130px] bg-gradient-to-r from-blue-800 via-blue-700 to-violet-800 p-6 md:p-8 shadow-xl">
+    <header ref={containerRef} className="relative overflow-hidden rounded-xl w-full min-h-[130px] bg-gradient-to-r from-blue-800 via-blue-700 to-violet-800 p-6 md:p-8 shadow-xl mb-4">
       
       {/* Décorations */}
       <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-white/10 blur-3xl" />

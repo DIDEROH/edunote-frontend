@@ -179,7 +179,7 @@ function DirectorStudentList() {
                             <DropdownComponent>
                             <DropdownComponent.Icon><EllipsisVerticalIcon className="w-5 h-5 text-slate-400" /></DropdownComponent.Icon>
                             <DropdownComponent.Items>
-                                <li><NavLink to={`/edunote/student-informations/${s.id}`}><InformationCircleIcon className="w-4 h-4" /> Détails</NavLink></li>
+                                <li><NavLink to={`/students/${s.id}`}><InformationCircleIcon className="w-4 h-4" /> Détails</NavLink></li>
                                 <li><button onClick={() => { setSelectedStudentId(s.id); setIsOpenModal(true); }} className="flex items-center gap-2 text-indigo-600 font-bold"><ArrowPathIcon className="w-4 h-4" /> Réinscrire</button></li>
                                 {s.contact && <li><a href={`tel:${s.contact}`}><PhoneIcon className="w-4 h-4" /> Appeler parent</a></li>}
                                 <div className="border-t border-slate-50 my-1"></div>

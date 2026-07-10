@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BookOpen, Hash, Layers, Save, Type, User } from "lucide-react";
 import axiosClient from "../../utils/AxiosClient";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import BackComponent from "../../components/BackComponent";
 import Navbar from "../../components/Navbar";
 import TitleComponent from "../../components/TitleComponent";

@@ -1,8 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom'; // 👈 Ajout de useNavigate pour le bouton retour
-import { Menu, X, Search, User2, Pencil, Plus, Filter, Printer, ArrowLeft } from 'lucide-react'; // 👈 Import des 4 icônes demandées
+import { Menu, X, Search, User2, Pencil, Plus, Filter, Printer, ArrowLeft, Trash2 } from 'lucide-react';
 import { FiLogOut, FiInfo } from 'react-icons/fi';
-import { LuBookMarked, LuBookOpen, LuCalendarRange, LuFileText, LuLayoutDashboard, LuPresentation, LuSettings, LuShieldCheck, LuUsers } from 'react-icons/lu';
+import { LuBookMarked, LuCalendarRange, LuChartColumnIncreasing, LuClipboardPen, LuFileText, LuLayoutDashboard, LuPresentation, LuSettings, LuUserRound, LuUsers } from 'react-icons/lu';
 import { TbSchool } from 'react-icons/tb';
 import { PiStudent } from 'react-icons/pi';
 import Logo from './Logo';
@@ -11,7 +11,7 @@ import { Appname, SIZE_ICON, VERSION } from '../../constants/constants';
 import  { useNavigationPages } from '../../constants/pages';
 import { useAuth } from '../../context/AuthContext';
 import useShowConfirm from '../../hooks/UseShowConfirm';
-import { LinkGhost } from '../LinksComponents';
+import { LinkGhost } from '../ui/LinksComponents';
 
 
 
@@ -72,13 +72,14 @@ export default function Layout() {
     Students: <PiStudent size={SIZE_ICON} />,
     ReportCard: <LuFileText size={SIZE_ICON} />,
     Teachers: <LuPresentation size={SIZE_ICON} />,
-    Roles: <LuShieldCheck size={SIZE_ICON} />,
     Terms: <LuCalendarRange size={SIZE_ICON} />,
-    Pedagogie: <LuBookOpen size={SIZE_ICON} />,
     Schools: <TbSchool size={SIZE_ICON} />,
     Classrooms: <LuUsers size={SIZE_ICON} />,
     Subjects: <LuBookMarked size={SIZE_ICON} />,
-    Others: <LuSettings size={SIZE_ICON} />
+    Others: <LuSettings size={SIZE_ICON} />,
+    Personnel: <LuUserRound size={SIZE_ICON} />,
+    MarkEntry: <LuClipboardPen size={SIZE_ICON} />,
+    HubMark: <LuChartColumnIncreasing size={SIZE_ICON} />
   };
 
   return (
@@ -185,6 +186,16 @@ export default function Layout() {
                 {navbarActions.onSearch && (
                   <button onClick={() => navbarActions.onSearch()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Rechercher">
                     <Search size={17} />
+                  </button>
+                )}
+                {navbarActions.onDelete && (
+                  <button onClick={() => navbarActions.onDelete()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Supprimer">
+                    <Trash2 size={17} />
+                  </button>
+                )}
+                {navbarActions.onEdit && (
+                  <button onClick={() => navbarActions.onEdit()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Modifier">
+                    <Pencil size={17} />
                   </button>
                 )}
                 {navbarActions.onAdd && (

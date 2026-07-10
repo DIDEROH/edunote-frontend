@@ -144,23 +144,32 @@ axiosClient.interceptors.response.use(
 
     // ✅ Gestion centralisée des erreurs
     if (response?.status === 401) {
+      const serverMessage = response.data?.message || "Session expirée. Veuillez vous reconnecter.";
       clearAuthToken();
       if (logoutCallback) {
         logoutCallback();
       } else {
         window.location.href = "/login";
       }
-      return Promise.reject(new Error("Session expirée. Veuillez vous reconnecter."));
+      return Promise.reject(new Error(serverMessage));
     }
 
     if (response?.status === 403) {
+      const serverMessage = response.data?.message || "Vous n'avez pas la permission d'accéder à cette ressource.";
       console.warn("[AxiosClient] Access forbidden:", error);
-      return Promise.reject(new Error("Vous n'avez pas la permission d'accéder à cette ressource."));
+      return Promise.reject(new Error(serverMessage));
+    }
+
+    if (response?.status === 405) {
+      const serverMessage = response.data?.message || "Cette methode n'est pas autorisée.";
+      console.warn("[AxiosClient] Method not Allowed:", error);
+      return Promise.reject(new Error(serverMessage));
     }
 
     if (response?.status === 500) {
+      const serverMessage = response.data?.message || "Erreur du serveur. Veuillez réessayer plus tard.";
       console.error("[AxiosClient] Server error:", error);
-      return Promise.reject(new Error("Erreur du serveur. Veuillez réessayer plus tard."));
+      return Promise.reject(new Error(serverMessage));
     }
 
     if (error.code === "ECONNABORTED") {

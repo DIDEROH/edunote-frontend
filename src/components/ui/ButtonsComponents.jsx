@@ -1,3 +1,4 @@
+import { LuEllipsisVertical, LuPencil, LuTrash2, LuX } from 'react-icons/lu';
 import handleClick from '../../utils/verifFunction';
 
 
@@ -74,6 +75,65 @@ function CtaGradient(props) {
     )
 }
 
+function DeleteBtn(props) {
+    return (
+        <div className="tooltip tooltip-top" data-tip="Supprimer">
+            <button className={`btn font-bold text-red-500 btn-ghost ${!props.text ? 'btn-circle' : ''}`} onClick={() => { handleClick(props.onAction) }}>
+                <LuTrash2 size={15} /> {props.text && (props.text || "Supprimer")}
+            </button>
+        </div>
+    )
+}
+
+function EditBtn(props) {
+    return(
+        <div className="tooltip tooltip-top" data-tip="Modifier">
+            <button className={`btn btn-ghost text-blue-500 ${!props.text ? 'btn-circle' : ''}`} onClick={() => { handleClick(props.onAction) }}>
+                <LuPencil size={15} /> {props.text && "Modifier"}
+            </button>
+        </div>
+    )
+}
+
+function InfoBtn(props) {
+    return (
+        <div className="tooltip tooltip-top" data-tip="Informations">
+        <button 
+            className="btn btn-circle btn-ghost text-slate-750"
+            onClick={() => { handleClick(props.onAction) }}
+        >
+            <LuEllipsisVertical className="w-5 h-5" /> {props.text && "Info"}
+        </button>
+        </div>
+    )
+}
+
+function CloseBtn(props) {
+    return (
+        <div className="tooltip tooltip-top text-slate-950" data-tip="Fermer">
+            <button 
+                className="btn btn-circle btn-ghost"
+                onClick={() => { handleClick(props.onAction) }}
+            >
+                <LuX className="w-5 h-5" /> {props.text && "Fermer"}
+            </button>
+        </div>
+    )
+}
+
+function CustomBtn({icon: Icon, onAction, text, toolText, colorText}) {
+    return (
+        <div className="tooltip tooltip-top" data-tip={toolText}>
+            <button 
+                className={`btn btn-circle btn-ghost ${colorText}`}
+                onClick={() => { handleClick(onAction) }}
+            >
+                { Icon && <Icon className="w-5 h-5" />} {text && "Fermer"}
+            </button>
+        </div>
+    )
+}
+
 export {
     CtaNeon,
     CtaPrimary,
@@ -81,5 +141,10 @@ export {
     CtaAccent,
     CtaSecondary,
     CtaBorder,
-    CtaGradient
+    CtaGradient,
+    DeleteBtn,
+    EditBtn,
+    InfoBtn,
+    CloseBtn,
+    CustomBtn
 };

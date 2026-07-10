@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { BookOpen, GraduationCap, Plus, Save, Trash2, GripVertical, Award, Star } from "lucide-react";
-import axiosClient from "../utils/AxiosClient";
-import { toast } from "react-toastify";
+import { Plus, Save, Trash2, GripVertical, Award, Star } from "lucide-react";
+import { api } from "../utils/AxiosClient";
+import { toast } from "sonner";
 import Navbar from "../components/Navbar";
 import TitleComponent from "../components/TitleComponent";
 import Loading from "../components/Loading";
@@ -19,20 +19,26 @@ function SkillsConfig() {
     ]);
 
     useEffect(() => {
-        axiosClient.get("/subjects").then(({ data }) => setSubjects(data.data));
-        axiosClient.get("/classrooms").then(({ data }) => setClassrooms(data));
+        api.get("/subjects").then(({ data }) => setSubjects(data.data));
+        api.get("/classrooms").then(({ data }) => setClassrooms(data));
        
         if (selectedSubject && selectedLevel) {
-            setLoading(true);
-            axiosClient.get(`/skills?subject_id=${selectedSubject}&classroom_id=${selectedLevel}`)
-                .then(({ data }) => {
+            const fetchSkills = async () => {
+                setLoading(true);
+                try {
+                    const { data } = await api.get(`/skills?subject_id=${selectedSubject}&classroom_id=${selectedLevel}`);
                     if (data.length > 0) {
-                        setSkills(data); // Remplit le formulaire avec l'existant
+                        console.log("Données existantes récupérées :", data);
+                        setSkills(data);
                     } else {
-                        setSkills([{ name: "", max_mark: 20, position: 1 }]); // Vide si rien en base
+                        setSkills([{ name: "", max_mark: 20, position: 1 }]);
                     }
-                })
-                .finally(() => setLoading(false));
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchSkills();
         }
     }, [selectedSubject, selectedLevel]);
 
@@ -60,9 +66,9 @@ function SkillsConfig() {
     const handleSave = async () => {
         setLoading(true);
         try {
-            const { data } = await axiosClient.post("/skills/bulk", {
+            const { data } = await api.post("/skills/bulk", {
                 subject_id: selectedSubject,
-                level: selectedLevel,
+                classroom_id: selectedLevel,
                 skills: skills
             });
             

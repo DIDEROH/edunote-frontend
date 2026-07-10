@@ -1,28 +1,26 @@
-import Navbar from "../../components/Navbar"
-import AddBtn from "../../components/AddBtn"
-import { useEffect, useState } from "react"
-import { useNavigate } from 'react-router-dom'
-import Table from "../../components/Table"
-import axiosClient from "../../utils/AxiosClient"
+import { useEffect, useRef, useState } from "react"
+import { useOutletContext, useNavigate } from 'react-router-dom'
+import { api } from "../utils/AxiosClient"
 import { useForm } from 'react-hook-form';
-import { useHasRole } from '../../hooks/UseHasRole';
+import { useAuth } from "../context/AuthContext";
 import { 
   School as SchoolIcon, QrCode, Quote, MapPin, 
   Home, Phone, Mail, Save, Loader2 
 } from 'lucide-react';
-import { InformationCircleIcon} from "@heroicons/react/24/outline"
-import EditBtn from "../../components/EditBtn"
-import DeleteBtn from "../../components/DeleteBtn"
-import InputComponent from "../../components/InputComponent"
-import { toast } from 'react-toastify'
-import useShowConfirm from "../../hooks/UseShowConfirm"
-import BtnList from "../../components/BtnList"
-import Loading from "../../components/Loading"
-import TrComponent from "../../components/TrComponent"
-import TdComponent from "../../components/TdComponent"
+import { EditBtn, DeleteBtn, CtaDark, InfoBtn } from '../components/ui/ButtonsComponents' 
+import { Table, Tr, TdBody, Th } from '../components/Table'
+import InputComponent from "../components/InputComponent"
+import { toast } from 'sonner'
+import useShowConfirm from "../hooks/UseShowConfirm"
+import PageHeader from "../components/elements/PageHeader"
+import { Card5 } from "../components/ui/CardsComponents";
+import { LuSearchX } from "react-icons/lu";
+import { useAnimations } from '../utils/animations'
+import { deleteElement } from "../utils/deleteElement";
+import LoadingSkeleton from "../components/LoadingSkeletoon";
 
 // --- COMPOSANT : FORMULAIRE (AJOUT & MODIF) ---
-const SchoolForm = ({ initialData, onSubmit, loading, isEditMode }) => {
+const SchoolForm = ({ initialData, onSubmit, loading, isEditMode, onReset }) => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     defaultValues: initialData || {}
   });
@@ -132,11 +130,14 @@ const SchoolForm = ({ initialData, onSubmit, loading, isEditMode }) => {
         />
       </div>
 
-      <div className="mt-10">
+      <div className="mt-10 flex gap-5">
+        <CtaDark onAction={() => onReset()}>
+            Annuler
+        </CtaDark>
         <button 
           type="submit" 
           disabled={loading}
-          className={`w-full py-5 rounded-3xl font-black text-xs tracking-[2px] uppercase transition-all flex items-center justify-center gap-3 shadow-lg 
+          className={`px-4 w-full py-5 rounded-3xl font-black text-xs tracking-[2px] uppercase transition-all flex items-center justify-center gap-3 shadow-lg 
             ${isEditMode 
               ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-200' 
               : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200'
@@ -159,47 +160,44 @@ const SchoolForm = ({ initialData, onSubmit, loading, isEditMode }) => {
 // --- COMPOSANT : LISTE DES ÉCOLES ---
 const SchoolData = ({ data, onEdit, onDelete }) => {
     const navigate = useNavigate();
+    const { hasRole } = useAuth();
+    const isAdmin = hasRole('admin');   
     
     if (data.length === 0) {
-        return <div className="alert alert-warning mt-4">⚠️ Aucun établissement trouvé</div>;
+        return <Card5 icon={LuSearchX} className="alert alert-warning mt-4">Aucun établissement trouvé</Card5>;
     }
 
     return (
         <Table>
             <Table.Head>
-                <th>#</th>
-                <th>logo</th>
-                <th>Nom</th>
-                <th>Code</th>
-                <th>Actions</th>
+                <Th>#</Th>
+                <Th>logo</Th>
+                <Th>Nom</Th>
+                <Th>Code</Th>
+                <Th>Actions</Th>
             </Table.Head>
             <Table.Body>
                 {data.map((s, index) => (
-                    <TrComponent key={s.id}>
-                        <TdComponent className="font-bold">{index + 1}</TdComponent>
-                        <TdComponent>
+                    <Tr key={s.id}>
+                        <TdBody className="font-bold">{index + 1}</TdBody>
+                        <TdBody>
                             <img 
                                 src={s.logo || '/logo.webp'} 
                                 alt="" 
                                 className="w-10 h-10 object-cover rounded-lg" 
                                 onError={(e) => e.target.src = '/logo.webp'}
                             />
-                        </TdComponent>
-                        <TdComponent>{s.name}</TdComponent>
-                        <TdComponent><span className="badge badge-ghost font-mono">{s.code}</span></TdComponent>
-                        <TdComponent>
+                        </TdBody>
+                        <TdBody>{s.name}</TdBody>
+                        <TdBody><span className="badge badge-ghost font-mono">{s.code}</span></TdBody>
+                        <TdBody>
                             <div className="flex gap-1">
-                                <EditBtn action={() => onEdit(s)} /> 
-                                {isAdmin && <DeleteBtn action={() => onDelete(s.id)} />}
-                                <button 
-                                    className="btn btn-xs btn-circle btn-ghost" 
-                                    onClick={() => navigate(`/edunote/school/${s.id}`)}
-                                >
-                                    <InformationCircleIcon className="w-5 h-5 text-slate-400" />
-                                </button>
+                                <EditBtn onAction={() => onEdit(s)} /> 
+                                {isAdmin && <DeleteBtn onAction={() => onDelete(s.id)} />}
+                                <InfoBtn onAction={() => navigate(`${s.id}`)} />
                             </div>
-                        </TdComponent>
-                    </TrComponent>
+                        </TdBody>
+                    </Tr>
                 ))}
             </Table.Body>
         </Table>
@@ -208,18 +206,46 @@ const SchoolData = ({ data, onEdit, onDelete }) => {
 
 // --- COMPOSANT PRINCIPAL ---
 function School() {
+    const { setNavbarActions } = useOutletContext();
     const [view, setView] = useState('list'); 
     const [schools, setSchools] = useState([]);
     const [currentSchool, setCurrentSchool] = useState(null);
     const [loading, setLoading] = useState(false);
-    const showConfirm = useShowConfirm();
-    const isAdmin = useHasRole('Admin');
+    
+    // 👇 Nouveaux états pour la recherche
+    const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
 
+    const showConfirm = useShowConfirm();
+    const navigate = useNavigate();
+    const containerRef = useRef(null);
+    useAnimations(containerRef)
+    
+    /**
+     * ✅ Gestion du délai (Debounce) pour la recherche
+     */
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 500); // 500ms d'attente avant de lancer la recherche
+
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    /**
+     * ✅ Récupération des écoles avec prise en compte du filtre de recherche
+     */
     const fetchSchools = async () => {
         setLoading(true);
         try {
-            const { data } = await axiosClient.get('/schools');
-            setSchools(data);
+            const params = {};
+            if (debouncedSearch) {
+                params.search = debouncedSearch;
+            }
+
+            const { data } = await api.get('/schools', { params });
+            // Tolérance selon la structure de ta réponse Laravel (pagination vs simple array)
+            setSchools(data.data || data); 
         } catch (err) {
             toast.error("Erreur lors de la récupération");
         } finally {
@@ -227,9 +253,12 @@ function School() {
         }
     }
 
-    useEffect(() => {
-        fetchSchools();
-    }, []);
+    /**
+     * ✅ Gestionnaire de la saisie de recherche (Passé au PageHeader)
+     */
+    const handleSearchSchool = (value) => {
+        setSearch(value);
+    };
 
     const handleAddClick = () => {
         setCurrentSchool(null); 
@@ -245,10 +274,10 @@ function School() {
         setLoading(true);
         try {
             if (view === 'edit') {
-                await axiosClient.put(`/schools/${currentSchool.id}`, data);
+                await api.put(`/schools/${currentSchool.id}`, data);
                 toast.success("Établissement mis à jour");
             } else {
-                await axiosClient.post('/schools', data);
+                await api.post('/schools', data);
                 toast.success("Établissement ajouté");
             }
             setView('list'); // Retourner à la liste après succès
@@ -261,62 +290,72 @@ function School() {
     }
 
     const handleDelete = async (id) => {
-        showConfirm({
-            title: "Supprimer",
-            message: `Voulez-vous vraiment supprimer cet établissement ?`,
-            onSuccess: async () => {
-                setLoading(true);
-                try {
-                    const { data } = await axiosClient.delete(`/schools/${id}`);
-                    toast.success(data.message || "Supprimé !");
-                    fetchSchools();
-                } catch (err) {
-                    toast.error("Erreur lors de la suppression");
-                } finally {
-                    setLoading(false);
-                }
+        deleteElement(
+            'schools',
+            id,
+            'cet établissement',
+            showConfirm, 
+            {
+                onStart: () => setLoading(true),  
+                onSuccess: () => fetchSchools(), 
+                onFinally: () => setLoading(false)       
             }
-        });
+        )
     }
+    
+    /**
+     * Effet pour configurer la barre de navigation
+     */
+    useEffect(() => {
+        setNavbarActions({
+            onAdd: () => handleAddClick(),
+            onBack: () => navigate(-1)
+        })
+
+        return () => setNavbarActions({})
+    }, [setNavbarActions]);
+
+    /**
+     * ✅ Effet séparé pour recharger les données lorsque la recherche change
+     */
+    useEffect(() => {
+        fetchSchools();
+    }, [debouncedSearch]);
+
 
     return (
-        <main className="min-h-screen bg-slate-50/50">
-            <Navbar>
-                <Navbar.Left>
-                    {view === 'list' ? (
-                        isAdmin ? (
-                          <AddBtn action={handleAddClick} />
-                        ) : null
-                    ) : (
-                        <button onClick={() => setView('list')} className="btn btn-sm btn-ghost gap-2">
-                            ← Retour à la liste
-                        </button>
-                    )}
-                </Navbar.Left>
-                <Navbar.Right>
-                    <Loading load={loading} />
-                    <BtnList action={fetchSchools} />
-                </Navbar.Right>
-            </Navbar>
+        <div ref={containerRef}>
+            <PageHeader
+                title="Gestion des écoles"
+                subtitle="Gérez toutes les configurations necessaires au fonctionnement des établissements scolaires"
+                onSearch={handleSearchSchool} // 👈 La fonction de recherche est maintenant liée
+            />
 
             <section className="container mx-auto mt-8 px-4 pb-20">
-                {view === 'list' ? (
-                    <SchoolData 
-                        data={schools} 
-                        onEdit={handleEditClick} 
-                        onDelete={handleDelete} 
-                    />
+                {loading ?
+                  <LoadingSkeleton />
+                : view === 'list' ? (
+                    <div className="animate-reveal">
+                        <SchoolData 
+                            data={schools} 
+                            onEdit={handleEditClick} 
+                            onDelete={handleDelete}
+                        />
+                    </div>
                 ) : (
-                    <SchoolForm 
-                        key={currentSchool?.id || 'new'} // Astuce : force le remount du formulaire
-                        initialData={currentSchool}
-                        onSubmit={handleFormSubmit}
-                        loading={loading}
-                        isEditMode={view === 'edit'}
-                    />
+                    <div className="animate-reveal">
+                        <SchoolForm 
+                            key={currentSchool?.id || 'new'} // Astuce : force le remount du formulaire
+                            initialData={currentSchool}
+                            onSubmit={handleFormSubmit}
+                            loading={loading}
+                            isEditMode={view === 'edit'}
+                            onReset={() => setView("list")}
+                        />
+                    </div>
                 )}
             </section>
-        </main>
+        </div>
     )
 }
 

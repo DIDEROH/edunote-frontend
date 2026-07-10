@@ -1,10 +1,9 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Plus, Trash2, Loader2, Search, Users, ShieldCheck } from 'lucide-react'
-import { toast } from 'react-toastify'
-import axiosClient from '../../utils/AxiosClient'
-import Navbar from '../../components/Navbar'
-import BackComponent from '../../components/BackComponent'
-import useShowConfirm from '../../hooks/UseShowConfirm'
+import { Plus, Trash2, Loader2, Search, Users } from 'lucide-react'
+import { toast } from 'sonner'
+import axiosClient from '../utils/AxiosClient'
+import useShowConfirm from '../hooks/UseShowConfirm'
+import PageHeader from '../components/elements/PageHeader'
 
 function DirectorTeacherManagement() {
     const [loading, setLoading] = useState(true)
@@ -36,9 +35,8 @@ function DirectorTeacherManagement() {
             ])
             // Note: resA.data.data car ton backend renvoie ['status' => 'success', 'data' => $assignments]
             setAssignments(resA.data.data || [])
-            setTeachers(resT.data || [])
+            setTeachers(resT.data.data || [])
             setClasses(resC.data || [])
-            setSubjects(resS.data.data || [])
         } catch (err) {
             toast.error("Erreur de chargement des données")
             console.error(err);
@@ -52,13 +50,33 @@ function DirectorTeacherManagement() {
         return assignments.filter(as => {
             const search = searchTerm.toLowerCase();
             return (
-                as.last_name?.toLowerCase().includes(search) ||
-                as.first_name?.toLowerCase().includes(search) ||
-                as.classroom_name?.toLowerCase().includes(search) ||
-                as.subject_name?.toLowerCase().includes(search)
+                as.user?.last_name?.toLowerCase().includes(search) ||
+                as.user?.first_name?.toLowerCase().includes(search) ||
+                as.classroom?.name?.toLowerCase().includes(search) ||
+                as.subject?.name?.toLowerCase().includes(search)
             )
         })
     }, [assignments, searchTerm])
+
+    const fetchSubjectsForClass = async (classroomId) => {
+        if (!classroomId) {
+            setSubjects([])
+            return
+        }
+
+        try {
+            const { data } = await axiosClient.get(`/classrooms/${classroomId}/subjects`)
+            setSubjects(data.data || data || [])
+        } catch (err) {
+            console.error(err)
+            setSubjects([])
+        }
+    }
+
+    const handleClassroomChange = async (value) => {
+        setFormData(prev => ({ ...prev, classroom_id: value, subject_id: '' }))
+        await fetchSubjectsForClass(value)
+    }
 
     const handleAssign = async (e) => {
         e.preventDefault()
@@ -68,8 +86,9 @@ function DirectorTeacherManagement() {
             toast.success("Affectation réussie")
             loadInitialData()
             setFormData({ user_id: '', classroom_id: '', subject_id: '' })
+            setSubjects([])
         } catch (err) {
-            toast.error(err.response?.data?.error || "Erreur d'affectation")
+            toast.error(err.response?.data?.message || "Erreur d'affectation")
         } finally {
             setSubmitting(false)
         }
@@ -100,19 +119,12 @@ function DirectorTeacherManagement() {
 
     return (
         <main className="min-h-screen bg-[#f8fafc] pb-20">
-            <Navbar>
-                <Navbar.Left>
-                    <div className="flex flex-col">
-                        <h1 className='font-bold text-xl text-slate-800'>Affectations Enseignants</h1>
-                        <span className="text-[10px] font-black text-indigo-600 flex items-center gap-1 uppercase tracking-widest">
-                            <ShieldCheck size={12}/> Espace Directeur
-                        </span>
-                    </div>
-                </Navbar.Left>
-                <Navbar.Right><BackComponent /></Navbar.Right>
-            </Navbar>
+            <PageHeader
+                title="Affectations Enseignants"
+                subtitle="Gérez les affectations des enseignants aux classes et matières"
+            />
 
-            <section className="p-4 max-w-7xl mx-auto mt-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
+            <section className=" max-w-7xl mx-auto mt-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
                 
                 {/* FORMULAIRE */}
                 <div className="lg:col-span-4">
@@ -140,7 +152,7 @@ function DirectorTeacherManagement() {
                                 <select 
                                     className="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none text-sm"
                                     value={formData.classroom_id}
-                                    onChange={(e) => setFormData({...formData, classroom_id: e.target.value})}
+                                    onChange={(e) => handleClassroomChange(e.target.value)}
                                     required
                                 >
                                     <option value="">Sélectionner...</option>
@@ -155,6 +167,7 @@ function DirectorTeacherManagement() {
                                     value={formData.subject_id}
                                     onChange={(e) => setFormData({...formData, subject_id: e.target.value})}
                                     required
+                                    disabled={!formData.classroom_id}
                                 >
                                     <option value="">Sélectionner...</option>
                                     {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -207,22 +220,22 @@ function DirectorTeacherManagement() {
                                             <td className="p-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
-                                                        {as.last_name?.[0]}
+                                                        {as.user?.last_name?.[0] || as.user?.first_name?.[0] || 'A'}
                                                     </div>
                                                     <div>
-                                                        <p className="font-bold text-slate-700 uppercase text-xs">{as.last_name}</p>
-                                                        <p className="text-[11px] text-slate-400">{as.first_name}</p>
+                                                        <p className="font-bold text-slate-700 uppercase text-xs">{as.user?.last_name}</p>
+                                                        <p className="text-[11px] text-slate-400">{as.user?.first_name}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="p-4">
                                                 <span className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase">
-                                                    {as.classroom_name}
+                                                    {as.classroom?.name || '—'}
                                                 </span>
                                             </td>
                                             <td className="p-4">
                                                 <span className="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black uppercase">
-                                                    {as.subject_name}
+                                                    {as.subject?.name || '—'}
                                                 </span>
                                             </td>
                                             <td className="p-4 text-center">

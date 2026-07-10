@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { UserCheck, School, Save, Shield, Info } from "lucide-react";
 import axiosClient from "../../utils/AxiosClient";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Navbar from "../../components/Navbar";
 import TitleComponent from "../../components/TitleComponent";
 import Loading from "../../components/Loading";

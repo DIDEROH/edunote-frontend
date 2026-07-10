@@ -1,73 +1,76 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 export default function Paginate({
   currentPage = 1,
   lastPage = 1,
   onPageChange = () => {},
-  siblingCount = 1, // nombre de pages autour de la page active
+  siblingCount = 1,
 }) {
-  if (lastPage === 1) return null // pas besoin de pagination si une seule page
+  if (lastPage <= 1) return null // Sécurité si 0 ou 1 page
 
-  const createPageArray = () => {
-    const pages = []
+  // OPTIMISATION : Calcul mémorisé. Ne s'exécute que si nécessaire.
+  const pages = useMemo(() => {
+    const pageArray = []
     const startPage = Math.max(2, currentPage - siblingCount)
     const endPage = Math.min(lastPage - 1, currentPage + siblingCount)
 
-    // première page
-    pages.push(1)
+    pageArray.push(1)
 
-    // pointillés avant si nécessaire
-    if (startPage > 2) pages.push('...')
+    if (startPage > 2) pageArray.push('..._left') // Identifiant unique pour le map
 
-    // pages du milieu
     for (let i = startPage; i <= endPage; i++) {
-      pages.push(i)
+      pageArray.push(i)
     }
 
-    // pointillés après si nécessaire
-    if (endPage < lastPage - 1) pages.push('...')
+    if (endPage < lastPage - 1) pageArray.push('..._right') // Identifiant unique
 
-    // dernière page
-    if (lastPage > 1) pages.push(lastPage)
+    if (lastPage > 1) pageArray.push(lastPage)
 
-    return pages
-  }
-
-  const pages = createPageArray()
+    return pageArray
+  }, [currentPage, lastPage, siblingCount])
 
   const handlePageChange = (page) => {
-    if (page === '...' || page === currentPage) return
+    if (typeof page === 'string' || page === currentPage) return
     onPageChange(page)
   }
 
   return (
     <div className="join">
+      {/* Bouton Page Précédente */}
       <button
         className="join-item btn"
         disabled={currentPage === 1}
-        onClick={() => onPageChange(1)}
+        onClick={() => onPageChange(currentPage - 1)}
       >
-        «
+        ‹
       </button>
 
-      {pages.map((page, idx) => (
-        <button
-          key={idx}
-          className={`join-item btn ${
-            page === currentPage ? 'btn-active' : ''
-          } ${page === '...' ? 'btn-disabled' : ''}`}
-          onClick={() => handlePageChange(page)}
-        >
-          {page}
-        </button>
-      ))}
+      {/* Liste des pages */}
+      {pages.map((page) => {
+        const isEllipsis = typeof page === 'string';
+        const pageNumber = isEllipsis ? '...' : page;
+        const isActive = page === currentPage;
 
+        return (
+          <button
+            key={page.toString()} // Clé unique garantie
+            className={`join-item btn ${isActive ? 'btn-active' : ''} ${
+              isEllipsis ? 'btn-disabled pointer-events-none' : ''
+            }`}
+            onClick={() => handlePageChange(page)}
+          >
+            {pageNumber}
+          </button>
+        )
+      })}
+
+      {/* Bouton Page Suivante */}
       <button
         className="join-item btn"
         disabled={currentPage === lastPage}
-        onClick={() => onPageChange(lastPage)}
+        onClick={() => onPageChange(currentPage + 1)}
       >
-        »
+        ›
       </button>
     </div>
   )

@@ -1,39 +1,29 @@
-export default function Navbar({ children, col }) {
+import { Fragment } from 'react'
+
+function Navbar({ children, className = '' }) {
   return (
-    <nav className={`
-      /* Structure & Position */
-      w-full sticky top-20 z-30 mb-6
-      /* Design Premium */
-      bg-white/70 backdrop-blur-xl border-b border-slate-300
-      /* Flexibilité */
-      flex items-center justify-between py-4 px-2
-      ${col && 'flex-col md:flex-row gap-4 md:gap-0'}
-    `}>
-      {children}
-    </nav>
+    <header className={`w-full bg-white border-b border-slate-200 px-6 py-4 shadow-sm ${className}`}>
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        {children}
+      </div>
+    </header>
   )
 }
 
-Navbar.Left = function ({ children }) {
+Navbar.Left = function NavbarLeft({ children, className = '' }) {
   return (
-    <div className="flex items-center gap-4 flex-1 justify-center md:justify-start">
+    <div className={`flex-1 min-w-0 ${className}`}>
       {children}
     </div>
   )
 }
 
-Navbar.Center = function ({ children }) {
+Navbar.Right = function NavbarRight({ children, className = '' }) {
   return (
-    <div className="flex items-center justify-center gap-2 overflow-x-auto scrollbar-hide px-4">
+    <div className={`flex items-center gap-3 ${className}`}>
       {children}
     </div>
   )
 }
 
-Navbar.Right = function ({ children }) {
-  return (
-    <div className="flex items-center justify-end gap-3 flex-1">
-      {children}
-    </div>
-  )
-}
+export default Navbar

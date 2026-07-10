@@ -1,18 +1,19 @@
-export default function Table({ children }) {
+import verfiFunction from '../utils/verifFunction'
+
+function Table({ children }) {
   return (
-    // <div className="w-full h-full overflow-x-auto overflow-y-visible custom-scrollbar">
-      <table className="w-full border-separate border-spacing-y-1 px-2">
+    <div className="w-full overflow-x-auto">
+      <table className="w-full min-w-max border-collapse">
         {children}
       </table>
-    // </div>
+    </div>
   );
 }
 
 Table.Head = function ({ children }) {
   return (
     <thead>
-      <tr className="text-slate-400 uppercase text-[10px] tracking-[2px] font-black">
-        {/* On applique un padding spécifique aux th via le style global ou des classes inline */}
+      <tr className="border-b border-base-300 text-left">
         {children}
       </tr>
     </thead>
@@ -21,20 +22,56 @@ Table.Head = function ({ children }) {
 
 Table.Body = function ({ children }) {
   return (
-    <tbody className="text-slate-600 font-medium text-xs">
-      {/* Note : Pour obtenir l'effet de "cartes" pour chaque ligne, 
-          chaque <tr> dans ton Table.Body devrait avoir les classes suivantes :
-          "bg-white hover:bg-indigo-50/30 transition-all rounded-2xl shadow-sm border border-slate-100"
-      */}
+    <tbody className="divide-y divide-base-200 text-sm text-base-content">
       {children}
     </tbody>
   );
 };
 
+
 Table.Foot = function ({ children }) {
   return (
-    <tfoot className="text-slate-400 font-bold text-[10px] uppercase">
+    <tfoot className="border-t border-base-300">
       {children}
     </tfoot>
   );
 };
+
+
+function Th ({ children }) {
+  return (
+    <th className="px-4 py-3 text-xs font-black uppercase tracking-wide text-base-content/50">
+      {children}
+    </th>
+  )
+}
+
+function TdBody ({ children, ...props }) {
+  return(
+    <td className={`px-4 py-3 whitespace-nowrap ${props.className}`}>{children}</td>
+  )
+}
+
+function TdFooter ({ children }) {
+  return(
+    <td className="px-4 py-3 text-xs text-base-content/50">
+      {children}
+    </td>
+  )
+}
+
+function Tr ({ children, ...props }) {
+  return(
+    <tr onClick={() => verfiFunction(props.onAction)} className={`hover:bg-base-200/40 transition-colors ${props.className}`}>
+      {children}
+    </tr>
+  )
+}
+
+export {
+  Table,
+  Th,
+  Tr,
+  TdBody,
+  TdFooter
+}

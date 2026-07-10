@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { UserCheck, BookOpen, GraduationCap, School, Calendar, Save, Trash2, ArrowRight } from "lucide-react";
-import axiosClient from "../../utils/AxiosClient";
-import { toast } from "react-toastify";
-import Navbar from "../../components/Navbar";
-import TitleComponent from "../../components/TitleComponent";
-import Loading from "../../components/Loading";
-import BackComponent from "../../components/BackComponent";
+import axiosClient from "../utils/AxiosClient";
+import { toast } from "sonner";
+import Navbar from "../components/Navbar";
+import TitleComponent from "../components/TitleComponent";
+import Loading from "../components/Loading";
+import BackComponent from "../components/BackComponent";
 
 function TeacherAssignment() {
     const [teachers, setTeachers] = useState([]);

@@ -1,5 +1,5 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react"
-import handleClick from '../utils/verifFunction';
+import handleClick from '../../utils/verifFunction';
 import { Link } from "react-router-dom";
 
 

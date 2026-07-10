@@ -4,8 +4,8 @@ import {
     TrendingUp, Layers, Search,
 } from "lucide-react";
 import axiosClient from "../utils/AxiosClient";
-import TitleComponent from "../components/TitleComponent";
 import LoadingSkeletoon from "../components/LoadingSkeletoon";
+import { Card5 } from "../components/ui/CardsComponents";
 
 function SuccessRates() {
     const { setNavbarActions } = useOutletContext();
@@ -79,10 +79,9 @@ function SuccessRates() {
 
             <div className="max-w-7xl mx-auto p-4 md:p-8">
                 {loading ? <LoadingSkeletoon /> : !stats ? (
-                    <div className="text-center py-32 bg-white rounded-[40px] border-2 border-dashed border-slate-200">
-                        <TrendingUp size={48} className="mx-auto text-slate-200 mb-4" />
-                        <h3 className="text-slate-800 font-black uppercase tracking-[2px] text-sm">Prêt pour l'analyse</h3>
-                    </div>
+                    <Card5 icon={TrendingUp}>
+                        Prêt pour l'analyse
+                    </Card5>
                 ) : (
                     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
                         
