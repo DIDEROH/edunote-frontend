@@ -281,9 +281,9 @@ function SchoolInformations() {
                                     </div>
 
                                     <div className='flex gap-4 flex-wrap'>
-                                        <span className='font-bold text-indigo-600 uppercase p-4 rounded-3xl border '>{evaluationType}</span>
+                                        <span className='font-bold text-indigo-600 uppercase p-4 rounded-3xl border '>{evaluationType !== "skill" ? "Séquences" : "Compétences"}</span>
                                         <CtaGradient onAction={() => handleToggleEvaluation(school?.id)}>
-                                            Basculer vers l'&eacute;valuation par {school?.evaluation_type === "sequence" ? "Compétences" : "Séquences"}
+                                            Basculer vers l'&eacute;valuation par {school?.evaluation_type === "skill" ? "Séquences" : "Compétences"}
                                         </CtaGradient>
                                     </div>
 

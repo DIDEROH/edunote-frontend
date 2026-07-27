@@ -23,14 +23,6 @@ const elements = [
     icon: FaAward,
     color: "from-green-400 to-yellow-300",
     to: "/skills"
-  },
-
-  {
-    title: "Assigner une compétence à une matière",
-    description: "Liez les compétences spécifiques aux matières correspondantes pour structurer les évaluations.",
-    icon: FaLink,
-    color: "from-blue-500 to-violet-500",
-    to: "/assign-skills"
   }
   
 ];
@@ -50,13 +42,13 @@ function Pedagogie() {
           />
         </div>
         
-        <div className="py-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-reveal">
+        <div className="py-5 grid grid-cols-1 sm:grid-cols-2 gap-6 animate-reveal">
           {
             elements.map((element) => (
               <Card1
               key={element.title}
               data={element}
-              btn={<LinkArrowRight
+              btn={<LinkArrowRight  
                 link={element.to}
                 color="text-violet-400"
                 abs={true}>Prise en main</LinkArrowRight>} />

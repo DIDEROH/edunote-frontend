@@ -66,7 +66,7 @@ export default function TeacherMarkEntry() {
 
   const evaluationMode = selectedAssignment?.school?.evaluation_type || "sequence";
   const isSequenceMode = evaluationMode === "sequence";
-  const isCompetenceMode = evaluationMode === "competence";
+  const isCompetenceMode = evaluationMode === "skill";
 
   // Clé unique pour le brouillon basée sur la sélection actuelle
   const draftKey = useMemo(() => {
@@ -156,6 +156,7 @@ export default function TeacherMarkEntry() {
       const params = {
         classroom_id: selectedAssignment.classroom_id,
         subject_id: selectedAssignment.subject_id,
+        school_id: selectedAssignment.school_id,
         ...(isSequenceMode ? { sequence_id: filters.sequenceId } : { term_id: filters.termId }),
       };
 
@@ -624,7 +625,7 @@ export default function TeacherMarkEntry() {
 
                       {/* Desktop : Affichage de toutes les compétences en colonnes */}
                       {isCompetenceMode && gridData.skills.map(skill => (
-                        <th key={skill.id} className="p-4 font-bold text-slate-700 text-center min-w-[140px] border-l border-slate-200/60 hidden md:table-cell">
+                        <th key={skill.id} className="p-4 text-[10px] font-light text-slate-700 text-center min-w-[140px] border-l border-slate-200/60 hidden md:table-cell">
                           <div className="truncate max-w-[150px] mx-auto" title={skill.name}>
                             {skill.name}
                           </div>

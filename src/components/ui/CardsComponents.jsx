@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import {
   LuBuilding2,
   LuMapPin,
@@ -9,15 +10,83 @@ import {
   LuCalendarDays,
   LuBadgeCheck,
   LuShieldCheck,
-  LuClock3,
-  LuX,
-  LuTrash2,
-  LuPencil,
+  LuClock3
 } from "react-icons/lu";
-import verifFunction from "../../utils/verifFunction";
-import { Calendar, Fingerprint, MapPin, Phone, User } from "lucide-react";
+import {
+    FaMale,
+    FaFemale,
+    FaGraduationCap,
+} from "react-icons/fa";
 import { formatDate } from "../../utils/FormatDate";
 import { FaCalendarAlt, FaFingerprint, FaMapMarkerAlt, FaPhoneAlt, FaUserGraduate, FaVenusMars } from "react-icons/fa";
+
+
+
+
+function ClassroomCards({ classrooms = [] }) {
+    const max = Math.max(...classrooms.map(c => c.total), 1);
+
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl font-bold text-slate-800">Répartition des classes</h2>
+                    <p className="text-slate-500">{classrooms.length} classes</p>
+                </div>
+            </div>
+
+            <div className="flex gap-4 overflow-x-auto scrollbar-none p-4">
+                {classrooms.map((room, index) => (
+                    <motion.div
+                        key={room.classroom_id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        whileHover={{ y: -6, scale: 1.02 }}
+                        className="flex-none w-full max-w-80 rounded-3xl bg-white border border-slate-200 shadow-lg p-6"
+                    >
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h3 className="font-bold text-lg text-slate-800">{room.classroom_name}</h3>
+                                <p className="text-slate-500">Classe</p>
+                            </div>
+                            <div className="h-14 w-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                <FaGraduationCap size={24} />
+                            </div>
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-2 gap-4">
+                            <div className="rounded-2xl bg-blue-50 p-4 text-center">
+                                <FaMale className="mx-auto text-blue-500 mb-2" />
+                                <div className="text-2xl font-bold">{room.boys}</div>
+                                <div className="text-sm text-slate-500">Garçons</div>
+                            </div>
+
+                            <div className="rounded-2xl bg-pink-50 p-4 text-center">
+                                <FaFemale className="mx-auto text-pink-500 mb-2" />
+                                <div className="text-2xl font-bold">{room.girls}</div>
+                                <div className="text-sm text-slate-500">Filles</div>
+                            </div>
+                        </div>
+
+                        <div className="mt-6">
+                            <div className="flex justify-between mb-2">
+                                <span className="text-slate-500">Effectif</span>
+                                <strong>{room.total} élèves</strong>
+                            </div>
+                            <div className="h-3 rounded-full bg-slate-200 overflow-hidden">
+                                <div
+                                    style={{ width: `${(room.total / max) * 100}%` }}
+                                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-600"
+                                />
+                            </div>
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+        </div>
+    );
+}
 
 function Card1(props) {
     const Icon = props?.data?.icon;
@@ -329,7 +398,7 @@ function SchoolCard({ data }) {
                 <InfoItem
                   icon={<LuUserRound size={18} />}
                   label="Nom"
-                  value={data?.active_director?.first_name + " " +data?.active_director?.first_name }
+                  value={data?.active_director?.first_name + " " +data?.active_director?.last_name }
                 />
 
                 <InfoItem
@@ -673,5 +742,6 @@ export {
     Card5,
     SchoolCard,
     UserCard,
-    StudentCard
+    StudentCard,
+    ClassroomCards
 }

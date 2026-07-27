@@ -67,7 +67,7 @@ function TeacherMarkHub() {
             Vous n'avez aucune affectation active pour le moment.
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {mappedAssignments.map((assignment) => (
               <div key={assignment.id} className="rounded-3xl border border-indigo-300 p-5 bg-gradient-to-br from-indigo-200 to-slate-50 flex flex-col items-center text-center">
                 <div className="mb-3 text-sm font-black text-indigo-500 uppercase">{assignment.school}</div>

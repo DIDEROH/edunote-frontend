@@ -2,6 +2,8 @@
 export default function SubjectsCompetenciesTable({ data, subjects, style }) {
   const rows = subjects ?? data?.subjects ?? [];
 
+ 
+
   const fmt = (n, digits = 1) => {
     if (n === null || n === undefined || Number.isNaN(Number(n))) return "";
     return Number(n).toFixed(digits);
@@ -26,15 +28,15 @@ export default function SubjectsCompetenciesTable({ data, subjects, style }) {
         </thead>
         <tbody>
           {rows.map((item) => {
-            const subjectName = item?.subject_name ?? "";
+            const subjectName = item?.name ?? "";
             const coef = item?.coefficient ?? "";
-            const mean = item?.mark_over_20;
+            const mean = item?.mark;
             const weighted = item?.weighted_mark;
-            const cote = item?.cote ?? "";
-            const appreciation = item?.appreciation ?? "";
+            const cote = item?.appreciation?.cote ?? "";
+            const appreciation = item?.appreciation?.appreciation ?? "";
             const competencies = item?.skills ?? [];
-            const min = item?.subject_min;
-            const max = item?.subject_max;
+            const min = item?.lowest_mark;
+            const max = item?.highest_mark;
             const rowSpan = competencies.length || 1;
             const teacher = item?.teacher_name || ""
 
@@ -43,10 +45,10 @@ export default function SubjectsCompetenciesTable({ data, subjects, style }) {
                 {idx === 0 && (
                   <td rowSpan={rowSpan} className={style}>
                     {subjectName}
-                    <span className="block font-medium text-[8px] mt-2">M./Mme {teacher}</span>
+                    <span className="block font-light text-[8px] italic">M./Mme {teacher}</span>
                   </td>
                 )}
-                <td className={`${style} font-medium text-[9px]`}>{comp?.skill_name}</td>
+                <td className={`${style} font-light text-[7px]`}>{comp?.skill_name}</td>
                 <td className={`text-center ${style}`}>{fmt(comp?.mark)}</td>
                 {idx === 0 && (
                   <>
@@ -65,7 +67,7 @@ export default function SubjectsCompetenciesTable({ data, subjects, style }) {
                     <td rowSpan={rowSpan} className={`text-center ${style}`}>
                       {min !== null ? `${fmt(min)} – ${fmt(max)}` : ""}
                     </td>
-                    <td rowSpan={rowSpan} className={`text-center ${style} font-medium`}>
+                    <td rowSpan={rowSpan} className={`text-center ${style} font-light`}>
                       {appreciation}
                     </td>
                   </>

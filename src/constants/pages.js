@@ -57,11 +57,12 @@ export const useNavigationPages = () => {
     }
 
     
-    if (isDirector) {
-        pages.push(
-            { name: 'Vérouillage des trimestres', to: '/term', icon: 'Terms' }
-        );
-    }
+    // if (isDirector) {
+    //     pages.push(
+    //         { name: 'Vérouillage des trimestres', to: '/term', icon: 'Terms' }
+    //     );
+    // }
+
     if (isAdmin) {
         pages.push(
             {name: 'Autres', to: '/others', icon: 'Others'}

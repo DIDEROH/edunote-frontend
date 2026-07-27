@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Plus, Trash2, Loader2, Search, Users } from 'lucide-react'
+import { Plus, Trash2, Loader2, Search, Users, Edit2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import axiosClient from '../utils/AxiosClient'
 import useShowConfirm from '../hooks/UseShowConfirm'
@@ -13,6 +13,7 @@ function DirectorTeacherManagement() {
     const [classes, setClasses] = useState([])
     const [subjects, setSubjects] = useState([])
     const [searchTerm, setSearchTerm] = useState("")
+    const [editingId, setEditingId] = useState(null)
     const showConfirm = useShowConfirm()
     
     const [formData, setFormData] = useState({
@@ -27,25 +28,21 @@ function DirectorTeacherManagement() {
 
     const loadInitialData = async () => {
         try {
-            const [resA, resT, resC, resS] = await Promise.all([
+            const [resA, resT, resC] = await Promise.all([
                 axiosClient.get('/director-space/teacher-assignments'),
                 axiosClient.get('/director-space/teachers/list'),
-                axiosClient.get('/classrooms'),
-                axiosClient.get('/subjects')
+                axiosClient.get('/classrooms')
             ])
-            // Note: resA.data.data car ton backend renvoie ['status' => 'success', 'data' => $assignments]
             setAssignments(resA.data.data || [])
             setTeachers(resT.data.data || [])
             setClasses(resC.data || [])
         } catch (err) {
             toast.error("Erreur de chargement des données")
-            console.error(err);
         } finally {
             setLoading(false)
         }
     }
 
-    // LOGIQUE DE FILTRE MISE À JOUR (Basée sur les nouveaux alias SQL)
     const filteredAssignments = useMemo(() => {
         return assignments.filter(as => {
             const search = searchTerm.toLowerCase();
@@ -63,12 +60,10 @@ function DirectorTeacherManagement() {
             setSubjects([])
             return
         }
-
         try {
             const { data } = await axiosClient.get(`/classrooms/${classroomId}/subjects`)
             setSubjects(data.data || data || [])
         } catch (err) {
-            console.error(err)
             setSubjects([])
         }
     }
@@ -78,35 +73,56 @@ function DirectorTeacherManagement() {
         await fetchSubjectsForClass(value)
     }
 
-    const handleAssign = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         setSubmitting(true)
         try {
-            await axiosClient.post('/director-space/teacher-assignments', formData)
-            toast.success("Affectation réussie")
+            if (editingId) {
+                await axiosClient.put(`/director-space/teacher-assignments/${editingId}`, formData)
+                toast.success("Affectation modifiée avec succès")
+            } else {
+                await axiosClient.post('/director-space/teacher-assignments', formData)
+                toast.success("Affectation créée avec succès")
+            }
             loadInitialData()
             setFormData({ user_id: '', classroom_id: '', subject_id: '' })
+            setEditingId(null)
             setSubjects([])
         } catch (err) {
-            toast.error(err.response?.data?.message || "Erreur d'affectation")
+            toast.error(err.response?.data?.message || "Erreur lors de l'opération")
         } finally {
             setSubmitting(false)
         }
     }
 
+    const handleEditStart = (as) => {
+        setEditingId(as.id)
+        setFormData({
+            user_id: as.user_id,
+            classroom_id: as.classroom_id,
+            subject_id: as.subject_id
+        })
+        fetchSubjectsForClass(as.classroom_id)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    const handleCancelEdit = () => {
+        setEditingId(null)
+        setFormData({ user_id: '', classroom_id: '', subject_id: '' })
+        setSubjects([])
+    }
+
     const handleDelete = async (id) => {
         showConfirm({
             title: "Supprimer",
-            message: "Voulez-vous vraiment Retirer cette affectation ?",
+            message: "Voulez-vous vraiment retirer cette affectation ?",
             onSuccess: () => {
                 axiosClient.delete(`/director-space/teacher-assignments/${id}`)
                 .then(() => {
                     setAssignments(prev => prev.filter(a => a.id !== id))
                     toast.success("Affectation retirée")
                 })
-                .catch((err) => {
-                    toast.error("Erreur lors de la suppression")
-                })
+                .catch(() => toast.error("Erreur lors de la suppression"))
             }
         })
     }
@@ -119,21 +135,16 @@ function DirectorTeacherManagement() {
 
     return (
         <main className="min-h-screen bg-[#f8fafc] pb-20">
-            <PageHeader
-                title="Affectations Enseignants"
-                subtitle="Gérez les affectations des enseignants aux classes et matières"
-            />
-
-            <section className=" max-w-7xl mx-auto mt-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
-                
-                {/* FORMULAIRE */}
+            <PageHeader title="Affectations" subtitle="Gérez les enseignants par classe et matière" />
+            <section className="max-w-7xl mx-auto mt-8 grid grid-cols-1 xl:grid-cols-12 gap-8">
                 <div className="lg:col-span-4">
                     <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 sticky top-24">
                         <h2 className="text-slate-800 font-bold text-lg mb-6 flex items-center gap-2">
-                            <Plus className="text-indigo-600" size={20}/> Nouvelle Affectation
+                            {editingId ? <Edit2 className="text-amber-500" size={20}/> : <Plus className="text-indigo-600" size={20}/>}
+                            {editingId ? "Modifier l'affectation" : "Nouvelle Affectation"}
                         </h2>
                         
-                        <form onSubmit={handleAssign} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 block">Enseignant</label>
                                 <select 
@@ -174,33 +185,29 @@ function DirectorTeacherManagement() {
                                 </select>
                             </div>
 
-                            <button 
-                                type="submit" 
-                                disabled={submitting}
-                                className="w-full py-4 mt-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex justify-center items-center gap-2"
-                            >
-                                {submitting ? <Loader2 className="animate-spin" size={20}/> : "Assigner l'enseignant"}
-                            </button>
+                            <div className="flex gap-2">
+                                <button type="submit" disabled={submitting} className="flex-1 py-4 mt-4 bg-indigo-600 text-white rounded-2xl font-bold flex justify-center items-center gap-2">
+                                    {submitting ? <Loader2 className="animate-spin" size={20}/> : (editingId ? "Enregistrer" : "Assigner")}
+                                </button>
+                                {editingId && (
+                                    <button type="button" onClick={handleCancelEdit} className="px-6 mt-4 bg-slate-100 rounded-2xl font-bold text-slate-600 flex items-center">
+                                        <X size={20}/>
+                                    </button>
+                                )}
+                            </div>
                         </form>
                     </div>
                 </div>
 
-                {/* TABLEAU */}
                 <div className="lg:col-span-8">
                     <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
                         <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <h2 className="font-bold text-slate-800 flex items-center gap-2 shrink-0">
-                                <Users className="text-indigo-600" size={20}/> Personnel ({filteredAssignments.length})
+                            <h2 className="font-bold text-slate-800 flex items-center gap-2">
+                                <Users className="text-indigo-600" size={20}/> Affectations ({filteredAssignments.length})
                             </h2>
                             <div className="relative w-full max-w-md">
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                                <input 
-                                    type="text"
-                                    placeholder="Chercher un prof, une classe..."
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 border-none outline-none text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
+                                <input type="text" placeholder="Rechercher..." className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 border-none outline-none text-sm focus:ring-2 focus:ring-indigo-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                             </div>
                         </div>
 
@@ -209,42 +216,26 @@ function DirectorTeacherManagement() {
                                 <thead className="bg-slate-50">
                                     <tr>
                                         <th className="p-4 text-[10px] font-black text-slate-400 uppercase">Enseignant</th>
-                                        <th className="p-4 text-[10px] font-black text-slate-400 uppercase">Classe</th>
-                                        <th className="p-4 text-[10px] font-black text-slate-400 uppercase">Matière</th>
-                                        <th className="p-4 text-[10px] font-black text-slate-400 uppercase text-center">Action</th>
+                                        <th className="p-4 text-[10px] font-black text-slate-400 uppercase">Classe/Matière</th>
+                                        <th className="p-4 text-[10px] font-black text-slate-400 uppercase text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
                                     {filteredAssignments.map((as) => (
                                         <tr key={as.id} className="hover:bg-slate-50/50 transition-colors">
                                             <td className="p-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
-                                                        {as.user?.last_name?.[0] || as.user?.first_name?.[0] || 'A'}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-bold text-slate-700 uppercase text-xs">{as.user?.last_name}</p>
-                                                        <p className="text-[11px] text-slate-400">{as.user?.first_name}</p>
-                                                    </div>
+                                                <p className="font-bold text-slate-700 uppercase text-xs">{as.user?.last_name}</p>
+                                                <p className="text-[11px] text-slate-400">{as.user?.first_name}</p>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="flex gap-2">
+                                                    <span className="px-2 py-1 rounded bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase">{as.classroom?.name}</span>
+                                                    <span className="px-2 py-1 rounded bg-slate-100 text-slate-600 text-[10px] font-black uppercase">{as.subject?.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="p-4">
-                                                <span className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase">
-                                                    {as.classroom?.name || '—'}
-                                                </span>
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black uppercase">
-                                                    {as.subject?.name || '—'}
-                                                </span>
-                                            </td>
-                                            <td className="p-4 text-center">
-                                                <button 
-                                                    onClick={() => handleDelete(as.id)}
-                                                    className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
+                                            <td className="p-4 flex justify-center gap-2">
+                                                <button onClick={() => handleEditStart(as)} className="p-2 text-amber-500 hover:bg-amber-50 rounded-xl"><Edit2 size={18} /></button>
+                                                <button onClick={() => handleDelete(as.id)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl"><Trash2 size={18} /></button>
                                             </td>
                                         </tr>
                                     ))}

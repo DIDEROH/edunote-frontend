@@ -28,6 +28,8 @@ import DirectorTeacherManagement from './pages/DirectorTeacherManagement'
 import TeacherMarkEntry from './pages/Teachers/TeacherMarkEntry'
 import TeacherMarkHub from './pages/Teachers/TeacherMarkHub'
 import Forbidden from './pages/Forbidden'
+import Bulletins from './pages/ReportCards/Bulletins'
+import Visualiser from './pages/ReportCards/Visualiser'
 
 function App() {
 
@@ -74,7 +76,6 @@ function App() {
               {/* Matieres et competences */}
               <Route path='pedagogie' element={<Pedagogie />} />
               <Route path='skills' element={<SkillsConfig />} />
-              <Route path='assign-skills' element={<SkillsConfig />} />
 
               {/* Les matieres */}
               <Route path='subjects' element={<Subjects />} /> 
@@ -84,6 +85,11 @@ function App() {
               <Route path='students/create' element={<EnrollmentStudent />} /> 
               <Route path='students/edit/:id' element={<EnrollmentStudent />} /> 
               <Route path='students/:id' element={<StudentIformations />} />
+
+
+              {/* Les bulletins */}
+              <Route path='report-card' element={<Bulletins />} />
+              <Route path='report-card/visualiser' element={<Visualiser />} />
 
             </Route>
 
