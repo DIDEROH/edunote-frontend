@@ -1,5 +1,5 @@
 // Les versions du projet
- const VERSION = "2.0";
+const VERSION = "2.0";
 const Appname = "EduNote";
 
 // les tailles pour les icones 
@@ -10,8 +10,8 @@ const SIZE_ICON_LG = 20;
 const SIZE_ICON_XL = 28;
 
 // L'url de l'API
-//  const API_URL = "https://edn.genuime.com";
- const API_URL = "http://localhost:8000";
+ const API_URL = "https://edn.genuime.com";
+//  const API_URL = "http://localhost:8000";
 //  const API_URL = "http://10.123.83.207:8000";
 
 
