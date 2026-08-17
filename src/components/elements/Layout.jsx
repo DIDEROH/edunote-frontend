@@ -182,43 +182,43 @@ export default function Layout() {
             </div>
 
             {/* 🟢 BLOC DES QUATRE ICÔNES DYNAMIQUES DEMANDÉES (S'affichent uniquement si la page active les définit) */}
-              <div className="flex items-center gap-1.5 mr-2">
-                {navbarActions.onSearch && (
-                  <button onClick={() => navbarActions.onSearch()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Rechercher">
-                    <Search size={17} />
-                  </button>
-                )}
-                {navbarActions.onDelete && (
-                  <button onClick={() => navbarActions.onDelete()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Supprimer">
-                    <Trash2 size={17} />
-                  </button>
-                )}
-                {navbarActions.onEdit && (
-                  <button onClick={() => navbarActions.onEdit()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Modifier">
-                    <Pencil size={17} />
-                  </button>
-                )}
-                {navbarActions.onAdd && (
-                  <button onClick={() => navbarActions.onAdd()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Ajouter">
-                    <Plus size={17} />
-                  </button>
-                )}
-                {navbarActions.onFilter && (
-                  <button onClick={() => navbarActions.onFilter()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Filtrer">
-                    <Filter size={17} />
-                  </button>
-                )}
-                {navbarActions.onPrint && (
-                  <button onClick={() => navbarActions.onPrint()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Imprimer">
-                    <Printer size={17} />
-                  </button>
-                )}
-                {navbarActions.onBack && (
-                  <button onClick={() => navbarActions.onBack()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Retour">
-                    <ArrowLeft size={17} />
-                  </button>
-                )}
-              </div>
+            <div className="flex items-center gap-1.5 mr-2">
+              {navbarActions.onSearch && (
+                <button onClick={() => navbarActions.onSearch()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Rechercher">
+                  <Search size={17} />
+                </button>
+              )}
+              {navbarActions.onDelete && (
+                <button onClick={() => navbarActions.onDelete()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Supprimer">
+                  <Trash2 size={17} />
+                </button>
+              )}
+              {navbarActions.onEdit && (
+                <button onClick={() => navbarActions.onEdit()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Modifier">
+                  <Pencil size={17} />
+                </button>
+              )}
+              {navbarActions.onAdd && (
+                <button onClick={() => navbarActions.onAdd()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Ajouter">
+                  <Plus size={17} />
+                </button>
+              )}
+              {navbarActions.onFilter && (
+                <button onClick={() => navbarActions.onFilter()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Filtrer">
+                  <Filter size={17} />
+                </button>
+              )}
+              {navbarActions.onPrint && (
+                <button onClick={() => navbarActions.onPrint()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Imprimer">
+                  <Printer size={17} />
+                </button>
+              )}
+              {navbarActions.onBack && (
+                <button onClick={() => navbarActions.onBack()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Retour">
+                  <ArrowLeft size={17} />
+                </button>
+              )}
+            </div>
 
             {/* Cadre de l'ivone de l'utilisateur  */}
             <div>
