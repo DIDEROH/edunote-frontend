@@ -4,20 +4,16 @@ export default function ModalComponent({ children }) {
       className="
         fixed inset-0 z-[80]
         flex items-center justify-center
-        p-4 sm:p-6
-        bg-black/40 backdrop-blur-sm
-        animate-in fade-in duration-200
+        p-0 sm:p-6
+        bg-black/40
       "
     >
       <div
         className="
-          relative w-full max-w-md
-          overflow-hidden
-          rounded-3xl
-          border border-base-300/50
-          bg-base-100
-          shadow-2xl
-          animate-in zoom-in-95 slide-in-from-bottom-4 duration-300
+          relative w-full h-full sm:h-auto sm:max-w-md
+          overflow-y-auto
+          sm:rounded-md
+          bg-base-200
         "
       >
         {children}
@@ -28,8 +24,8 @@ export default function ModalComponent({ children }) {
 
 ModalComponent.Title = function ({ children }) {
   return (
-    <div className="border-b border-base-300/50 px-6 py-5">
-      <h2 className="text-xl font-semibold text-base-content">
+    <div className="px-6 py-4">
+      <h2 className="text-base font-semibold text-base-content">
         {children}
       </h2>
     </div>
@@ -38,7 +34,7 @@ ModalComponent.Title = function ({ children }) {
 
 ModalComponent.Body = function ({ children }) {
   return (
-    <div className="px-6 py-5 text-base-content/80">
+    <div className="px-6 py-4 text-base-content/80">
       {children}
     </div>
   );
@@ -48,9 +44,8 @@ ModalComponent.Action = function ({ children }) {
   return (
     <div
       className="
-        flex flex-col-reverse gap-3
-        border-t border-base-300/50
-        px-6 py-5
+        flex flex-col-reverse gap-2
+        px-6 py-4
         sm:flex-row sm:justify-end
       "
     >

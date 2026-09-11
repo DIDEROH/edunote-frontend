@@ -1,5 +1,3 @@
-import { useRef } from "react";
-import { useAnimations } from "../utils/animations";
 import PageHeader from "../components/elements/PageHeader";
 import { UserCog2 } from "lucide-react";
 import { MdOutlineCalendarMonth } from "react-icons/md"
@@ -43,32 +41,26 @@ const elements = [
 
 
 function Others() {
-  const containerRef = useRef(null);
-  useAnimations(containerRef);
-
-
   return (
-    <div ref={containerRef}>
-        <div className="animate-reveal">
-          <PageHeader
-            title="Autres fonctionnalités"
-            subtitle="Gérez les autres fonctionnalités de l'application"
-          />
-        </div>
-        
-        <div className="py-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-reveal">
-          {
-            elements.map((element) => (
-              <Card1
-              key={element.title}
-              data={element}
-              btn={<LinkArrowRight
-                link={element.to}
-                color="text-violet-400"
-                abs={true}>Prise en main</LinkArrowRight>} />
-            ))
-          }
-        </div>
+    <div>
+      <PageHeader
+        title="Autres fonctionnalités"
+        subtitle="Gérez les autres fonctionnalités de l'application"
+      />
+
+      <div className="py-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {
+          elements.map((element) => (
+            <Card1
+            key={element.title}
+            data={element}
+            btn={<LinkArrowRight
+              link={element.to}
+              color="text-primary"
+              abs={true}>Prise en main</LinkArrowRight>} />
+          ))
+        }
+      </div>
     </div>
   )
 }

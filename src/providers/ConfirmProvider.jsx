@@ -35,7 +35,7 @@ export function ConfirmProvider({ children }) {
 
       {state.open && (
         <dialog open className="modal modal-open">
-          <div className="modal-box max-w-md rounded-3xl border border-base-300 bg-base-100 shadow-2xl">
+          <div className="modal-box max-w-md rounded-md bg-base-200">
 
             {/* Icône */}
             <div className="flex justify-center mb-5">
@@ -58,26 +58,26 @@ export function ConfirmProvider({ children }) {
             </div>
 
             {/* Titre */}
-            <h3 className="text-center text-xl font-bold text-base-content">
+            <h3 className="text-center text-base font-semibold text-base-content">
               {state.title}
             </h3>
 
             {/* Message */}
-            <p className="mt-3 text-center text-base-content/70 leading-relaxed">
+            <p className="mt-2 text-center text-sm text-base-content/60 leading-relaxed">
               {state.message}
             </p>
 
             {/* Boutons */}
-            <div className="mt-8 flex gap-3">
+            <div className="mt-6 flex gap-3">
               <button
-                className="btn btn-outline flex-1 rounded-xl"
+                className="btn btn-outline flex-1"
                 onClick={() => handleClose(false)}
               >
                 Annuler
               </button>
 
               <button
-                className="btn btn-error flex-1 rounded-xl text-white"
+                className="btn btn-error flex-1 text-white"
                 onClick={() => handleClose(true)}
               >
                 Confirmer
@@ -85,7 +85,7 @@ export function ConfirmProvider({ children }) {
             </div>
           </div>
 
-          <form method="dialog" className="modal-backdrop bg-black/40 backdrop-blur-sm">
+          <form method="dialog" className="modal-backdrop bg-black/40">
             <button onClick={() => handleClose(false)}>
               fermer
             </button>

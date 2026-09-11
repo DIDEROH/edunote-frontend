@@ -112,34 +112,34 @@ export default function Bulletins() {
         navigate(`/report-card/visualiser?${queryParams.toString()}`);
     };
 
-    const inputClass = "w-full bg-white/50 border-2 border-transparent focus:border-indigo-200 focus:bg-white rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-wider transition-all outline-none mb-4 disabled:opacity-50 disabled:cursor-not-allowed";
-    const labelClass = "block text-[9px] font-black text-indigo-400 uppercase tracking-[2px] mb-3 ml-2 flex items-center gap-2";
+    const inputClass = "w-full bg-base-100 rounded-md px-4 py-3 text-sm font-medium outline-none mb-4 disabled:opacity-50 disabled:cursor-not-allowed";
+    const labelClass = "block text-xs font-medium text-base-content/60 mb-2.5 ml-0.5 flex items-center gap-2";
 
     return (
-        <main className="min-h-screen bg-slate-50/50">
+        <main className="min-h-screen bg-base-100">
             <PageHeader
                 title="Génération de bulletins"
                 subtitle="Ceci est votre espace de bulletins"
             />
 
-            <div className=" rounded-xl p-6 space-y-5 border border-slate-100 my-8">
-                
+            <div className="rounded-md bg-base-200 p-6 space-y-5 my-6">
+
                 {/* 1. CHOIX DU SCOPE */}
                 <div>
                     <label className={labelClass}>1. Niveau de génération</label>
-                    <div className="flex bg-slate-200/50 p-1 rounded-2xl">
-                        
-                        <button 
+                    <div className="flex bg-base-100 p-1 rounded-md">
+
+                        <button
                             type="button"
                             onClick={() => setScope('classroom')}
-                            className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all flex justify-center items-center gap-2 ${scope === 'classroom' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`flex-1 py-2.5 text-xs font-medium rounded-sm transition-colors duration-150 flex justify-center items-center gap-2 ${scope === 'classroom' ? 'bg-base-200 text-primary' : 'text-base-content/50 hover:text-base-content'}`}
                         >
                             <Users size={14}/> Classe
                         </button>
-                        <button 
+                        <button
                             type="button"
                             onClick={() => setScope('student')}
-                            className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all flex justify-center items-center gap-2 ${scope === 'student' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                            className={`flex-1 py-2.5 text-xs font-medium rounded-sm transition-colors duration-150 flex justify-center items-center gap-2 ${scope === 'student' ? 'bg-base-200 text-primary' : 'text-base-content/50 hover:text-base-content'}`}
                         >
                             <User size={14}/> Élève
                         </button>
@@ -214,27 +214,26 @@ export default function Bulletins() {
                 </div>
 
                 {/* BOUTON DE REDIRECTION ET GENERATION */}
-                <button 
+                <button
                     type="button"
                     disabled={!isFormValid}
                     onClick={handleGenerate}
-                    className={`w-full py-5 mt-4 rounded-2xl font-black text-[10px] uppercase tracking-[2px] flex items-center justify-center gap-3 transition-all active:scale-95 ${
+                    className={`w-full py-3.5 mt-4 rounded-md font-medium text-sm flex items-center justify-center gap-3 transition-colors duration-150 ${
                         isFormValid
-                        ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100 hover:bg-indigo-700' 
-                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                        ? 'bg-primary text-white hover:brightness-95'
+                        : 'bg-base-300 text-base-content/40 cursor-not-allowed'
                     }`}
                 >
                     Générer les bulletins <ArrowRight size={16} />
                 </button>
             </div>
-            
-            <div className="p-8 bg-indigo-600 rounded-2xl text-white shadow-xl shadow-indigo-100 relative overflow-hidden group">
-                <Layout className="absolute -right-4 -bottom-4 opacity-10 rotate-12 group-hover:scale-110 transition-transform duration-700" size={120} />
-                <h4 className="text-[11px] font-black uppercase tracking-widest mb-2">Prêt pour l'impression</h4>
-                <p className="text-xs font-medium text-indigo-100 leading-relaxed mb-6">
+
+            <div className="p-6 bg-primary rounded-md text-primary-content">
+                <h4 className="text-sm font-semibold mb-2">Prêt pour l'impression</h4>
+                <p className="text-sm opacity-80 leading-relaxed mb-4">
                     Le système génère un flux paginé ultra-léger et optimisé pour le format physique standard A4. Vous pourrez lancer l'impression globale de chaque classe ou élève en un clic sans risque de saturation réseau ou de crash navigateur.
                 </p>
-                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest bg-indigo-500/30 w-fit px-3 py-1.5 rounded-full">
+                <div className="flex items-center gap-2 text-xs font-medium bg-white/15 w-fit px-3 py-1.5 rounded-sm">
                     <FileCheck size={12} /> Format A4 Standard
                 </div>
             </div>

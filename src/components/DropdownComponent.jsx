@@ -15,7 +15,7 @@ DropdownComponent.Icon = function ({children}) {
 }
 
 DropdownComponent.Items = function ({children}) {
-    return <ul tabIndex="-1" className="dropdown-content menu bg-slate-100 rounded-box z-1 w-52 p-2 shadow-sm text-xs gap-2.5">
+    return <ul tabIndex="-1" className="dropdown-content menu bg-base-200 rounded-box z-1 w-52 p-2 text-xs gap-2.5">
             {children}
         </ul> 
 }

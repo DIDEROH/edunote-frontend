@@ -16,6 +16,8 @@ import LoadingSkeletoon from "../components/LoadingSkeletoon";
 import PageHeader from "../components/elements/PageHeader";
 import { Card4 } from "../components/ui/CardsComponents";
 import { LuUser } from "react-icons/lu";
+import usePrintable from "../utils/usePrintable";
+import PrintableTable from "../components/print/PrintableTable";
 
 function DirectorsList() {
     const [directors, setDirectors] = useState([]);
@@ -46,6 +48,7 @@ function DirectorsList() {
     });
 
     const { setNavbarActions } = useOutletContext();
+    const { printRef, print } = usePrintable("Liste des chefs d'etablissement");
 
     /**
      * Debounce recherche
@@ -258,10 +261,11 @@ function DirectorsList() {
 
         setNavbarActions({
             onFilter: handleShowFiltersOptions,
+            onPrint: print,
         });
 
         return () => setNavbarActions({});
-    }, [setNavbarActions]);
+    }, [setNavbarActions, print]);
 
     /**
      * Rechargement auto
@@ -271,7 +275,33 @@ function DirectorsList() {
     }, [debouncedSearch, filters]);
 
     return (
-        <div className="min-h-screen bg-slate-50/50">
+        <div className="min-h-screen bg-base-100">
+            <PrintableTable
+                ref={printRef}
+                title="Liste des chefs d'etablissement"
+                meta={[{ label: "Total", value: directors.length }]}
+                columns={[
+                    { key: "index", label: "#" },
+                    { key: "name", label: "Noms et Prenoms" },
+                    { key: "email", label: "Email" },
+                    { key: "phone", label: "Telephone" },
+                    { key: "school", label: "Ecole" },
+                    { key: "year", label: "Annee" },
+                ]}
+                rows={directors.map((director, index) => {
+                    const assignment = director.active_director_assignment;
+                    return {
+                        id: director.id,
+                        index: index + 1,
+                        name: `${director.first_name} ${director.last_name}`,
+                        email: director.email || "-",
+                        phone: director.phone || "-",
+                        school: assignment?.school?.name || "Non affecte",
+                        year: assignment?.academic_year?.name || "-",
+                    };
+                })}
+            />
+
             <PageHeader
                 title="Liste des chefs d'établissement"
                 subtitle="Vue d'ensemble des responsables d'administration"
@@ -282,7 +312,7 @@ function DirectorsList() {
                 <LoadingSkeletoon />
             ) : (
                 <div className="max-w-7xl mx-auto p-4 lg:p-8">
-                    <div className="flex gap-4 mb-8">
+                    <div className="flex gap-4 mb-6">
                         <Card4
                             icon={ShieldCheck}
                             title={directors.length || "0"}
@@ -290,16 +320,16 @@ function DirectorsList() {
                         />
                     </div>
 
-                    <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                         {directors.length === 0 ? (
-                            <div className="col-span-full bg-white rounded-2xl border border-slate-200 p-10 text-center">
-                                <ShieldCheck className="mx-auto h-12 w-12 text-slate-300 mb-4" />
+                            <div className="col-span-full bg-base-200 rounded-md p-10 text-center">
+                                <ShieldCheck className="mx-auto h-10 w-10 text-base-content/25 mb-4" />
 
-                                <h3 className="text-lg font-semibold text-slate-700">
+                                <h3 className="text-base font-semibold text-base-content">
                                     Aucun chef d'établissement trouvé
                                 </h3>
 
-                                <p className="text-slate-500 mt-2">
+                                <p className="text-sm text-base-content/60 mt-2">
                                     Modifiez vos critères de recherche ou vos filtres.
                                 </p>
                             </div>
@@ -310,24 +340,24 @@ function DirectorsList() {
                                 return (
                                     <article
                                         key={director.id}
-                                        className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all"
+                                        className="bg-base-200 rounded-md p-5"
                                     >
-                                        <div className="flex items-center gap-4">
-                                            <div className="h-14 w-14 rounded-full bg-blue-100 flex items-center justify-center">
-                                                <LuUser className="h-7 w-7 text-blue-600" />
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                                <LuUser className="h-6 w-6 text-primary" />
                                             </div>
 
-                                            <div className="flex-1 space-y-1">
-                                                <h3 className="font-semibold text-slate-900">
+                                            <div className="flex-1 space-y-0.5">
+                                                <h3 className="font-medium text-sm text-base-content">
                                                     {director.first_name} {director.last_name}
                                                 </h3>
 
-                                                <p className="text-sm text-slate-500 italic">
+                                                <p className="text-xs text-base-content/60">
                                                     {director.email}
                                                 </p>
 
                                                 {director.phone && (
-                                                    <p className="text-sm text-slate-500">
+                                                    <p className="text-xs text-base-content/60">
                                                         {director.phone}
                                                     </p>
                                                 )}
@@ -335,39 +365,39 @@ function DirectorsList() {
                                         </div>
 
                                         {assignment ? (
-                                            <div className="mt-6 space-y-3">
+                                            <div className="mt-5 space-y-2.5">
                                                 <div>
-                                                    <span className="text-xs text-slate-400">
+                                                    <span className="text-xs text-base-content/50">
                                                         École
                                                     </span>
 
-                                                    <p className="font-medium text-slate-700">
+                                                    <p className="text-sm font-medium text-base-content">
                                                         {assignment.school?.name || "-"}
                                                     </p>
                                                 </div>
 
                                                 <div>
-                                                    <span className="text-xs text-slate-400">
+                                                    <span className="text-xs text-base-content/50">
                                                         Ville
                                                     </span>
 
-                                                    <p className="font-medium text-slate-700">
+                                                    <p className="text-sm font-medium text-base-content">
                                                         {assignment.school?.city || "-"}
                                                     </p>
                                                 </div>
 
                                                 <div>
-                                                    <span className="text-xs text-slate-400">
+                                                    <span className="text-xs text-base-content/50">
                                                         Année académique
                                                     </span>
 
-                                                    <p className="font-medium text-slate-700">
+                                                    <p className="text-sm font-medium text-base-content">
                                                         {assignment.academic_year?.name || "-"}
                                                     </p>
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="bg-gray-100 text-slate-500 text-xs text-center p-6 mt-4 rounded-2xl">
+                                            <div className="bg-base-100 text-base-content/50 text-xs text-center p-5 mt-4 rounded-md">
                                                 Ce chef d'établissement n'est assigné à aucune école
                                             </div>
                                         )}
@@ -376,7 +406,7 @@ function DirectorsList() {
                                             onClick={() =>
                                                 handleOpenAssignmentModal(director)
                                             }
-                                            className="w-full mt-6 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700"
+                                            className="w-full mt-5 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95"
                                         >
                                             Gérer l'affectation
                                         </button>
@@ -389,33 +419,33 @@ function DirectorsList() {
             )}
 
             {showFiltersModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div className="w-full max-w-lg rounded-3xl bg-white shadow-xl">
-                        <div className="flex items-center justify-between border-b border-slate-200 p-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-0 sm:p-4">
+                    <div className="w-full h-full sm:h-auto sm:max-w-lg sm:rounded-md bg-base-200 overflow-y-auto">
+                        <div className="flex items-center justify-between p-6">
                             <div className="flex items-center gap-3">
-                                <Filter className="h-5 w-5 text-blue-600" />
+                                <Filter className="h-4 w-4 text-primary" />
 
-                                <h2 className="text-lg font-semibold">
+                                <h2 className="text-base font-semibold text-base-content">
                                     Filtres avancés
                                 </h2>
                             </div>
 
                             <button
                                 onClick={() => setShowFiltersModal(false)}
-                                className="rounded-full p-2 hover:bg-slate-100"
+                                className="rounded-md p-2 hover:bg-base-300 transition-colors duration-150"
                             >
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
 
-                        <div className="space-y-6 p-6">
+                        <div className="space-y-5 p-6">
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-slate-700">
+                                <label className="mb-2 block text-sm font-medium text-base-content/70">
                                     Ville
                                 </label>
 
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-base-content/40" />
 
                                     <input
                                         type="text"
@@ -427,24 +457,24 @@ function DirectorsList() {
                                                 city: e.target.value,
                                             }))
                                         }
-                                        className="w-full rounded-xl border border-slate-300 py-3 pl-10 pr-4 outline-none focus:border-blue-500"
+                                        className="w-full rounded-md bg-base-100 py-2.5 pl-10 pr-4 text-sm outline-none"
                                     />
                                 </div>
                             </div>
 
                         </div>
 
-                        <div className="flex justify-end gap-3 border-t border-slate-200 p-6">
+                        <div className="flex justify-end gap-3 p-6">
                             <button
                                 onClick={handleResetFilters}
-                                className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-700 hover:bg-slate-50"
+                                className="rounded-md bg-base-100 px-5 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300"
                             >
                                 Réinitialiser
                             </button>
 
                             <button
                                 onClick={handleApplyFilters}
-                                className="rounded-xl bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700"
+                                className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95"
                             >
                                 Appliquer
                             </button>
@@ -454,31 +484,31 @@ function DirectorsList() {
             )}
 
             {showAssignmentModal && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-4xl rounded-3xl bg-white shadow-2xl">
-                        <div className="flex items-center justify-between border-b p-6">
+                <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 p-0 sm:p-4">
+                    <div className="w-full h-full sm:h-auto sm:max-w-4xl sm:rounded-md bg-base-200 overflow-y-auto">
+                        <div className="flex items-center justify-between p-6">
                             <div>
-                                <h2 className="text-xl font-semibold">
+                                <h2 className="text-base font-semibold text-base-content">
                                     Gérer l'affectation
                                 </h2>
 
-                                <p className="text-sm text-slate-500">
+                                <p className="text-sm text-base-content/60">
                                     {selectedDirector?.first_name} {selectedDirector?.last_name}
                                 </p>
                             </div>
 
                             <button
                                 onClick={() => setShowAssignmentModal(false)}
-                                className="rounded-full p-2 hover:bg-slate-100"
+                                className="rounded-md p-2 hover:bg-base-300 transition-colors duration-150"
                             >
                                 <X size={20} />
                             </button>
                         </div>
 
-                        <div className="grid gap-8 p-6 lg:grid-cols-2">
+                        <div className="grid gap-6 p-6 lg:grid-cols-2">
                             <div className="space-y-5">
                                 <div>
-                                    <label className="mb-2 flex items-center gap-2 text-sm font-medium">
+                                    <label className="mb-2 flex items-center gap-2 text-sm font-medium text-base-content/70">
                                         <Building2 size={16} />
                                         École
                                     </label>
@@ -491,7 +521,7 @@ function DirectorsList() {
                                                 school_id: e.target.value,
                                             }))
                                         }
-                                        className="w-full rounded-xl border p-3"
+                                        className="w-full rounded-md p-2.5 bg-base-100 text-sm outline-none"
                                     >
                                         <option value="">
                                             Sélectionner une école
@@ -509,7 +539,7 @@ function DirectorsList() {
                                 </div>
 
                                 <div>
-                                    <label className="mb-2 flex items-center gap-2 text-sm font-medium">
+                                    <label className="mb-2 flex items-center gap-2 text-sm font-medium text-base-content/70">
                                         <GraduationCap size={16} />
                                         Année académique
                                     </label>
@@ -522,7 +552,7 @@ function DirectorsList() {
                                                 academic_year_id: e.target.value,
                                             }))
                                         }
-                                        className="w-full rounded-xl border p-3"
+                                        className="w-full rounded-md p-2.5 bg-base-100 text-sm outline-none"
                                     >
                                         <option value="">
                                             Sélectionner une année
@@ -542,7 +572,7 @@ function DirectorsList() {
                                 <button
                                     onClick={handleAssignDirector}
                                     disabled={assignmentSaving}
-                                    className="w-full rounded-xl bg-blue-600 py-3 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                                    className="w-full rounded-md bg-primary py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95 disabled:opacity-50"
                                 >
                                     <div className="flex items-center justify-center gap-2">
                                         <Plus size={18} />
@@ -555,34 +585,34 @@ function DirectorsList() {
                             </div>
 
                             <div>
-                                <h3 className="font-semibold mb-4">
+                                <h3 className="font-medium text-sm mb-4 text-base-content">
                                     Historique des affectations
                                 </h3>
 
-                                <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                                <div className="space-y-2.5 max-h-100 overflow-y-auto">
                                     {assignmentLoading ? (
-                                        <p className="text-sm text-slate-500">
+                                        <p className="text-sm text-base-content/60">
                                             Chargement...
                                         </p>
                                     ) : assignmentHistory.length === 0 ? (
-                                        <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-slate-500">
+                                        <div className="rounded-md p-6 text-center text-sm text-base-content/50 bg-base-100">
                                             Aucune affectation.
                                         </div>
                                     ) : (
                                         assignmentHistory.map((assignment) => (
                                             <div
                                                 key={assignment.id}
-                                                className="rounded-2xl border p-4"
+                                                className="rounded-md p-4 bg-base-100"
                                             >
-                                                <p className="font-medium">
+                                                <p className="font-medium text-sm text-base-content">
                                                     {assignment.school?.name}
                                                 </p>
 
-                                                <p className="text-sm text-slate-500">
+                                                <p className="text-sm text-base-content/60">
                                                     {assignment.school?.city}
                                                 </p>
 
-                                                <p className="text-sm text-slate-500">
+                                                <p className="text-sm text-base-content/60">
                                                     {assignment.academic_year?.name}
                                                 </p>
 
@@ -592,7 +622,7 @@ function DirectorsList() {
                                                             assignment.id
                                                         )
                                                     }
-                                                    className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-red-600"
+                                                    className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-error"
                                                 >
                                                     <Trash2 size={14} />
                                                     Supprimer

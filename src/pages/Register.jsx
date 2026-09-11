@@ -52,7 +52,7 @@ function Register() {
       footer={
         <>
           Vous avez déjà un compte ?{' '}
-          <Link to="/login" className="font-semibold text-slate-500">
+          <Link to="/login" className="font-medium text-primary">
             Se connecter
           </Link>
         </>

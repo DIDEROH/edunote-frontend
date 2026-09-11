@@ -18,6 +18,8 @@ import { LuSearchX } from "react-icons/lu";
 import { useAnimations } from '../utils/animations'
 import { deleteElement } from "../utils/deleteElement";
 import LoadingSkeleton from "../components/LoadingSkeletoon";
+import usePrintable from "../utils/usePrintable";
+import PrintableTable from "../components/print/PrintableTable";
 
 // --- COMPOSANT : FORMULAIRE (AJOUT & MODIF) ---
 const SchoolForm = ({ initialData, onSubmit, loading, isEditMode, onReset }) => {
@@ -33,17 +35,17 @@ const SchoolForm = ({ initialData, onSubmit, loading, isEditMode, onReset }) => 
   return (
     <form 
       onSubmit={handleSubmit(onSubmit)} 
-      className="mx-auto max-w-2xl bg-white p-2 md:p-4 lg:p-6 xl:p-8 rounded-sm shadow-sm border border-slate-100"
+      className="mx-auto max-w-2xl bg-base-200 p-4 md:p-6 lg:p-8 rounded-md"
     >
       <div className="flex items-center gap-3 mb-8">
-        <div className={`p-3 rounded-2xl ${isEditMode ? 'bg-orange-100 text-orange-600' : 'bg-indigo-100 text-indigo-600'}`}>
-          <SchoolIcon size={24} />
+        <div className={`p-3 rounded-md ${isEditMode ? 'bg-warning/10 text-warning' : 'bg-primary/10 text-primary'}`}>
+          <SchoolIcon size={22} />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-slate-800 tracking-tight">
+          <h2 className="text-base font-semibold text-base-content">
             {isEditMode ? "Modifier l'établissement" : "Ajouter une école"}
           </h2>
-          <p className="text-xs text-slate-500 font-medium uppercase tracking-widest mt-0.5">
+          <p className="text-xs text-base-content/50 mt-0.5">
             Informations générales
           </p>
         </div>
@@ -134,13 +136,13 @@ const SchoolForm = ({ initialData, onSubmit, loading, isEditMode, onReset }) => 
         <CtaDark onAction={() => onReset()}>
             Annuler
         </CtaDark>
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
-          className={`px-4 w-full py-5 rounded-3xl font-black text-xs tracking-[2px] uppercase transition-all flex items-center justify-center gap-3 shadow-lg 
-            ${isEditMode 
-              ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-200' 
-              : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200'
+          className={`px-4 w-full py-3.5 rounded-md font-medium text-sm transition-colors duration-150 flex items-center justify-center gap-3
+            ${isEditMode
+              ? 'bg-warning hover:brightness-95'
+              : 'bg-primary hover:brightness-95'
             } text-white disabled:opacity-50`}
         >
           {loading ? (
@@ -207,7 +209,8 @@ const SchoolData = ({ data, onEdit, onDelete }) => {
 // --- COMPOSANT PRINCIPAL ---
 function School() {
     const { setNavbarActions } = useOutletContext();
-    const [view, setView] = useState('list'); 
+    const { printRef, print } = usePrintable("Liste des ecoles");
+    const [view, setView] = useState('list');
     const [schools, setSchools] = useState([]);
     const [currentSchool, setCurrentSchool] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -309,11 +312,12 @@ function School() {
     useEffect(() => {
         setNavbarActions({
             onAdd: () => handleAddClick(),
-            onBack: () => navigate(-1)
+            onBack: () => navigate(-1),
+            onPrint: print,
         })
 
         return () => setNavbarActions({})
-    }, [setNavbarActions]);
+    }, [setNavbarActions, print]);
 
     /**
      * ✅ Effet séparé pour recharger les données lorsque la recherche change
@@ -325,6 +329,27 @@ function School() {
 
     return (
         <div ref={containerRef}>
+            <PrintableTable
+                ref={printRef}
+                title="Liste des ecoles"
+                meta={[{ label: "Total", value: schools.length }]}
+                columns={[
+                    { key: "index", label: "#" },
+                    { key: "name", label: "Nom" },
+                    { key: "code", label: "Code" },
+                    { key: "city", label: "Ville" },
+                    { key: "phone", label: "Telephone" },
+                ]}
+                rows={schools.map((s, index) => ({
+                    id: s.id,
+                    index: index + 1,
+                    name: s.name,
+                    code: s.code,
+                    city: s.city || "-",
+                    phone: s.phone || "-",
+                }))}
+            />
+
             <PageHeader
                 title="Gestion des écoles"
                 subtitle="Gérez toutes les configurations necessaires au fonctionnement des établissements scolaires"
@@ -335,7 +360,7 @@ function School() {
                 {loading ?
                   <LoadingSkeleton />
                 : view === 'list' ? (
-                    <div className="animate-reveal">
+                    <div>
                         <SchoolData 
                             data={schools} 
                             onEdit={handleEditClick} 
@@ -343,7 +368,7 @@ function School() {
                         />
                     </div>
                 ) : (
-                    <div className="animate-reveal">
+                    <div>
                         <SchoolForm 
                             key={currentSchool?.id || 'new'} // Astuce : force le remount du formulaire
                             initialData={currentSchool}

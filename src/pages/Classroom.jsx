@@ -14,6 +14,8 @@ import { Card5 } from "../components/ui/CardsComponents"
 import { LuSearchX } from "react-icons/lu"
 import { deleteElement } from "../utils/deleteElement"
 import InputComponent from "../components/InputComponent"
+import usePrintable from "../utils/usePrintable"
+import PrintableTable from "../components/print/PrintableTable"
 
 // Composant Formulaire dédié
 const ClassroomForm = ({ initialData, onSubmit, onCancel, loading }) => {
@@ -22,8 +24,8 @@ const ClassroomForm = ({ initialData, onSubmit, onCancel, loading }) => {
     });
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 bg-white border border-slate-100 shadow-sm rounded-sm max-w-4xl mx-auto">
-            <h2 className="text-lg font-bold mb-6">{initialData ? "Modifier la classe" : "Ajouter une classe"}</h2>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 bg-base-200 rounded-md max-w-4xl mx-auto">
+            <h2 className="text-base font-semibold text-base-content mb-6">{initialData ? "Modifier la classe" : "Ajouter une classe"}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputComponent nom="Nom" name="name" register={register} errors={errors} req={true} />
                 <InputComponent nom="Pseudo" name="short_name" register={register} errors={errors} req={true} />
@@ -51,6 +53,7 @@ function Classroom() {
     const showConfirm = useShowConfirm()
     const navigate = useNavigate()
     const { setNavbarActions } = useOutletContext();
+    const { printRef, print } = usePrintable("Liste des classes");
 
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedSearch(search), 500)
@@ -99,12 +102,26 @@ function Classroom() {
     }
 
     useEffect(() => {
-        setNavbarActions({ onAdd: () => setView('add') })
+        setNavbarActions({ onAdd: () => setView('add'), onPrint: print })
         return () => setNavbarActions({})
-    }, [setNavbarActions])
+    }, [setNavbarActions, print])
 
     return (
         <main className='text-xs'>
+            <PrintableTable
+                ref={printRef}
+                title="Liste des classes"
+                meta={[{ label: "Total", value: classrooms.length }]}
+                columns={[
+                    { key: "index", label: "#" },
+                    { key: "name", label: "Nom" },
+                    { key: "short_name", label: "Pseudo" },
+                    { key: "level_index", label: "Niveau" },
+                    { key: "cycle", label: "Cycle" },
+                ]}
+                rows={classrooms.map((c, index) => ({ id: c.id, index: index + 1, ...c }))}
+            />
+
             <PageHeader title="Gestion des classes" subtitle="Configuration des salles" onSearch={setSearch} />
             
             <section className="p-4">

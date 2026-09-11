@@ -102,7 +102,7 @@ function Visualiser() {
     }, [schoolId, term, fetchBulletins]);
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-base-100">
             <PageHeader
                 title="Génération des Bulletins"
                 subtitle={`${schoolName || ''} | ${termName || ''}`}

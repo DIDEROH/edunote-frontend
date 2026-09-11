@@ -1,4 +1,5 @@
     import { useEffect, useRef, useState, useCallback } from "react";
+    import { useOutletContext } from "react-router-dom";
     import { api } from "../utils/AxiosClient";
     import { useAnimations } from "../utils/animations";
     import PageHeader from "../components/elements/PageHeader";
@@ -15,9 +16,13 @@
         CustomBtn,
         DeleteBtn
     } from "../components/ui/ButtonsComponents";
+    import usePrintable from "../utils/usePrintable";
+    import PrintableTable from "../components/print/PrintableTable";
 
     function UsersPage() {
         const containerRef = useRef(null);
+        const { printRef, print } = usePrintable("Liste des utilisateurs");
+        const { setNavbarActions } = useOutletContext();
 
         useAnimations(containerRef);
 
@@ -208,6 +213,11 @@
         }, []);
 
         useEffect(() => {
+            setNavbarActions({ onPrint: print });
+            return () => setNavbarActions({});
+        }, [setNavbarActions, print]);
+
+        useEffect(() => {
             if (!isSHowUser) {
                 setShowRoleModal(false);
             }
@@ -215,6 +225,25 @@
 
         return (
             <div ref={containerRef}>
+                <PrintableTable
+                    ref={printRef}
+                    title="Liste des utilisateurs"
+                    meta={[{ label: "Total (page courante)", value: users?.data?.length || 0 }]}
+                    columns={[
+                        { key: "index", label: "#" },
+                        { key: "name", label: "Nom complet" },
+                        { key: "phone", label: "Contact" },
+                        { key: "email", label: "Email" },
+                    ]}
+                    rows={(users?.data || []).map((user, index) => ({
+                        id: user.id,
+                        index: index + 1,
+                        name: `${user?.first_name || ""} ${user?.last_name || ""}`,
+                        phone: user?.phone || "Non renseigné",
+                        email: user?.email || "-",
+                    }))}
+                />
+
                 <PageHeader
                     title="Gestion des Utilisateurs"
                     subtitle="Liste complète des utilisateurs inscrits et configuration de leurs accès."
@@ -238,7 +267,7 @@
                             
                             <CustomBtn
                                 icon={LuUserRoundCog}
-                                colorText="text-green-700"
+                                colorText="text-success"
                                 toolText="Gérer les rôles"
                                 onAction={handleOpenRoleModal}
                             />
@@ -255,46 +284,75 @@
                         </UserCard>
                     ) : (
                         <>
-                            <Table>
-                                <Table.Head>
-                                    <Th className="font-bold">#</Th>
-                                    <Th>Nom complet</Th>
-                                    <Th>Contact</Th>
-                                    <Th>Email</Th>
-                                </Table.Head>
+                            {/* Cartes mobiles */}
+                            <div className="grid gap-2 md:hidden">
+                                {users.data.map((user, index) => (
+                                    <button
+                                        key={user.id}
+                                        onClick={() => handleShowUSer(user)}
+                                        className="text-left rounded-md bg-base-200 p-4 transition-colors duration-150 hover:bg-base-300"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-medium text-sm text-base-content">
+                                                {user?.first_name} {user?.last_name}
+                                            </span>
+                                            <span className="text-xs text-base-content/40">
+                                                #{((pagination.currentPage - 1) * 25) + index + 1}
+                                            </span>
+                                        </div>
+                                        <div className="mt-1 text-xs text-base-content/60">
+                                            {user?.email}
+                                        </div>
+                                        <div className="mt-0.5 text-xs text-base-content/50">
+                                            {user?.phone || "Non renseigné"}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
 
-                                <Table.Body>
-                                    {users.data.map((user, index) => (
-                                        <Tr
-                                            className="cursor-pointer"
-                                            key={user.id}
-                                            onAction={() =>
-                                                handleShowUSer(user)
-                                            }
-                                        >
-                                            <TdBody>
-                                                {((pagination.currentPage - 1) * 25) +
-                                                    index +
-                                                    1}
-                                            </TdBody>
+                            {/* Tableau desktop */}
+                            <div className="hidden md:block">
+                                <Table>
+                                    <Table.Head>
+                                        <Th className="font-bold">#</Th>
+                                        <Th>Nom complet</Th>
+                                        <Th>Contact</Th>
+                                        <Th>Email</Th>
+                                    </Table.Head>
 
-                                            <TdBody className="font-semibold">
-                                                {user?.first_name}{" "}
-                                                {user?.last_name}
-                                            </TdBody>
+                                    <Table.Body>
+                                        {users.data.map((user, index) => (
+                                            <Tr
+                                                className="cursor-pointer"
+                                                key={user.id}
+                                                onAction={() =>
+                                                    handleShowUSer(user)
+                                                }
+                                            >
+                                                <TdBody>
+                                                    {((pagination.currentPage - 1) * 25) +
+                                                        index +
+                                                        1}
+                                                </TdBody>
 
-                                            <TdBody>
-                                                {user?.phone ||
-                                                    "Non renseigné"}
-                                            </TdBody>
+                                                <TdBody className="font-semibold">
+                                                    {user?.first_name}{" "}
+                                                    {user?.last_name}
+                                                </TdBody>
 
-                                            <TdBody>
-                                                {user?.email}
-                                            </TdBody>
-                                        </Tr>
-                                    ))}
-                                </Table.Body>
-                            </Table>
+                                                <TdBody>
+                                                    {user?.phone ||
+                                                        "Non renseigné"}
+                                                </TdBody>
+
+                                                <TdBody>
+                                                    {user?.email}
+                                                </TdBody>
+                                            </Tr>
+                                        ))}
+                                    </Table.Body>
+                                </Table>
+                            </div>
 
                             <div className="mt-4 flex justify-center">
                                 <Paginate
@@ -312,59 +370,59 @@
                     )}
 
                     {showRoleModal && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                            <div className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl">
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-0 sm:p-4">
+                            <div className="w-full h-full sm:h-auto sm:max-w-2xl sm:rounded-md bg-base-200 overflow-y-auto">
 
-                                <div className="border-b p-6">
+                                <div className="p-6">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h2 className="text-xl font-bold text-slate-800">
+                                            <h2 className="text-base font-semibold text-base-content">
                                                 Gestion des rôles
                                             </h2>
 
-                                            <p className="mt-1 text-sm text-slate-500">
+                                            <p className="mt-1 text-sm text-base-content/60">
                                                 {userInfo?.first_name} {userInfo?.last_name}
                                             </p>
                                         </div>
 
                                         <button
                                             onClick={() => setShowRoleModal(false)}
-                                            className="text-2xl text-slate-500 hover:text-slate-700"
+                                            className="text-xl text-base-content/50 hover:text-base-content transition-colors duration-150"
                                         >
                                             ×
                                         </button>
                                     </div>
                                 </div>
 
-                                <div className="space-y-6 p-6">
+                                <div className="space-y-5 p-6">
 
                                     <div>
-                                        <h3 className="mb-3 font-semibold text-slate-700">
+                                        <h3 className="mb-3 text-sm font-medium text-base-content/70">
                                             Rôles attribués
                                         </h3>
 
-                                        <div className="flex flex-wrap gap-3">
+                                        <div className="flex flex-wrap gap-2">
                                             {userInfo?.roles?.length > 0 ? (
                                                 userInfo.roles.map((role) => (
                                                     <div
                                                         key={role.id}
-                                                        className="flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2"
+                                                        className="flex items-center gap-2 rounded-sm bg-primary/10 px-3 py-1.5"
                                                     >
-                                                        <span className="text-sm font-medium text-blue-700">
+                                                        <span className="text-sm font-medium text-primary">
                                                             {role.name}
                                                         </span>
 
                                                         <button
                                                             disabled={removingRole}
                                                             onClick={() => handleRemoveRole(role)}
-                                                            className="text-red-500 transition hover:text-red-700"
+                                                            className="text-error transition-colors duration-150 hover:text-error/70"
                                                         >
                                                             ×
                                                         </button>
                                                     </div>
                                                 ))
                                             ) : (
-                                                <p className="text-sm text-slate-500">
+                                                <p className="text-sm text-base-content/50">
                                                     Aucun rôle attribué.
                                                 </p>
                                             )}
@@ -372,14 +430,14 @@
                                     </div>
 
                                     <div>
-                                        <label className="mb-2 block font-semibold text-slate-700">
+                                        <label className="mb-2 block text-sm font-medium text-base-content/70">
                                             Ajouter un rôle
                                         </label>
 
                                         <select
                                             value={selectedRole}
                                             onChange={(e) => setSelectedRole(e.target.value)}
-                                            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full rounded-md bg-base-100 px-4 py-3 text-sm outline-none"
                                         >
                                             <option value="">
                                                 Sélectionner un rôle
@@ -405,10 +463,10 @@
                                     </div>
                                 </div>
 
-                                <div className="flex justify-end gap-3 border-t p-6">
+                                <div className="flex justify-end gap-3 p-6">
                                     <button
                                         onClick={() => setShowRoleModal(false)}
-                                        className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-700"
+                                        className="rounded-md bg-base-100 px-5 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300"
                                     >
                                         Fermer
                                     </button>
@@ -416,7 +474,7 @@
                                     <button
                                         disabled={assigningRole}
                                         onClick={handleAssignRole}
-                                        className="rounded-xl bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                                        className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95 disabled:opacity-50"
                                     >
                                         {assigningRole
                                             ? "Attribution..."

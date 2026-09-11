@@ -83,55 +83,50 @@ export default function Layout() {
   };
 
   return (
-    <div className="relative min-h-screen bg-base-100 text-base-content flex overflow-hidden font-sans transition-colors duration-300">
-      
-      <div className="fixed inset-0 overflow-hidden -z-10 opacity-30">
-        <div className="neon-blob absolute top-[-5%] left-[-5%] w-125 h-125 bg-primary/20 blur-[120px] rounded-full"></div>
-        <div className="neon-blob absolute bottom-[-5%] right-[-5%] w-150 h-150 bg-secondary/10 blur-[150px] rounded-full"></div>
-      </div>
+    <div className="min-h-screen bg-base-100 text-base-content flex overflow-hidden">
 
       <aside className={`
           fixed lg:relative inset-y-0 left-0 z-50
-          flex flex-col w-64 lg:w-15 lg:hover:w-64 
-          transition-all duration-500 ease-in-out 
-          bg-base-200/95 lg:bg-base-200/40 backdrop-blur-xl border-r border-base-content/10 group
+          flex flex-col w-64 lg:w-15 lg:hover:w-64
+          transition-all duration-300 ease-in-out
+          bg-base-200 group
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
           onMouseOver={() => {setShowDetails(true)}}
           onMouseLeave={() => {setShowDetails(false)}}
       >
 
         {/* Bouton de fermeture du menu latéral */}
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(false)}
-          className={`lg:hidden hover:scale-125 absolute top-7 btn btn-circle btn-base-300 ${isSidebarOpen ? "translate-x-68" : "translate-x-20"} p-2 hover:text-primary transition cursor-pointer duration-600`}
+          className={`lg:hidden absolute top-7 btn btn-circle btn-ghost ${isSidebarOpen ? "translate-x-68" : "translate-x-20"} p-2 hover:text-primary transition-colors duration-150 cursor-pointer`}
         >
           <X size={24} />
         </button>
 
         {/* Logo et noms de la barre latérale */}
         <div className="group px-3 py-2 mb-3 flex items-center justify-center pointer">
-          <Logo className={`w-10 ml-8 group-hover:scale-0 transition duration-300 ${isSidebarOpen ? "scale-0" : ""}`} />
-          <div className={`invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-500 w-full h-10 bg-linear-to-br from-primary to-secondary rounded-xl flex items-center justify-center font-bold text-secondary-content shrink-0 shadow-lg -translate-x-10 ${isSidebarOpen ? "opacity-100 visible" : ""}`}>
+          <Logo className={`w-10 ml-8 group-hover:scale-0 transition duration-150 ${isSidebarOpen ? "scale-0" : ""}`} />
+          <div className={`invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-150 w-full h-10 bg-primary rounded-md flex items-center justify-center font-semibold text-primary-content shrink-0 -translate-x-10 ${isSidebarOpen ? "opacity-100 visible" : ""}`}>
             {Appname}
           </div>
         </div>
-        
+
         {/* Zonne où je mappe tous mes liens  */}
-        <nav className="flex-1 px-4 space-y-4 overflow-x-hidden overflow-y-auto pb-5">
+        <nav className="flex-1 px-4 space-y-2 overflow-x-hidden overflow-y-auto pb-5">
           {pages.map((page, index) => (
-            <SidebarItem 
-              key={index} 
-              icon={iconMap[page.icon]} 
-              label={page.name} 
-              to={page.to} 
-              active={location.pathname === page.to} 
+            <SidebarItem
+              key={index}
+              icon={iconMap[page.icon]}
+              label={page.name}
+              to={page.to}
+              active={location.pathname === page.to}
               onClick={closeSidebarOnMobile}
             />
           ))}
         </nav>
 
         {/* Zone de raccourcis pour afficher l'utilisateur */}
-        <div className="p-6 border-t border-base-content/5 text-[10px] text-slate-600 font-semibold">
+        <div className="p-6 text-[11px] text-base-content/60 font-medium">
           <div className="flex items-center gap-3">
             <FiInfo size={15} />
 
@@ -161,22 +156,22 @@ export default function Layout() {
 
       {/* Div d'espace pour fermer la sidebar en cliqunat hors de la zone */}
       {isSidebarOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />
       )}
 
       <main ref={mainRef} className="flex-1 h-screen overflow-y-auto relative custom-scrollbar">
 
         {/* le header */}
-        <header className="sticky top-0 z-40 w-full px-4 h-13 flex items-center justify-between bg-base-100/50 backdrop-blur-md border-b border-base-content/5">
+        <header className="sticky top-0 z-40 w-full px-4 h-13 flex items-center justify-between bg-base-200">
           <div className='flex items-center justify-between gap-3 w-full'>
 
             {/* cadre du bouton de menu et la barre de recherche  */}
             <div className='flex items-center w-full'>
-              <button 
+              <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="p-2 lg:hidden hover:bg-primary hover:text-primary-content transition-all group btn btn-ghost btn-circle"
+                className="p-2 lg:hidden hover:bg-primary hover:text-primary-content transition-colors btn btn-ghost btn-circle"
               >
-                <Menu size={20} className="group-hover:rotate-12 transition-transform" />
+                <Menu size={20} />
               </button>
 
             </div>
@@ -184,37 +179,37 @@ export default function Layout() {
             {/* 🟢 BLOC DES QUATRE ICÔNES DYNAMIQUES DEMANDÉES (S'affichent uniquement si la page active les définit) */}
             <div className="flex items-center gap-1.5 mr-2">
               {navbarActions.onSearch && (
-                <button onClick={() => navbarActions.onSearch()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Rechercher">
+                <button onClick={() => navbarActions.onSearch()} className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer" title="Rechercher">
                   <Search size={17} />
                 </button>
               )}
               {navbarActions.onDelete && (
-                <button onClick={() => navbarActions.onDelete()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Supprimer">
+                <button onClick={() => navbarActions.onDelete()} className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer" title="Supprimer">
                   <Trash2 size={17} />
                 </button>
               )}
               {navbarActions.onEdit && (
-                <button onClick={() => navbarActions.onEdit()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Modifier">
+                <button onClick={() => navbarActions.onEdit()} className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer" title="Modifier">
                   <Pencil size={17} />
                 </button>
               )}
               {navbarActions.onAdd && (
-                <button onClick={() => navbarActions.onAdd()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Ajouter">
+                <button onClick={() => navbarActions.onAdd()} className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer" title="Ajouter">
                   <Plus size={17} />
                 </button>
               )}
               {navbarActions.onFilter && (
-                <button onClick={() => navbarActions.onFilter()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Filtrer">
+                <button onClick={() => navbarActions.onFilter()} className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer" title="Filtrer">
                   <Filter size={17} />
                 </button>
               )}
               {navbarActions.onPrint && (
-                <button onClick={() => navbarActions.onPrint()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Imprimer">
+                <button onClick={() => navbarActions.onPrint()} className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer" title="Imprimer">
                   <Printer size={17} />
                 </button>
               )}
               {navbarActions.onBack && (
-                <button onClick={() => navbarActions.onBack()} className="p-2 hover:bg-base-content/10 rounded-full text-base-content/80 hover:text-primary transition-colors cursor-pointer" title="Retour">
+                <button onClick={() => navbarActions.onBack()} className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer" title="Retour">
                   <ArrowLeft size={17} />
                 </button>
               )}
@@ -226,16 +221,16 @@ export default function Layout() {
                 <User2 size={17} />
               </button>
             </div>
-            
+
           </div>
-          
+
         </header>
-        
+
         {/* Zonne d'aafichage de mes pages */}
         <div className="p-4 md:p-6 lg:p-8">
           <Outlet context={{ setNavbarActions }} />
         </div>
-        
+
       </main>
 
 
@@ -243,34 +238,25 @@ export default function Layout() {
       <div
         className={`
           absolute right-0 top-14 z-50
-          w-80
-          rounded-xl
-          border border-base-300/50
-          bg-base-100/95
-          backdrop-blur-md
-          shadow-2xl
+          w-72
+          rounded-md
+          bg-base-200
           overflow-hidden
-          transition-all duration-300
+          transition-opacity duration-150
           ${
             userCard
-              ? "opacity-100 translate-y-0 scale-100"
-              : "opacity-0 -translate-y-5 scale-95 pointer-events-none"
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
           }
         `}
       >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-20" />
-
-        {/* Avatar */}
-        <div className="flex justify-center -mt-10">
-          <div className="w-20 h-20 rounded-full bg-white shadow-lg flex items-center justify-center border-4 border-white">
-            <User2 size={40} className="text-blue-600" />
+        {/* Avatar + Infos */}
+        <div className="px-6 pt-6 pb-4 text-center">
+          <div className="mx-auto w-14 h-14 rounded-full bg-base-300 flex items-center justify-center">
+            <User2 size={28} className="text-primary" />
           </div>
-        </div>
 
-        {/* Infos */}
-        <div className="px-6 pb-6 pt-4 text-center">
-          <h3 className="font-bold text-sm text-base-content">
+          <h3 className="mt-3 font-semibold text-sm text-base-content">
             {userName}
           </h3>
 
@@ -279,14 +265,14 @@ export default function Layout() {
           </p>
 
           {/* Actions */}
-          <div className="mt-6 space-y-2">
+          <div className="mt-5 space-y-2">
             <LinkGhost
               link="/user"
               color="
                 flex items-center justify-center gap-2
-                w-full py-3 rounded-xl
-                bg-blue-50 hover:bg-blue-100
-                text-blue-600 font-medium
+                w-full py-2.5 rounded-md
+                bg-primary/10 hover:bg-primary/15
+                text-primary font-medium
                 transition-colors text-xs
               "
             >
@@ -298,9 +284,9 @@ export default function Layout() {
               onAction={handleLogOut}
               color="
                 flex items-center justify-center gap-2
-                w-full py-3 rounded-xl
-                bg-red-50 hover:bg-red-100
-                text-red-500 font-medium
+                w-full py-2.5 rounded-md
+                bg-error/10 hover:bg-error/15
+                text-error font-medium
                 transition-colors text-xs
               "
             >

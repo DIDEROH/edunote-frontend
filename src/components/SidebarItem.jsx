@@ -8,14 +8,14 @@ export default function SidebarItem({ icon, label, to, active = false, onClick }
         className={`flex items-center gap-3 cursor-pointer group/item relative py-1 transition-colors
         ${active ? 'text-primary' : 'text-base-content/60 hover:text-base-content'}`}
     >
-        <div className={`shrink-0 transition-all duration-300 group-hover/item:scale-110 group-hover/item:text-primary ${active ? 'scale-110' : ''}`}>
+        <div className="shrink-0 transition-colors duration-150 group-hover/item:text-primary">
         {icon}
         </div>
-        <span className="text-xs font-bold opacity-100 lg:opacity-0 lg:group-hover:opacity-100 group-hover/item:text-primary transition-all duration-500 whitespace-nowrap">
+        <span className="text-xs font-medium opacity-100 lg:opacity-0 lg:group-hover:opacity-100 group-hover/item:text-primary transition-opacity duration-150 whitespace-nowrap">
         {label}
         </span>
         {active && (
-        <div className="absolute -left-4 w-1.5 h-8 bg-primary rounded-r-full shadow-[0_0_15px_rgba(var(--p),0.5)]" />
+        <div className="absolute -left-4 w-1 h-6 bg-primary rounded-r-sm" />
         )}
     </Link>
   )

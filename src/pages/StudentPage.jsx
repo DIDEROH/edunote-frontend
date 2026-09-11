@@ -10,6 +10,8 @@ import { Card5 } from "../components/ui/CardsComponents";
 import Paginate from "../components/Paginate";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Filter, X } from "lucide-react";
+import usePrintable from "../utils/usePrintable";
+import PrintableTable from "../components/print/PrintableTable";
 
 
 function StudentsPage() {
@@ -17,6 +19,7 @@ function StudentsPage() {
     useAnimations(containerRef);
     const { setNavbarActions } = useOutletContext();
     const navigate = useNavigate();
+    const { printRef, print } = usePrintable("Liste des eleves");
 
     // États principaux de données
     const [loading, setLoading] = useState(false);
@@ -140,13 +143,43 @@ function StudentsPage() {
         setNavbarActions({
             onAdd: handleAddStudent, // Correction ici (passage direct de la référence de fonction)
             onFilter: handleShowFiltersOptions,
+            onPrint: print,
         });
         return () => setNavbarActions({});
-    }, [setNavbarActions]);
+    }, [setNavbarActions, print]);
 
 
     return (
         <div ref={containerRef}>
+            <PrintableTable
+                ref={printRef}
+                title="Liste des eleves"
+                meta={[
+                    { label: "Page", value: `${pagination.currentPage}/${pagination.lastPage}` },
+                    { label: "Recherche", value: debouncedQuery || "-" },
+                ]}
+                columns={[
+                    { key: "index", label: "#" },
+                    { key: "name", label: "Noms et Prenoms" },
+                    { key: "sexe", label: "Sexe" },
+                    { key: "matricule", label: "Matricule" },
+                    { key: "classe", label: "Classe" },
+                    { key: "ecole", label: "Ecole" },
+                ]}
+                rows={(students.data || []).map((student, index) => {
+                    const currentEnrol = student.enrollments?.[0];
+                    return {
+                        id: student.id,
+                        index: index + 1,
+                        name: `${student.first_name} ${student.last_name}`,
+                        sexe: student.gender || student.student?.sex || "-",
+                        matricule: student.matricule || "-",
+                        classe: currentEnrol?.classroom?.name || "Non inscrit",
+                        ecole: currentEnrol?.school?.name || "-",
+                    };
+                })}
+            />
+
             <PageHeader
                 title="Gestion des Élèves"
                 subtitle="Consultez le fichier des apprenants, filtrez par structure ou gérez les réinscriptions."
@@ -162,48 +195,79 @@ function StudentsPage() {
                         Aucun élève trouvé avec les critères actuels.
                     </Card5>
                 ) : (<>
-                        <Table>
-                            <Table.Head>
-                                <Th className="font-bold">#</Th>
-                                <Th>Noms et Prénoms</Th>
-                                <Th>Sexe</Th>
-                                <Th>Matricule</Th>
-                                <Th>Classe Actuelle</Th>
-                                <Th>École</Th>
-                            </Table.Head>
-
-                            <Table.Body>
-                                {students.data.map((student, index) => {
-                                    const currentEnrol = student.enrollments?.[0];
-                                    return (
-                                        <Tr 
-                                                    key={student.id} 
-                                                    onAction={() => navigate(`/students/${student.id}`)}
-                                                    className="cursor-pointer hover:bg-gray-50 dark:hover:bg-blue-600 transition-colors"
-                                                >
-                                            <TdBody>{index + 1}</TdBody>
-                                            <TdBody className="font-medium">
+                        {/* Cartes mobiles */}
+                        <div className="grid gap-2 md:hidden">
+                            {students.data.map((student, index) => {
+                                const currentEnrol = student.enrollments?.[0];
+                                return (
+                                    <button
+                                        key={student.id}
+                                        onClick={() => navigate(`/students/${student.id}`)}
+                                        className="text-left rounded-md bg-base-200 p-4 transition-colors duration-150 hover:bg-base-300"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-medium text-sm text-base-content">
                                                 {student.first_name} {student.last_name}
-                                            </TdBody>
-                                            <TdBody>{student.gender || student.student.sex || "-"}</TdBody>
-                                            <TdBody>
-                                                <span className="px-2 py-1 bg-gray-100 text-zinc-800 rounded text-xs font-mono">
-                                                    {student.matricule || "Aucun"}
-                                                </span>
-                                            </TdBody>
-                                            <TdBody>
-                                                {currentEnrol?.classroom?.name || (
-                                                    <span className="text-red-500 italic text-xs">Non inscrit</span>
-                                                )}
-                                            </TdBody>
-                                            <TdBody className="text-gray-900 font-semibold">
-                                                {currentEnrol?.school?.name || "-"}
-                                            </TdBody>
-                                        </Tr>
-                                    );
-                                })}
-                            </Table.Body>
-                        </Table>
+                                            </span>
+                                            <span className="text-xs text-base-content/40">#{index + 1}</span>
+                                        </div>
+                                        <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-base-content/60">
+                                            <span className="px-2 py-0.5 bg-base-300 rounded-sm font-mono">{student.matricule || "Aucun"}</span>
+                                            <span>{student.gender || student.student.sex || "-"}</span>
+                                        </div>
+                                        <div className="mt-1 text-xs text-base-content/60">
+                                            {currentEnrol?.classroom?.name || <span className="text-error">Non inscrit</span>} — {currentEnrol?.school?.name || "-"}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Tableau desktop */}
+                        <div className="hidden md:block">
+                            <Table>
+                                <Table.Head>
+                                    <Th className="font-bold">#</Th>
+                                    <Th>Noms et Prénoms</Th>
+                                    <Th>Sexe</Th>
+                                    <Th>Matricule</Th>
+                                    <Th>Classe Actuelle</Th>
+                                    <Th>École</Th>
+                                </Table.Head>
+
+                                <Table.Body>
+                                    {students.data.map((student, index) => {
+                                        const currentEnrol = student.enrollments?.[0];
+                                        return (
+                                            <Tr
+                                                        key={student.id}
+                                                        onAction={() => navigate(`/students/${student.id}`)}
+                                                        className="cursor-pointer"
+                                                    >
+                                                <TdBody>{index + 1}</TdBody>
+                                                <TdBody className="font-medium">
+                                                    {student.first_name} {student.last_name}
+                                                </TdBody>
+                                                <TdBody>{student.gender || student.student.sex || "-"}</TdBody>
+                                                <TdBody>
+                                                    <span className="px-2 py-1 bg-base-300 text-base-content/70 rounded-sm text-xs font-mono">
+                                                        {student.matricule || "Aucun"}
+                                                    </span>
+                                                </TdBody>
+                                                <TdBody>
+                                                    {currentEnrol?.classroom?.name || (
+                                                        <span className="text-error italic text-xs">Non inscrit</span>
+                                                    )}
+                                                </TdBody>
+                                                <TdBody className="text-base-content font-medium">
+                                                    {currentEnrol?.school?.name || "-"}
+                                                </TdBody>
+                                            </Tr>
+                                        );
+                                    })}
+                                </Table.Body>
+                            </Table>
+                        </div>
 
                         <div className="flex items-center justify-center mt-5">
                             <Paginate 
@@ -220,16 +284,16 @@ function StudentsPage() {
 
              {/* Modal des filtres avancés */}
             {showFiltersModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div className="w-full max-w-lg rounded-3xl bg-white shadow-xl">
-                        <div className="flex items-center justify-between border-b border-slate-200 p-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-0 sm:p-4">
+                    <div className="w-full h-full sm:h-auto sm:max-w-lg sm:rounded-md bg-base-200 overflow-y-auto">
+                        <div className="flex items-center justify-between p-6">
                             <div className="flex items-center gap-3">
-                                <Filter className="h-5 w-5 text-indigo-600" />
-                                <h2 className="text-lg font-semibold">Filtres avancés</h2>
+                                <Filter className="h-4 w-4 text-primary" />
+                                <h2 className="text-base font-semibold text-base-content">Filtres avancés</h2>
                             </div>
                             <button
                                 onClick={() => setShowFiltersModal(false)}
-                                className="rounded-full p-2 hover:bg-slate-100"
+                                className="rounded-md p-2 hover:bg-base-300 transition-colors duration-150"
                             >
                                 <X className="h-5 w-5" />
                             </button>
@@ -238,11 +302,11 @@ function StudentsPage() {
                         <div className="space-y-5 p-6">
                             {/* Filtre Ecole */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-slate-700">École</label>
+                                <label className="mb-2 block text-sm font-medium text-base-content/70">École</label>
                                 <select
                                     value={filters.school_id}
                                     onChange={(e) => setFilters(prev => ({ ...prev, school_id: e.target.value }))}
-                                    className="w-full rounded-xl border border-slate-300 py-3 px-4 outline-none focus:border-indigo-500"
+                                    className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
                                 >
                                     <option value="">Toutes les écoles</option>
                                     {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -251,11 +315,11 @@ function StudentsPage() {
 
                             {/* Filtre Classe */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-slate-700">Classe</label>
+                                <label className="mb-2 block text-sm font-medium text-base-content/70">Classe</label>
                                 <select
                                     value={filters.classroom_id}
                                     onChange={(e) => setFilters(prev => ({ ...prev, classroom_id: e.target.value }))}
-                                    className="w-full rounded-xl border border-slate-300 py-3 px-4 outline-none focus:border-indigo-500"
+                                    className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
                                 >
                                     <option value="">Toutes les classes</option>
                                     {classrooms.map(y => <option key={y.id} value={y.id}>{y.name}</option>)}
@@ -264,30 +328,30 @@ function StudentsPage() {
 
                             {/* Filtre Sexe */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-slate-700">Sexe</label>
+                                <label className="mb-2 block text-sm font-medium text-base-content/70">Sexe</label>
                                 <select
                                     value={filters.sexe}
                                     onChange={(e) => setFilters(prev => ({ ...prev, sexe: e.target.value }))}
-                                    className="w-full rounded-xl border border-slate-300 py-3 px-4 outline-none focus:border-indigo-500"
+                                    className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
                                 >
                                     <option value="">Tous les sexes</option>
                                     <option value="M">Masculin</option>
                                     <option value="F">Feminin</option>
-                                    
+
                                 </select>
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 border-t border-slate-200 p-6">
+                        <div className="flex justify-end gap-3 p-6">
                             <button
                                 onClick={handleResetFilters}
-                                className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-700 hover:bg-slate-50"
+                                className="rounded-md bg-base-100 px-5 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300"
                             >
                                 Réinitialiser
                             </button>
                             <button
                                 onClick={handleApplyFilters}
-                                className="rounded-xl bg-indigo-600 px-5 py-3 font-medium text-white hover:bg-indigo-700"
+                                className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95"
                             >
                                 Appliquer
                             </button>

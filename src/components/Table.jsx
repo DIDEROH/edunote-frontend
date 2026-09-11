@@ -13,7 +13,7 @@ function Table({ children }) {
 Table.Head = function ({ children }) {
   return (
     <thead>
-      <tr className="border-b border-base-300 text-left">
+      <tr className="text-left">
         {children}
       </tr>
     </thead>
@@ -22,7 +22,7 @@ Table.Head = function ({ children }) {
 
 Table.Body = function ({ children }) {
   return (
-    <tbody className="divide-y divide-base-200 text-sm text-base-content">
+    <tbody className="text-sm text-base-content">
       {children}
     </tbody>
   );
@@ -31,7 +31,7 @@ Table.Body = function ({ children }) {
 
 Table.Foot = function ({ children }) {
   return (
-    <tfoot className="border-t border-base-300">
+    <tfoot>
       {children}
     </tfoot>
   );
@@ -40,7 +40,7 @@ Table.Foot = function ({ children }) {
 
 function Th ({ children }) {
   return (
-    <th className="px-4 py-3 text-xs font-black uppercase tracking-wide text-base-content/50">
+    <th className="px-4 py-3 text-xs font-medium text-base-content/50">
       {children}
     </th>
   )
@@ -48,7 +48,7 @@ function Th ({ children }) {
 
 function TdBody ({ children, ...props }) {
   return(
-    <td className={`px-4 py-3 whitespace-nowrap ${props.className}`}>{children}</td>
+    <td className={`px-4 py-3 whitespace-nowrap ${props.className || ""}`}>{children}</td>
   )
 }
 
@@ -62,7 +62,10 @@ function TdFooter ({ children }) {
 
 function Tr ({ children, ...props }) {
   return(
-    <tr onClick={() => verfiFunction(props.onAction)} className={`hover:bg-base-200/40 transition-colors ${props.className}`}>
+    <tr
+      onClick={() => verfiFunction(props.onAction)}
+      className={`even:bg-zebra hover:bg-base-300 transition-colors duration-150 ${props.className || ""}`}
+    >
       {children}
     </tr>
   )

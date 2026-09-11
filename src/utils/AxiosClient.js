@@ -35,8 +35,7 @@ const axiosClient = axios.create({
   timeout: 30000, // ✅ Timeout de 30s pour éviter les requêtes pendantes
   headers: {
     Accept: "application/json",
-    "Content-Type": "application/json",
-    "X-Requested-With": "XMLHttpRequest", // ✅ Protection CSRF
+      "Content-Type": "application/json",
   },
 });
 

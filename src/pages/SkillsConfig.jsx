@@ -129,12 +129,12 @@ function SkillsConfig() {
   const currentSubject = subjects?.find((s) => String(s.id) === String(selectedSubject));
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-base-100">
       <PageHeader />
       <section className="max-w-5xl mx-auto p-3 md:p-6">
         <div className="mb-6 flex flex-col md:flex-row gap-4">
           <select
-            className="flex-1 p-3 rounded-2xl border border-slate-200 bg-white text-slate-700 font-semibold outline-none focus:border-indigo-500 transition-colors shadow-sm"
+            className="flex-1 p-3 rounded-md bg-base-200 text-sm font-medium text-base-content outline-none"
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
           >
@@ -144,7 +144,7 @@ function SkillsConfig() {
             ))}
           </select>
           <select
-            className="flex-1 p-3 rounded-2xl border border-slate-200 bg-white text-slate-700 font-semibold outline-none focus:border-indigo-500 transition-colors shadow-sm"
+            className="flex-1 p-3 rounded-md bg-base-200 text-sm font-medium text-base-content outline-none"
             value={selectedClassroom}
             onChange={(e) => setSelectedClassroom(e.target.value)}
           >
@@ -155,15 +155,15 @@ function SkillsConfig() {
           </select>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-          <div className="p-5 flex flex-col md:flex-row gap-4 justify-between md:items-center border-b border-slate-100">
+        <div className="bg-base-200 rounded-md overflow-hidden">
+          <div className="p-5 flex flex-col md:flex-row gap-4 justify-between md:items-center">
             <div className="flex items-center gap-4">
-              <div className="bg-amber-500 text-white p-3 rounded-2xl shadow-lg">
-                <Award size={28} />
+              <div className="bg-warning/10 text-warning p-3 rounded-md">
+                <Award size={24} />
               </div>
               <div>
-                <h2 className="font-black text-slate-800 text-lg">Compétences</h2>
-                <p className="text-[10px] uppercase font-bold tracking-widest text-slate-400">
+                <h2 className="font-semibold text-base-content text-base">Compétences</h2>
+                <p className="text-xs text-base-content/50">
                   {currentSubject?.name ?? "Aucune matière"}
                 </p>
               </div>
@@ -172,7 +172,7 @@ function SkillsConfig() {
               <button
                 onClick={saveSkills}
                 disabled={!selectedSubject || !selectedClassroom || loading}
-                className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 text-white text-xs font-black uppercase hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-md bg-primary text-white text-sm font-medium transition-colors duration-150 hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? <RefreshCcw size={16} className="animate-spin" /> : <Save size={16} />}
                 Enregistrer
@@ -180,7 +180,7 @@ function SkillsConfig() {
               <button
                 onClick={addSkill}
                 disabled={!selectedSubject || !selectedClassroom}
-                className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black uppercase hover:bg-indigo-100 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-md bg-primary/10 text-primary text-sm font-medium transition-colors duration-150 hover:bg-primary/15 disabled:opacity-50"
               >
                 <Plus size={16} />
                 Ajouter
@@ -188,7 +188,7 @@ function SkillsConfig() {
             </div>
           </div>
 
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-3">
             {(skills || []).map((skill, index) => (
               <article
                 key={skill.id ?? index}
@@ -197,14 +197,14 @@ function SkillsConfig() {
                 onDragEnter={(e) => handleDragEnter(e, index)}
                 onDragEnd={handleDragEnd}
                 onDragOver={(e) => e.preventDefault()}
-                className="bg-slate-50 rounded-2xl p-4 border border-slate-100 transition hover:border-indigo-200 cursor-move"
+                className="bg-base-100 rounded-md p-4 transition-colors duration-150 hover:bg-base-300 cursor-move"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <GripVertical size={18} className="text-slate-300" />
-                    <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center font-black text-indigo-600 text-sm">{index + 1}</span>
+                    <GripVertical size={18} className="text-base-content/30" />
+                    <span className="w-8 h-8 rounded-full bg-base-200 flex items-center justify-center font-semibold text-primary text-sm">{index + 1}</span>
                   </div>
-                  <button onClick={() => removeSkill(index)} className="text-slate-300 hover:text-red-500 transition">
+                  <button onClick={() => removeSkill(index)} className="text-base-content/30 hover:text-error transition-colors duration-150">
                     <Trash2 size={18} />
                   </button>
                 </div>
@@ -213,20 +213,20 @@ function SkillsConfig() {
                   value={skill.name}
                   onChange={(e) => updateSkill(index, "name", e.target.value)}
                   placeholder="Exemple : Résoudre un problème"
-                  className="w-full bg-white rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 outline-none border border-transparent focus:border-indigo-300"
+                  className="w-full bg-base-200 rounded-md px-4 py-3 text-sm font-medium text-base-content outline-none"
                 />
                 <div className="mt-4 flex justify-between items-center">
-                  <div className="flex items-center gap-2 bg-white rounded-xl px-4 py-2 border border-slate-100">
-                    <Star size={15} className="text-yellow-500" />
+                  <div className="flex items-center gap-2 bg-base-200 rounded-md px-4 py-2">
+                    <Star size={15} className="text-warning" />
                     <input
                       type="number"
                       value={skill.max_mark}
                       onChange={(e) => updateSkill(index, "max_mark", e.target.value)}
-                      className="w-14 text-center font-black text-sm outline-none"
+                      className="w-14 text-center font-semibold text-sm outline-none"
                     />
-                    <span className="text-xs font-bold text-slate-400">/20</span>
+                    <span className="text-xs font-medium text-base-content/50">/20</span>
                   </div>
-                  {skill.id && <span className="text-[10px] font-bold text-green-500 uppercase">Enregistrée</span>}
+                  {skill.id && <span className="text-xs font-medium text-success">Enregistrée</span>}
                 </div>
               </article>
             ))}

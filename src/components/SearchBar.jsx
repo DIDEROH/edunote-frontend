@@ -27,7 +27,7 @@ export default function SearchBar({ action, }) {
   }, [debouncedAction]);
 
   return (
-    <label className="input rounded-full outline-none border-none bg-slate-300">
+    <label className="input rounded-md outline-none bg-base-200">
         <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <g
             strokeLinejoin="round"

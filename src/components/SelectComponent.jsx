@@ -11,7 +11,7 @@ export default function SelectComponent({ children, name, value, action, size, r
             name={name}
             value={value}
             onChange={handleChange}
-            className={`select select-${size || 'sm'} outline-none border-none rounded-full`}
+            className={`select select-${size || 'sm'} outline-none rounded-md`}
         >
             {children}
         </select>

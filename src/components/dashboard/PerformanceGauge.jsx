@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import {
     ResponsiveContainer,
     RadialBarChart,
@@ -13,57 +12,38 @@ import {
 } from "react-icons/fa";
 
 export default function PerformanceGauge({ data }) {
-    const success =
-        data?.admis?.taux ?? 0;
-
-    const failure =
-        data?.echecs?.taux ?? 0;
+    const success = data?.admis?.taux ?? 0;
+    const failure = data?.echecs?.taux ?? 0;
 
     const chartData = [
         {
             name: "Réussite",
             value: success,
-            fill: "#22C55E",
+            fill: "#059669",
         },
     ];
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: .95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: .45 }}
-            className="rounded-3xl bg-white border border-slate-200 shadow-xl p-6"
-        >
+        <div className="rounded-md bg-base-200 p-6">
             {/* Header */}
-
-            <div className="flex justify-between items-center mb-8">
-
+            <div className="flex justify-between items-center mb-6">
                 <div>
-
-                    <h2 className="text-2xl font-bold text-slate-800">
+                    <h2 className="text-sm font-semibold text-base-content">
                         Performance
                     </h2>
-
-                    <p className="text-slate-500">
+                    <p className="text-xs text-base-content/60">
                         Taux de réussite global
                     </p>
-
                 </div>
 
-                <div className="h-14 w-14 rounded-2xl bg-green-100 flex items-center justify-center">
-
-                    <FaChartLine className="text-2xl text-green-600"/>
-
+                <div className="h-11 w-11 rounded-md bg-success/10 flex items-center justify-center">
+                    <FaChartLine className="text-lg text-success" />
                 </div>
-
             </div>
 
             {/* Graph */}
-
-            <div className="relative h-72">
-
+            <div className="relative h-64">
                 <ResponsiveContainer>
-
                     <RadialBarChart
                         data={chartData}
                         innerRadius="75%"
@@ -71,92 +51,50 @@ export default function PerformanceGauge({ data }) {
                         startAngle={90}
                         endAngle={-270}
                     >
-
-                        <PolarAngleAxis
-                            type="number"
-                            domain={[0,100]}
-                            tick={false}
-                        />
-
-                        <RadialBar
-                            dataKey="value"
-                            cornerRadius={15}
-                        />
-
+                        <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+                        <RadialBar dataKey="value" cornerRadius={4} background={{ fill: "#E7E9F7" }} />
                     </RadialBarChart>
-
                 </ResponsiveContainer>
 
                 {/* Centre */}
-
                 <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none">
-
-                    <span className="text-5xl font-black text-slate-800">
-
+                    <span className="text-2xl font-semibold text-base-content">
                         {success}%
-
                     </span>
-
-                    <span className="text-slate-500 mt-2">
-
+                    <span className="text-xs text-base-content/60 mt-1">
                         Réussite
-
                     </span>
-
                 </div>
-
             </div>
 
             {/* Stats */}
-
-            <div className="grid grid-cols-2 gap-4 mt-8">
-
-                <div className="rounded-2xl bg-green-50 p-5">
-
-                    <div className="flex items-center gap-3">
-
-                        <FaCheckCircle className="text-green-600"/>
-
-                        <span className="font-semibold text-slate-700">
-
+            <div className="grid grid-cols-2 gap-3 mt-6">
+                <div className="rounded-md bg-success/10 p-4">
+                    <div className="flex items-center gap-2">
+                        <FaCheckCircle className="text-success" size={14} />
+                        <span className="text-sm font-medium text-base-content">
                             Réussite
-
                         </span>
-
                     </div>
 
-                    <div className="mt-4 text-4xl font-black text-green-600">
-
+                    <div className="mt-3 text-xl font-semibold text-success">
                         {success}%
-
                     </div>
-
                 </div>
 
-                <div className="rounded-2xl bg-red-50 p-5">
-
-                    <div className="flex items-center gap-3">
-
-                        <FaTimesCircle className="text-red-600"/>
-
-                        <span className="font-semibold text-slate-700">
-
+                <div className="rounded-md bg-error/10 p-4">
+                    <div className="flex items-center gap-2">
+                        <FaTimesCircle className="text-error" size={14} />
+                        <span className="text-sm font-medium text-base-content">
                             Échecs
-
                         </span>
-
                     </div>
 
-                    <div className="mt-4 text-4xl font-black text-red-600">
-
+                    <div className="mt-3 text-xl font-semibold text-error">
                         {failure}%
-
                     </div>
-
                 </div>
-
             </div>
-
-        </motion.div>
+        </div>
     );
 }

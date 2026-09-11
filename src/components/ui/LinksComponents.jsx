@@ -6,20 +6,20 @@ import { Link } from "react-router-dom";
 // Les fonctions et constantes de liens personnalisés
 const LinkClassName = {
     linkGhost: {
-        class: "transition-colors inline-flex items-center gap-1 group font-semibold cursor-pointer",
-        iconeClass: "opacity-0 group-hover:opacity-100 transition-opacity"
+        class: "transition-colors duration-150 inline-flex items-center gap-1 group font-medium cursor-pointer",
+        iconeClass: "opacity-0 group-hover:opacity-100 transition-opacity duration-150"
     },
     linkSimple: {
-        class: "transition-colors inline-flex items-center gap-1 group font-semibold cursor-pointer",
+        class: "transition-colors duration-150 inline-flex items-center gap-1 group font-medium cursor-pointer",
         iconeClass: ""
     },
     linkArrowRight: {
-        class: "inline-flex items-center gap-2 text-sm font-semibold transition-all duration-300 cursor-pointer group-hover:gap-4 hover:gap-4",
+        class: "inline-flex items-center gap-2 text-sm font-medium transition-colors duration-150 cursor-pointer",
         iconeClass: ""
     },
     linkBtn: {
-        class: " inline-flex items-center gap-2 rounded-xl border border-base-content/10 bg-base-200/70 px-4 py-2.5 text-sm font-bold text-base-content transition-all duration-300 hover:border-info/30 hover:bg-info hover:text-info-content",
-        iconeClass: " transition-transform duration-300 group-hover:translate-x-1"
+        class: " inline-flex items-center gap-2 rounded-md bg-base-200 px-4 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-info hover:text-info-content",
+        iconeClass: ""
     }
 }
 

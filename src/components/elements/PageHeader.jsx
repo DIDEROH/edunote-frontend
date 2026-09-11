@@ -1,6 +1,4 @@
-import { useRef } from "react";
 import { FiSearch } from "react-icons/fi";
-import { useAnimations } from "../../utils/animations";
 
 export default function PageHeader({
   title = "Tableau de bord",
@@ -9,49 +7,34 @@ export default function PageHeader({
   onSearch,
 }) {
 
-    const containerRef = useRef(null);
-    useAnimations(containerRef);
-
   return (
-    <header ref={containerRef} className="relative overflow-hidden rounded-xl w-full min-h-[130px] bg-gradient-to-r from-blue-800 via-blue-700 to-violet-800 p-6 md:p-8 shadow-xl mb-4">
-      
-      {/* Décorations */}
-      <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-      <div className="absolute -bottom-10 left-10 h-32 w-32 rounded-full bg-cyan-300/20 blur-3xl" />
+    <header className="w-full mb-4 rounded-md bg-primary px-5 py-5 md:px-7 md:py-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-      <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        
-        {/* Texte */}
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight animate-reveal">
-            {title}
-          </h1>
+      <div>
+        <h1 className="text-lg font-semibold text-white">
+          {title}
+        </h1>
 
-          <p className="mt-2 text-sm md:text-base text-blue-100 max-w-2xl animate-reveal">
-            {subtitle}
-          </p>
-        </div>
-
-        {/* Recherche */}
-        {
-            onSearch && (
-                <div className="w-full lg:w-[380px]  animate-reveal">
-                <div className="group flex items-center gap-3 rounded-2xl border border-white/20 bg-white/15 backdrop-blur-xl px-4 py-3 transition-all duration-300 focus-within:bg-white/20 focus-within:border-white/40">
-                    
-                    <FiSearch className="text-xl text-white/80 group-focus-within:text-white" />
-
-                    <input
-                    type="text"
-                    placeholder={searchPlaceholder}
-                    onChange={(e) => onSearch?.(e.target.value)}
-                    className="w-full bg-transparent text-white placeholder:text-white/60 outline-none"
-                    />
-                </div>
-                </div>
-            )
-        }
-
+        <p className="mt-1 text-sm text-white/70 max-w-2xl">
+          {subtitle}
+        </p>
       </div>
+
+      {onSearch && (
+        <div className="w-full lg:w-95">
+          <div className="flex items-center gap-3 rounded-md bg-white/15 px-4 py-2.5">
+            <FiSearch className="text-base text-white/70" />
+
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              onChange={(e) => onSearch?.(e.target.value)}
+              className="w-full bg-transparent text-sm text-white placeholder:text-white/50 outline-none"
+            />
+          </div>
+        </div>
+      )}
+
     </header>
   );
 }

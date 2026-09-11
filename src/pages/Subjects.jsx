@@ -11,6 +11,8 @@ import { Card5 } from "../components/ui/CardsComponents";
 import { EditBtn, DeleteBtn, CtaDark, CtaNeon } from "../components/ui/ButtonsComponents";
 import { Table, Th, Tr, TdBody } from "../components/Table";
 import InputComponent from "../components/InputComponent";
+import usePrintable from "../utils/usePrintable";
+import PrintableTable from "../components/print/PrintableTable";
 
 // --- COMPOSANT : FORMULAIRE DÉDIÉ AVEC REACT-HOOK-FORM ---
 const SubjectForm = ({ initialData, onSubmit, onCancel, loading }) => {
@@ -25,17 +27,17 @@ const SubjectForm = ({ initialData, onSubmit, onCancel, loading }) => {
   return (
     <form 
       onSubmit={handleSubmit(onSubmit)} 
-      className="mx-auto max-w-2xl bg-white p-6 md:p-8 rounded-sm shadow-sm border border-slate-100"
+      className="mx-auto max-w-2xl bg-base-200 p-6 md:p-8 rounded-md"
     >
       <div className="flex items-center gap-3 mb-8">
-        <div className={`p-3 rounded-2xl ${initialData ? 'bg-orange-100 text-orange-600' : 'bg-indigo-100 text-indigo-600'}`}>
-          <BookOpen size={24} />
+        <div className={`p-3 rounded-md ${initialData ? 'bg-warning/10 text-warning' : 'bg-primary/10 text-primary'}`}>
+          <BookOpen size={22} />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-slate-800 tracking-tight">
+          <h2 className="text-base font-semibold text-base-content">
             {initialData ? "Modifier la matière" : "Créer une nouvelle matière"}
           </h2>
-          <p className="text-xs text-slate-500 font-medium uppercase tracking-widest mt-0.5">
+          <p className="text-xs text-base-content/50 mt-0.5">
             Détails de la discipline académique
           </p>
         </div>
@@ -75,11 +77,6 @@ const SubjectForm = ({ initialData, onSubmit, onCancel, loading }) => {
         </CtaDark>
         <CtaNeon
           type="submit"
-          className={`
-            ${initialData 
-              ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-200' 
-              : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200'
-            }`}
           disabled={loading}
           icon={Save}>
           {loading ? "Enregistrement..." : "Enregistrer la matière"}
@@ -101,6 +98,7 @@ function Subjects() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const { setNavbarActions } = useOutletContext();
+  const { printRef, print } = usePrintable("Liste des matieres");
   const showConfirm = useShowConfirm();
 
   // Gestion du Debounce pour la recherche
@@ -178,13 +176,26 @@ function Subjects() {
 
   useEffect(() => {
     setNavbarActions({
-      onAdd: () => handleAddSubjectClick()
+      onAdd: () => handleAddSubjectClick(),
+      onPrint: print,
     });
     return () => setNavbarActions({});
-  }, [setNavbarActions]);
+  }, [setNavbarActions, print]);
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-base-100">
+      <PrintableTable
+        ref={printRef}
+        title="Liste des matieres"
+        meta={[{ label: "Total", value: subjects.length }]}
+        columns={[
+          { key: "index", label: "#" },
+          { key: "code", label: "Code" },
+          { key: "name", label: "Intitule" },
+        ]}
+        rows={subjects.map((s, index) => ({ id: s.id, index: index + 1, code: s.code, name: s.name }))}
+      />
+
       <PageHeader
         title="Gestion des matières"
         subtitle="Bienvenue dans votre espace d'administration des matières scolaires."
@@ -193,7 +204,7 @@ function Subjects() {
 
       <section className="max-w-6xl mx-auto p-4 md:p-6 lg:p-8">
         {view !== 'list' ? (
-          <div className="animate-reveal">
+          <div>
             <SubjectForm
               initialData={currentSubject}
               onSubmit={handleFormSubmit}
@@ -204,13 +215,13 @@ function Subjects() {
         ) : loading && subjects.length === 0 ? (
           <LoadingSkeletoon />
         ) : subjects.length === 0 ? (
-          <div className="animate-reveal">
+          <div>
             <Card5 icon={BookOpen}>
               Aucune matière enregistrée pour le moment.
             </Card5>
           </div>
         ) : (
-          <div className="animate-reveal bg-white rounded-md shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+          <div className="bg-base-200 rounded-md overflow-hidden">
             <Table>
               <Table.Head>
                 <Th>Code</Th>
@@ -220,10 +231,10 @@ function Subjects() {
               <Table.Body>
                 {subjects.map((subject) => (
                   <Tr key={subject.id}>
-                    <TdBody className="font-bold text-slate-700 uppercase tracking-tighter">
+                    <TdBody className="font-medium text-base-content/70 uppercase">
                       {subject.code}
                     </TdBody>
-                    <TdBody className="text-sm font-bold text-slate-600">
+                    <TdBody className="text-sm font-medium text-base-content">
                       {subject.name}
                     </TdBody>
                     <TdBody>

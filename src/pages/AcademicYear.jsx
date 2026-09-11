@@ -12,9 +12,12 @@ import LoadingSkeletoon from '../components/LoadingSkeletoon'
 import { Card5 } from '../components/ui/CardsComponents'
 import { LuSearchX } from 'react-icons/lu'
 import { deleteElement } from '../utils/deleteElement'
+import usePrintable from '../utils/usePrintable'
+import PrintableTable from '../components/print/PrintableTable'
 
 function AcademicYear() {
     const { setNavbarActions } = useOutletContext()
+    const { printRef, print } = usePrintable("Liste des annees academiques")
     const navigate = useNavigate();
     const [year, setYear] = useState([]);
     const [activeYear, setActiveYear] = useState(null);
@@ -93,13 +96,31 @@ function AcademicYear() {
 
         setNavbarActions({
             onBack: () => navigate(-1),
-            onAdd: () => setIsModalOpen(true    )
+            onAdd: () => setIsModalOpen(true    ),
+            onPrint: print,
         });
         return () => setNavbarActions({});
-    }, [setNavbarActions])
+    }, [setNavbarActions, print])
 
     return (
         <div>
+            <PrintableTable
+                ref={printRef}
+                title="Liste des annees academiques"
+                meta={[{ label: "Total", value: year.length }]}
+                columns={[
+                    { key: "index", label: "#" },
+                    { key: "name", label: "Annee" },
+                    { key: "status", label: "Statut" },
+                ]}
+                rows={(year || []).map((yr, index) => ({
+                    id: yr.id,
+                    index: index + 1,
+                    name: yr.name,
+                    status: yr.is_active ? "Active" : "Inactive",
+                }))}
+            />
+
             <PageHeader
                 title='Gestion des Années academiques'
                 subtitle='Modifiez, supprimez, activez ou desactivez une année'

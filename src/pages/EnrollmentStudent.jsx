@@ -146,30 +146,30 @@ export default function EnrollmentStudent() {
     }
   }
 
-  
+
   if (fetching) {
     return (
-      <div className="h-screen flex items-center justify-center bg-[#f8fafc]">
-        <Loader2 className="animate-spin text-indigo-600 w-10 h-10" />
+      <div className="h-screen flex items-center justify-center bg-base-100">
+        <Loader2 className="animate-spin text-primary w-8 h-8" />
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] pb-20">
+    <main className="min-h-screen bg-base-100 pb-20">
       <PageHeader
         title={isEditMode ? 'Modifier les informations' : 'Inscription'}
         subtitle={isEditMode ? '' : 'Inscrire un nouvel élève dans le système'}
       />
 
       <section className="p-4 max-w-6xl mx-auto mt-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 xl:grid-cols-12 gap-6">
           <div className="xl:col-span-7 space-y-6">
-            <div className="bg-white p-8 rounded-4xl shadow-sm border border-slate-100">
-              <h2 className="text-indigo-600 font-black text-[10px] uppercase mb-8 flex items-center gap-2">
-                <Sparkles size={14} /> Identité
+            <div className="bg-base-200 p-6 md:p-8 rounded-md">
+              <h2 className="text-primary font-semibold text-sm mb-6 flex items-center gap-2">
+                <Sparkles size={15} /> Identité
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="md:col-span-2">
                   <InputComponent
                     nom="Matricule"
@@ -222,10 +222,10 @@ export default function EnrollmentStudent() {
                   icone={<MapPin size={16} />}
                 />
               </div>
-              <div className="mt-8">
-                <label className="text-[10px] font-black text-slate-400 uppercase mb-3 block">Genre</label>
+              <div className="mt-6">
+                <label className="text-xs font-medium text-base-content/60 mb-2 block">Genre</label>
                 <input type="hidden" {...register('gender', { required: 'Requis' })} />
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                   {['M', 'F'].map((g) => (
                     <button
                       key={g}
@@ -234,10 +234,10 @@ export default function EnrollmentStudent() {
                         setValue('gender', g, { shouldValidate: true })
                         setSelectedGender(g)
                       }}
-                      className={`flex-1 py-4 rounded-2xl border-2 font-bold transition-all ${
+                      className={`flex-1 py-3.5 rounded-md text-sm font-medium transition-colors duration-150 ${
                         selectedGender === g
-                          ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                          : 'border-slate-100 bg-slate-50 text-slate-400'
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-base-100 text-base-content/50'
                       }`}
                     >
                       {g === 'M' ? 'GARÇON' : 'FILLE'}
@@ -249,31 +249,31 @@ export default function EnrollmentStudent() {
           </div>
 
           <div className="xl:col-span-5 space-y-6">
-            <div className="bg-white p-8 rounded-4xl shadow-sm border border-slate-100 flex flex-col items-center">
-              <div className="relative w-40 h-40">
-                <div className="w-full h-full rounded-[2.5rem] border-4 border-slate-50 overflow-hidden bg-slate-100 flex items-center justify-center">
+            <div className="bg-base-200 p-6 md:p-8 rounded-md flex flex-col items-center">
+              <div className="relative w-32 h-32">
+                <div className="w-full h-full rounded-md overflow-hidden bg-base-100 flex items-center justify-center">
                   {preview ? (
                     <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
-                    <Camera size={40} className="text-slate-300" />
+                    <Camera size={32} className="text-base-content/25" />
                   )}
                 </div>
-                <label className="absolute bottom-0 right-0 p-3 bg-indigo-600 text-white rounded-2xl shadow-lg cursor-pointer">
+                <label className="absolute bottom-0 right-0 p-2.5 bg-primary text-white rounded-md cursor-pointer">
                   <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
-                  {uploading ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}
+                  {uploading ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
                 </label>
               </div>
               <input type="hidden" {...register('photo')} />
             </div>
 
-            <div className="bg-slate-900 p-8 rounded-4xl shadow-xl text-white">
-              <h2 className="text-indigo-400 font-bold text-xs uppercase mb-6 flex items-center gap-2">
+            <div className="bg-base-200 p-6 md:p-8 rounded-md">
+              <h2 className="text-primary font-semibold text-sm mb-5 flex items-center gap-2">
                 <GraduationCap size={16} /> Scolarité
               </h2>
               <div className="space-y-4">
                 <select
                   {...register('classroom_id', { required: 'Requis' })}
-                  className="w-full p-4 rounded-2xl bg-slate-800 border-none text-white outline-none"
+                  className="w-full p-3 rounded-md bg-base-100 text-base-content text-sm outline-none"
                 >
                   <option value="">Classe...</option>
                   {classes.map((c) => (
@@ -283,35 +283,28 @@ export default function EnrollmentStudent() {
                   ))}
                 </select>
 
-                <div className="input-dark">
-                  <InputComponent
-                    nom="Contact Parent"
-                    name="contact"
-                    register={register}
-                    errors={errors}
-                    type="tel"
-                    placeholder="6xx xxx xxx"
-                    icone={<Phone size={16} />}
-                  />
-                </div>
+                <InputComponent
+                  nom="Contact Parent"
+                  name="contact"
+                  register={register}
+                  errors={errors}
+                  type="tel"
+                  placeholder="6xx xxx xxx"
+                  icone={<Phone size={16} />}
+                />
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading || uploading}
-              className="w-full py-6 rounded-4xl bg-indigo-600 text-white font-black text-[11px] tracking-[2px] shadow-xl hover:bg-indigo-700 disabled:opacity-50 flex justify-center items-center gap-3 uppercase"
+              className="w-full py-3.5 rounded-md bg-primary text-white font-medium text-sm transition-colors duration-150 hover:brightness-95 disabled:opacity-50 flex justify-center items-center gap-3"
             >
-              {loading ? <Loader2 className="animate-spin" /> : isEditMode ? 'Mettre à jour' : "Valider l'inscription"}
+              {loading ? <Loader2 className="animate-spin" size={18} /> : isEditMode ? 'Mettre à jour' : "Valider l'inscription"}
             </button>
           </div>
         </form>
       </section>
-
-      <style>{`
-        .input-dark input { background-color: #1e293b !important; color: white !important; border: 1px solid #334155 !important; border-radius: 1rem !important; }
-        .input-dark label { color: #94a3b8 !important; }
-      `}</style>
     </main>
   )
 }

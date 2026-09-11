@@ -152,24 +152,24 @@ function SchoolInformations() {
     };
 
     return (
-        <div ref={containerRef} className="max-w7xl mx-auto space-y-8">
-            
+        <div ref={containerRef} className="max-w-7xl mx-auto space-y-6">
+
             {/* VUE PRINCIPALE : CHARGEMENT OU CONTENU */}
-            <div className='animate-reveal'>
+            <div>
                 {loading ? (
                     <LoadingSkeleton />
                 ) : school ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
                         {/* COLONNE 1 : FICHE DE L'ÉCOLE */}
-                        <div className="lg:col-span-1 space-y-6">
+                        <div className="lg:col-span-1 space-y-4">
                             <SchoolCard data={school} />
-                            
+
                             {/* BOUTON DE CONFIGURATION DIRECTE (Doublé pour une meilleure UX) */}
                             {canManage && (
                                 <button
                                     onClick={handleOpenModal}
-                                    className="w-full py-4 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-3 active:scale-[0.98]"
+                                    className="w-full py-3.5 px-6 bg-primary text-white font-medium text-sm rounded-md transition-colors duration-150 hover:brightness-95 flex items-center justify-center gap-3"
                                 >
                                     <Layers size={18} />
                                     Configurer les classes actives
@@ -178,48 +178,48 @@ function SchoolInformations() {
                         </div>
 
                         {/* COLONNE 2 & 3 : DÉTAILS CLASSES & MATIÈRES */}
-                        <div className="lg:col-span-2 space-y-8">
-                            
+                        <div className="lg:col-span-2 space-y-6">
+
                             {/* SECTION DES CLASSES DE CETTE ÉCOLE */}
-                            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-                                <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-50">
+                            <div className="bg-base-200 rounded-md p-6">
+                                <div className="flex items-center justify-between mb-5">
                                     <div className="flex items-center gap-2.5">
-                                        <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
-                                            <Layers size={18} />
+                                        <div className="p-1.5 bg-primary/10 text-primary rounded-md">
+                                            <Layers size={16} />
                                         </div>
                                         <div>
-                                            <h2 className="text-sm font-bold text-slate-800">Salles de classes configurées</h2>
-                                            <p className="text-[11px] text-slate-400 font-medium">Parcours pédagogique disponible dans cet établissement</p>
+                                            <h2 className="text-sm font-semibold text-base-content">Salles de classes configurées</h2>
+                                            <p className="text-xs text-base-content/50">Parcours pédagogique disponible dans cet établissement</p>
                                         </div>
                                     </div>
-                                    <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-full">
+                                    <span className="px-2.5 py-1 bg-base-300 text-base-content/70 text-xs font-medium rounded-sm">
                                         {school.classrooms?.length || 0} active(s)
                                     </span>
                                 </div>
 
                                 {!school.classrooms || school.classrooms.length === 0 ? (
-                                    <div className="text-center py-10 bg-slate-50 rounded-xl border border-slate-100">
-                                        <p className="text-xs text-slate-400 font-bold">Aucune salle de classe n'est associée à cet établissement.</p>
+                                    <div className="text-center py-10 bg-base-100 rounded-md">
+                                        <p className="text-sm text-base-content/50">Aucune salle de classe n'est associée à cet établissement.</p>
                                         {canManage && (
-                                            <button 
-                                                onClick={handleOpenModal} 
-                                                className="mt-3 text-xs text-indigo-600 font-bold hover:underline flex items-center justify-center gap-1 mx-auto"
+                                            <button
+                                                onClick={handleOpenModal}
+                                                className="mt-3 text-sm text-primary font-medium hover:underline flex items-center justify-center gap-1 mx-auto"
                                             >
                                                 Associer des classes <ArrowRight size={12} />
                                             </button>
                                         )}
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         {school.classrooms.map((classroom) => (
-                                            <div key={classroom.id} className="p-4 bg-slate-50/50 border border-slate-100 rounded-xl flex items-center justify-between">
+                                            <div key={classroom.id} className="p-4 bg-base-100 rounded-md flex items-center justify-between">
                                                 <div>
-                                                    <span className="text-sm font-bold text-slate-800">{classroom.name}</span>
-                                                    <span className="block text-[10px] text-slate-400 font-bold mt-0.5">
+                                                    <span className="text-sm font-medium text-base-content">{classroom.name}</span>
+                                                    <span className="block text-xs text-base-content/50 mt-0.5">
                                                         Pseudo: {classroom.short_name || 'N/A'} • Niveau: {classroom.level_index}
                                                     </span>
                                                 </div>
-                                                <span className="text-[9px] bg-emerald-50 text-emerald-600 font-bold px-2 py-1 rounded">
+                                                <span className="text-xs bg-success/10 text-success font-medium px-2 py-1 rounded-sm">
                                                     Actif
                                                 </span>
                                             </div>
@@ -229,38 +229,38 @@ function SchoolInformations() {
                             </div>
 
                             {/* SECTION DES MATIÈRES HÉRITÉES */}
-                            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-                                <div className="flex items-center gap-2.5 mb-6 pb-4 border-b border-slate-50">
-                                    <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
-                                        <BookOpen size={18} />
+                            <div className="bg-base-200 rounded-md p-6">
+                                <div className="flex items-center gap-2.5 mb-5">
+                                    <div className="p-1.5 bg-primary/10 text-primary rounded-md">
+                                        <BookOpen size={16} />
                                     </div>
                                     <div>
-                                        <h2 className="text-sm font-bold text-slate-800">Matières & Disciplines dispensées</h2>
-                                        <p className="text-[11px] text-slate-400 font-medium">Héritées automatiquement des classes associées</p>
+                                        <h2 className="text-sm font-semibold text-base-content">Matières & Disciplines dispensées</h2>
+                                        <p className="text-xs text-base-content/50">Héritées automatiquement des classes associées</p>
                                     </div>
                                 </div>
 
                                 {inheritedSubjects.length === 0 ? (
-                                    <div className="text-center py-8 bg-slate-50/50 rounded-xl">
-                                        <p className="text-xs text-slate-400 font-bold">Aucune matière n'est actuellement dispensée dans cette école.</p>
+                                    <div className="text-center py-8 bg-base-100 rounded-md">
+                                        <p className="text-sm text-base-content/50">Aucune matière n'est actuellement dispensée dans cette école.</p>
                                     </div>
                                 ) : (
-                                    <div className="space-y-6">
+                                    <div className="space-y-4">
                                         <div className="flex flex-wrap gap-2">
                                             {inheritedSubjects.map((sub, index) => (
-                                                <span 
+                                                <span
                                                     key={index}
-                                                    className="px-3.5 py-2 bg-indigo-50/50 text-indigo-700 text-xs font-semibold rounded-xl border border-indigo-100/20 flex items-center gap-2"
+                                                    className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-medium rounded-sm flex items-center gap-2"
                                                 >
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                                                     {sub}
                                                 </span>
                                             ))}
                                         </div>
 
-                                        <div className="p-4 bg-amber-50/50 border border-amber-100 rounded-xl flex gap-3">
-                                            <Info className="text-amber-600 shrink-0 mt-0.5" size={16} />
-                                            <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
+                                        <div className="p-4 bg-warning/10 rounded-md flex gap-3">
+                                            <Info className="text-warning shrink-0 mt-0.5" size={15} />
+                                            <p className="text-xs text-base-content/70 leading-relaxed">
                                                 <strong>Note système :</strong> Les matières dépendent directement de l'organisation de vos classes globales. Pour ajouter de nouvelles matières d'enseignement, veuillez lier ou modifier les classes associées à cet établissement.
                                             </p>
                                         </div>
@@ -268,22 +268,22 @@ function SchoolInformations() {
                                 )}
                             </div>
 
-                            {/* SECTION DES MATIÈRES HÉRITÉES */}
-                            {evaluationType && <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-                                    <div className="flex items-center gap-2.5 mb-6 pb-4 border-b border-slate-50">
-                                        <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
-                                            <LuClipboardCheck size={18} />
+                            {/* SECTION TYPE D'ÉVALUATION */}
+                            {evaluationType && <div className="bg-base-200 rounded-md p-6">
+                                    <div className="flex items-center gap-2.5 mb-5">
+                                        <div className="p-1.5 bg-primary/10 text-primary rounded-md">
+                                            <LuClipboardCheck size={16} />
                                         </div>
                                         <div>
-                                            <h2 className="text-sm font-bold text-slate-800">Type d'&eacute;valuation</h2>
-                                            <p className="text-[11px] text-slate-400 font-medium">Ne peut &ecirc;tre modifi&eacute;e au cours de l'ann&eacute;e scolaire</p>
+                                            <h2 className="text-sm font-semibold text-base-content">Type d'évaluation</h2>
+                                            <p className="text-xs text-base-content/50">Ne peut être modifiée au cours de l'année scolaire</p>
                                         </div>
                                     </div>
 
-                                    <div className='flex gap-4 flex-wrap'>
-                                        <span className='font-bold text-indigo-600 uppercase p-4 rounded-3xl border '>{evaluationType !== "skill" ? "Séquences" : "Compétences"}</span>
+                                    <div className='flex gap-4 flex-wrap items-center'>
+                                        <span className='font-medium text-primary text-sm px-4 py-2.5 rounded-md bg-primary/10'>{evaluationType !== "skill" ? "Séquences" : "Compétences"}</span>
                                         <CtaGradient onAction={() => handleToggleEvaluation(school?.id)}>
-                                            Basculer vers l'&eacute;valuation par {school?.evaluation_type === "skill" ? "Séquences" : "Compétences"}
+                                            Basculer vers l'évaluation par {school?.evaluation_type === "skill" ? "Séquences" : "Compétences"}
                                         </CtaGradient>
                                     </div>
 
@@ -300,79 +300,77 @@ function SchoolInformations() {
             {/* SYSTEM MODAL : ASSOCIER DES CLASSES GLOBALES */}
             {/* ========================================================================= */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
-                    <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[85vh] animate-scaleUp">
-                        
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/40">
+                    <div className="bg-base-200 w-full h-full sm:h-auto sm:max-w-xl sm:rounded-md overflow-hidden flex flex-col sm:max-h-[85vh]">
+
                         {/* Header */}
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                        <div className="p-6 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-                                    <Layers size={20} />
+                                <div className="p-2 bg-primary/10 text-primary rounded-md">
+                                    <Layers size={18} />
                                 </div>
                                 <div>
-                                    <h3 className="text-base font-bold text-slate-900">Configurer les classes</h3>
-                                    <p className="text-[11px] text-slate-400 font-medium uppercase tracking-wide">Liaison des structures et disciplines d'enseignement</p>
+                                    <h3 className="text-base font-semibold text-base-content">Configurer les classes</h3>
+                                    <p className="text-xs text-base-content/50">Liaison des structures et disciplines d'enseignement</p>
                                 </div>
                             </div>
-                            <button 
+                            <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="p-1.5 hover:bg-slate-200 text-slate-400 hover:text-slate-600 rounded-full transition-colors"
+                                className="p-1.5 hover:bg-base-300 text-base-content/50 hover:text-base-content rounded-md transition-colors duration-150"
                             >
                                 <X size={18} />
                             </button>
                         </div>
 
                         {/* Note */}
-                        <div className="bg-indigo-50/60 p-4 border-b border-indigo-100/30 flex gap-3 text-xs text-indigo-950">
-                            <Info className="text-indigo-600 shrink-0 mt-0.5" size={16} />
+                        <div className="bg-primary/10 p-4 flex gap-3 text-sm text-base-content/70">
+                            <Info className="text-primary shrink-0 mt-0.5" size={16} />
                             <p className="leading-relaxed">
                                 Cochez les classes existantes que vous souhaitez activer pour cet établissement. <strong>Leurs matières associées seront instantanément héritées</strong> par l'école.
                             </p>
                         </div>
 
                         {/* Recherche */}
-                        <div className="px-6 py-4 border-b border-slate-50">
+                        <div className="px-6 py-4">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40" size={16} />
                                 <input
                                     type="text"
                                     placeholder="Rechercher une classe par nom..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2 bg-slate-50 text-sm font-semibold rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                                    className="w-full pl-9 pr-4 py-2.5 bg-base-100 text-sm rounded-md outline-none"
                                 />
                             </div>
                         </div>
 
                         {/* Liste des classes */}
-                        <div className="flex-1 overflow-y-auto p-6 space-y-3">
+                        <div className="flex-1 overflow-y-auto p-6 space-y-2.5">
                             {modalLoading ? (
                                 <LoadingSkeleton />
                             ) : filteredClassrooms.map(classroom => {
                                 const isSelected = selectedClasses.includes(classroom.id);
                                 return (
-                                    <div 
+                                    <div
                                         key={classroom.id}
                                         onClick={() => toggleClassSelection(classroom.id)}
-                                        className={`p-4 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
-                                            isSelected 
-                                                ? "bg-indigo-50/30 border-indigo-200" 
-                                                : "bg-white border-slate-150 hover:bg-slate-50/50"
+                                        className={`p-4 rounded-md cursor-pointer flex items-center justify-between transition-colors duration-150 ${
+                                            isSelected ? "bg-primary/10" : "bg-base-100 hover:bg-base-300"
                                         }`}
                                     >
                                         <div className="flex items-center gap-4">
                                             {isSelected ? (
-                                                <div className="text-indigo-600">
-                                                    <CheckSquare size={20} className="fill-indigo-50" />
+                                                <div className="text-primary">
+                                                    <CheckSquare size={20} />
                                                 </div>
                                             ) : (
-                                                <div className="text-slate-300">
+                                                <div className="text-base-content/30">
                                                     <Square size={20} />
                                                 </div>
                                             )}
                                             <div>
-                                                <span className="text-sm font-bold text-slate-800">{classroom.name}</span>
-                                                <span className="block text-[10px] text-slate-400 font-semibold mt-0.5">
+                                                <span className="text-sm font-medium text-base-content">{classroom.name}</span>
+                                                <span className="block text-xs text-base-content/50 mt-0.5">
                                                     Cycle: {classroom.cycle} • Niveau: {classroom.level_index}
                                                 </span>
                                             </div>
@@ -382,14 +380,14 @@ function SchoolInformations() {
                             })}
 
                             {filteredClassrooms.length === 0 && !modalLoading && (
-                                <div className="text-center py-6 text-slate-400 text-xs font-medium">
+                                <div className="text-center py-6 text-base-content/50 text-sm">
                                     Aucune classe ne correspond à vos critères de recherche.
                                 </div>
                             )}
                         </div>
 
                         {/* Footer */}
-                        <div className="p-6 border-t border-slate-100 flex items-center justify-between gap-4 bg-slate-50">
+                        <div className="p-6 flex items-center justify-between gap-4">
                             <CtaDark onAction={() => setIsModalOpen(false)} icon={X}>
                                 Annuler
                             </CtaDark>
@@ -397,7 +395,7 @@ function SchoolInformations() {
                                 type="button"
                                 onClick={handleSaveAssociations}
                                 disabled={saving}
-                                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow-md shadow-indigo-100 transition-colors flex items-center gap-2 active:scale-95"
+                                className="px-5 py-2.5 bg-primary disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors duration-150 hover:brightness-95 flex items-center gap-2"
                             >
                                 <Save size={14} />
                                 {saving ? "Enregistrement..." : "Appliquer la configuration"}

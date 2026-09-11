@@ -180,36 +180,36 @@ function ClassroomDetail() {
   const totalCoefficients = tempAssignments.reduce((sum, sub) => sum + (parseFloat(sub.coefficient) || 0), 0);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-slate-50/50 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
-      
+    <div className="min-h-screen bg-base-100 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+
       {/* HEADER CONTEXTUEL */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-base-200 p-6 rounded-md">
         <div className="flex items-center gap-4">
-          <div className="p-3.5 bg-indigo-50 text-indigo-600 rounded-2xl">
-            <Layers size={26} className="stroke-[2.5]" />
+          <div className="p-3 bg-primary/10 text-primary rounded-md">
+            <Layers size={22} />
           </div>
           <div>
-            <span className="text-[10px] bg-indigo-50 text-indigo-700 font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
+            <span className="text-xs bg-primary/10 text-primary font-medium px-2.5 py-1 rounded-sm">
               Détails de la Structure
             </span>
-            <h1 className="text-2xl font-black text-slate-800 tracking-tight mt-1">
+            <h1 className="text-lg font-semibold text-base-content mt-1.5">
               {classroom ? classroom.name : "Chargement..."}
             </h1>
-            <p className="text-xs text-slate-400 font-bold mt-0.5">
+            <p className="text-xs text-base-content/50 mt-0.5">
               Code : {classroom?.short_name || "N/A"} • Niveau d'index : {classroom?.level_index || "N/A"} • Cycle : {classroom?.cycle || "N/A"}
             </p>
           </div>
         </div>
 
         {/* STATS RAPIDES */}
-        <div className="flex gap-4">
-          <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl text-center min-w-[100px]">
-            <span className="block text-xl font-black text-slate-800">{tempAssignments.length}</span>
-            <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider">Matières</span>
+        <div className="flex gap-3">
+          <div className="bg-base-100 p-4 rounded-md text-center min-w-25">
+            <span className="block text-lg font-semibold text-base-content">{tempAssignments.length}</span>
+            <span className="text-xs text-base-content/50">Matières</span>
           </div>
-          <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl text-center min-w-[100px]">
-            <span className="block text-xl font-black text-indigo-600">{totalCoefficients}</span>
-            <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider">Total Coeff</span>
+          <div className="bg-base-100 p-4 rounded-md text-center min-w-25">
+            <span className="block text-lg font-semibold text-primary">{totalCoefficients}</span>
+            <span className="text-xs text-base-content/50">Total Coeff</span>
           </div>
         </div>
       </div>
@@ -218,21 +218,21 @@ function ClassroomDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* COLONNE D'INFORMATIONS COMPLÉMENTAIRES */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-            <h3 className="text-xs font-black text-slate-400 tracking-widest uppercase">Guide de Configuration</h3>
-            <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+        <div className="lg:col-span-1 space-y-4">
+          <div className="bg-base-200 p-6 rounded-md space-y-4">
+            <h3 className="text-xs font-semibold text-base-content/50">Guide de Configuration</h3>
+            <p className="text-sm text-base-content/60 leading-relaxed">
               Sur cet espace, vous pouvez configurer l'ensemble des matières qui composent l'évaluation de cette classe.
             </p>
             <div className="space-y-3 pt-2">
-              <div className="flex items-start gap-3 text-xs text-slate-600 font-medium">
-                <div className="p-1 bg-indigo-50 text-indigo-600 rounded-lg mt-0.5">
+              <div className="flex items-start gap-3 text-sm text-base-content/70">
+                <div className="p-1.5 bg-primary/10 text-primary rounded-md mt-0.5">
                   <Hash size={14} />
                 </div>
                 <span>Le <strong>Coefficient</strong> détermine le poids relatif de la matière dans le calcul des moyennes trimestrielles et annuelles.</span>
               </div>
-              <div className="flex items-start gap-3 text-xs text-slate-600 font-medium">
-                <div className="p-1 bg-emerald-50 text-emerald-600 rounded-lg mt-0.5">
+              <div className="flex items-start gap-3 text-sm text-base-content/70">
+                <div className="p-1.5 bg-success/10 text-success rounded-md mt-0.5">
                   <FolderKanban size={14} />
                 </div>
                 <span>Le <strong>Groupe</strong> permet d'organiser les matières sur le bulletin imprimé (ex: *Matières Scientifiques*, *Matières Littéraires*).</span>
@@ -240,9 +240,9 @@ function ClassroomDetail() {
             </div>
           </div>
 
-          <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-6 flex gap-3.5">
-            <Info className="text-amber-600 shrink-0 mt-0.5" size={18} />
-            <p className="text-xs text-amber-800 leading-relaxed font-semibold">
+          <div className="bg-warning/10 rounded-md p-5 flex gap-3">
+            <Info className="text-warning shrink-0 mt-0.5" size={16} />
+            <p className="text-sm text-base-content/70 leading-relaxed">
               <strong>Rappel :</strong> Les modifications effectuées ci-dessous ne seront effectives qu'après avoir cliqué sur le bouton d'enregistrement général en bas de tableau.
             </p>
           </div>
@@ -253,25 +253,25 @@ function ClassroomDetail() {
           {loading ? (
             <LoadingSkeletoon />
           ) : tempAssignments.length === 0 ? (
-            <div className="animate-reveal">
+            <div>
               <Card5 icon={BookOpen}>
                 <p className="mb-4">Aucune matière n'est configurée pour cette classe.</p>
                 <button
                   onClick={handleOpenSelectorModal}
-                  className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase rounded-lg shadow-md transition-all flex items-center gap-2 mx-auto"
+                  className="px-4 py-2.5 bg-primary hover:brightness-95 text-white text-sm font-medium rounded-md transition-colors duration-150 flex items-center gap-2 mx-auto"
                 >
                   <Plus size={14} /> Ajouter une matière globale
                 </button>
               </Card5>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/30 overflow-hidden animate-reveal">
-              <div className="p-6 border-b border-slate-50 flex items-center justify-between">
+            <div className="bg-base-200 rounded-md overflow-hidden">
+              <div className="p-6 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <Sliders className="text-indigo-600" size={18} />
-                  <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">Programme d'Enseignement Actif</h2>
+                  <Sliders className="text-primary" size={16} />
+                  <h2 className="text-sm font-semibold text-base-content">Programme d'Enseignement Actif</h2>
                 </div>
-                <span className="text-[10px] bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-full">
+                <span className="text-xs bg-base-300 text-base-content/60 font-medium px-2.5 py-1 rounded-sm">
                   {tempAssignments.length} matière(s) liée(s)
                 </span>
               </div>
@@ -288,15 +288,15 @@ function ClassroomDetail() {
                     <Tr key={assignment.id}>
                       {/* Discipline / Nom */}
                       <TdBody>
-                        <span className="block font-bold text-slate-800">{assignment.name}</span>
-                        <span className="text-[9px] bg-slate-100 text-slate-500 font-bold uppercase px-1.5 py-0.5 rounded mt-1 inline-block">
+                        <span className="block font-medium text-base-content">{assignment.name}</span>
+                        <span className="text-xs bg-base-300 text-base-content/60 px-1.5 py-0.5 rounded-sm mt-1 inline-block">
                           {assignment.code}
                         </span>
                       </TdBody>
 
                       {/* Coefficient */}
                       <TdBody>
-                        <div className="relative max-w-[100px]">
+                        <div className="relative max-w-25">
                           <input
                             type="number"
                             step="0.5"
@@ -304,7 +304,7 @@ function ClassroomDetail() {
                             max="50"
                             value={assignment.coefficient}
                             onChange={(e) => handleUpdatePivot(assignment.id, 'coefficient', e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-250 text-slate-800 font-bold text-center rounded-lg focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                            className="w-full px-3 py-2 bg-base-100 text-base-content font-medium text-center rounded-md outline-none"
                           />
                         </div>
                       </TdBody>
@@ -316,7 +316,7 @@ function ClassroomDetail() {
                           placeholder="ex: Scientifique, Littéraire..."
                           value={assignment.group}
                           onChange={(e) => handleUpdatePivot(assignment.id, 'group', e.target.value)}
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-250 text-slate-700 font-semibold text-xs rounded-lg focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                          className="w-full px-3 py-2 bg-base-100 text-base-content text-sm rounded-md outline-none"
                         />
                       </TdBody>
 
@@ -324,7 +324,7 @@ function ClassroomDetail() {
                       <TdBody>
                         <button
                           onClick={() => handleRemoveSubject(assignment.id)}
-                          className="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                          className="p-2.5 text-base-content/40 hover:text-error rounded-md transition-colors duration-150"
                           title="Retirer cette matière"
                         >
                           <Trash2 size={15} />
@@ -336,18 +336,18 @@ function ClassroomDetail() {
               </Table>
 
               {/* BARRE D'ACTIONS DU PROGRAMME */}
-              <div className="p-6 border-t border-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
+              <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <button
                   onClick={handleOpenSelectorModal}
-                  className="px-4 py-2.5 border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-bold uppercase rounded-lg transition-all flex items-center justify-center gap-2"
+                  className="px-4 py-2.5 bg-base-100 hover:bg-base-300 text-base-content text-sm font-medium rounded-md transition-colors duration-150 flex items-center justify-center gap-2"
                 >
                   <Plus size={14} /> Ajouter d'autres matières
                 </button>
-                
+
                 <button
                   onClick={handleSaveCurriculum}
                   disabled={saving}
-                  className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-100 transition-all flex items-center justify-center gap-2"
+                  className="px-5 py-3 bg-primary hover:brightness-95 disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors duration-150 flex items-center justify-center gap-2"
                 >
                   <Save size={15} />
                   {saving ? "Enregistrement..." : "Enregistrer la configuration"}
@@ -363,44 +363,44 @@ function ClassroomDetail() {
       {/* SYSTEM MODAL : ASSOCIER DES MATIÈRES DE LA BIBLIOTHÈQUE GLOBALE */}
       {/* ========================================================================= */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[80vh] animate-scaleUp">
-            
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/40">
+          <div className="bg-base-200 w-full h-full sm:h-auto sm:max-w-xl sm:rounded-md overflow-hidden flex flex-col sm:max-h-[80vh]">
+
             {/* Header */}
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <div className="p-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-                  <BookOpen size={20} />
+                <div className="p-2 bg-primary/10 text-primary rounded-md">
+                  <BookOpen size={18} />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-800 uppercase tracking-wider">Bibliothèque de matières</h3>
-                  <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Ajoutez des matières à cette classe</p>
+                  <h3 className="text-base font-semibold text-base-content">Bibliothèque de matières</h3>
+                  <p className="text-xs text-base-content/50">Ajoutez des matières à cette classe</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 hover:bg-slate-200 text-slate-400 hover:text-slate-600 rounded-full transition-colors"
+                className="p-1.5 hover:bg-base-300 text-base-content/50 hover:text-base-content rounded-md transition-colors duration-150"
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* Note */}
-            <div className="bg-indigo-50/60 p-4 border-b border-indigo-100/20 flex gap-3 text-xs text-indigo-950">
-              <Info className="text-indigo-600 shrink-0 mt-0.5" size={16} />
-              <p className="leading-relaxed font-semibold">
+            <div className="bg-primary/10 p-4 flex gap-3 text-sm text-base-content/70">
+              <Info className="text-primary shrink-0 mt-0.5" size={16} />
+              <p className="leading-relaxed">
                 Cliquez sur le bouton d'ajout en face d'une matière globale pour l'ajouter à la classe. Vous pourrez ensuite ajuster son coefficient sur le tableau principal.
               </p>
             </div>
 
             {/* Recherche */}
-            <div className="px-6 py-4 border-b border-slate-50">
+            <div className="px-6 py-4">
               <input
                 type="text"
                 placeholder="Rechercher une matière (nom, code)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 bg-slate-50 text-sm font-semibold rounded-lg border border-slate-250 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
+                className="w-full px-4 py-2.5 bg-base-100 text-sm rounded-md outline-none"
               />
             </div>
 
@@ -411,30 +411,28 @@ function ClassroomDetail() {
               ) : filteredGlobalSubjects.map(subject => {
                 const isSelected = tempAssignments.some(item => item.id === subject.id);
                 return (
-                  <div 
+                  <div
                     key={subject.id}
-                    className={`p-4 rounded-xl border flex items-center justify-between transition-all ${
-                      isSelected 
-                        ? "bg-slate-50 border-slate-200 opacity-60" 
-                        : "bg-white border-slate-150 hover:bg-slate-50/50"
+                    className={`p-4 rounded-md flex items-center justify-between ${
+                      isSelected ? "bg-base-100 opacity-60" : "bg-base-100"
                     }`}
                   >
                     <div>
-                      <span className="text-sm font-bold text-slate-800">{subject.name}</span>
-                      <span className="block text-[9px] text-indigo-600 font-black uppercase mt-0.5 tracking-tight">
+                      <span className="text-sm font-medium text-base-content">{subject.name}</span>
+                      <span className="block text-xs text-primary mt-0.5">
                         CODE : {subject.code}
                       </span>
                     </div>
 
                     {isSelected ? (
-                      <span className="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5">
+                      <span className="text-xs bg-success/10 text-success font-medium px-2.5 py-1.5 rounded-sm flex items-center gap-1.5">
                         <Check size={12} /> Ajouté
                       </span>
                     ) : (
                       <button
                         type="button"
                         onClick={() => handleSelectSubject(subject)}
-                        className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1.5"
+                        className="px-3 py-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-primary-content text-xs font-medium rounded-sm transition-colors duration-150 flex items-center gap-1.5"
                       >
                         <Plus size={12} /> Ajouter
                       </button>
@@ -444,14 +442,14 @@ function ClassroomDetail() {
               })}
 
               {filteredGlobalSubjects.length === 0 && !modalLoading && (
-                <div className="text-center py-6 text-slate-400 text-xs font-medium">
+                <div className="text-center py-6 text-base-content/40 text-sm">
                   Aucune matière disponible en bibliothèque globale.
                 </div>
               )}
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-slate-100 flex items-center justify-end bg-slate-50">
+            <div className="p-6 flex items-center justify-end">
               <CtaDark onAction={() => setIsModalOpen(false)} icon={X}>
                 Fermer
               </CtaDark>

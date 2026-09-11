@@ -34,15 +34,12 @@ export default function AxiosProvider({ children }) {
       
       {/* Loader global optionnel - à adapter à votre UI */}
       {isLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm pointer-events-none">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 pointer-events-none">
           <div
             className="loading loading-spinner loading-lg text-primary"
             style={{
-              width: 48,
-              height: 48,
-              border: '4px solid rgba(255, 255, 255, 0.35)',
-              borderTopColor: '#2563eb',
-              borderRadius: '50%',
+              width: 40,
+              height: 40,
               animation: 'axios-provider-spin 0.8s linear infinite',
             }}
           />

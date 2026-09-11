@@ -1,7 +1,5 @@
-import { useRef } from "react";
-import { FaBookOpen, FaAward, FaLink } from "react-icons/fa";
+import { FaBookOpen, FaAward } from "react-icons/fa";
 
-import { useAnimations } from "../utils/animations";
 import PageHeader from '../components/elements/PageHeader'
 import { Card1 } from '../components/ui/CardsComponents'
 import { LinkArrowRight } from "../components/ui/LinksComponents";
@@ -29,32 +27,26 @@ const elements = [
 
 
 function Pedagogie() {
-   const containerRef = useRef(null);
-  useAnimations(containerRef);
-
-
   return (
-    <div ref={containerRef}>
-        <div className="animate-reveal">
-          <PageHeader
-            title="Autres fonctionnalités"
-            subtitle="Gérez les autres fonctionnalités de l'application"
-          />
-        </div>
-        
-        <div className="py-5 grid grid-cols-1 sm:grid-cols-2 gap-6 animate-reveal">
-          {
-            elements.map((element) => (
-              <Card1
-              key={element.title}
-              data={element}
-              btn={<LinkArrowRight  
-                link={element.to}
-                color="text-violet-400"
-                abs={true}>Prise en main</LinkArrowRight>} />
-            ))
-          }
-        </div>
+    <div>
+      <PageHeader
+        title="Autres fonctionnalités"
+        subtitle="Gérez les autres fonctionnalités de l'application"
+      />
+
+      <div className="py-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {
+          elements.map((element) => (
+            <Card1
+            key={element.title}
+            data={element}
+            btn={<LinkArrowRight
+              link={element.to}
+              color="text-primary"
+              abs={true}>Prise en main</LinkArrowRight>} />
+          ))
+        }
+      </div>
     </div>
   )
 }

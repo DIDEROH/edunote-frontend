@@ -1,5 +1,3 @@
-import { motion } from "framer-motion";
-
 import {
     ResponsiveContainer,
     BarChart,
@@ -11,13 +9,10 @@ import {
     Legend,
 } from "recharts";
 
-import {
-    FaChalkboardTeacher
-} from "react-icons/fa";
+import { FaChalkboardTeacher } from "react-icons/fa";
 
 
 export default function TeacherChart({ data }) {
-
 
     const chartData =
         data?.map((item) => ({
@@ -29,317 +24,65 @@ export default function TeacherChart({ data }) {
 
 
     return (
-
-        <motion.div
-
-            initial={{
-                opacity:0,
-                y:20
-            }}
-
-            animate={{
-                opacity:1,
-                y:0
-            }}
-
-            transition={{
-                duration:.5
-            }}
-
-            className="
-                rounded-3xl
-                bg-white
-                border
-                border-slate-200
-                shadow-xl
-                p-6 -pl-10
-            "
-
-        >
-
+        <div className="rounded-md bg-base-200 p-6">
 
             {/* Header */}
-
-            <div className="
-                flex
-                items-center
-                justify-between
-                mb-8
-            ">
-
-
+            <div className="flex items-center justify-between mb-6">
                 <div>
-
-                    <h2 className="
-                        text-2xl
-                        font-bold
-                        text-slate-800
-                    ">
+                    <h2 className="text-sm font-semibold text-base-content">
                         Répartition des enseignants
                     </h2>
-
-
-                    <p className="
-                        text-slate-500
-                        mt-1
-                    ">
+                    <p className="text-xs text-base-content/60 mt-1">
                         Personnel enseignant par établissement
                     </p>
-
-
                 </div>
 
-
-
-                <div className="
-                    h-14
-                    w-14
-                    rounded-2xl
-                    bg-violet-100
-                    flex
-                    items-center
-                    justify-center
-                ">
-
-                    <FaChalkboardTeacher
-                        className="
-                            text-2xl
-                            text-violet-600
-                        "
-                    />
-
+                <div className="h-11 w-11 rounded-md bg-secondary/10 flex items-center justify-center">
+                    <FaChalkboardTeacher className="text-lg text-secondary" />
                 </div>
-
-
             </div>
-
-
 
             {/* Chart */}
-
-
             <div className="h-[420px]">
-
-
-                <ResponsiveContainer
-                    width="100%"
-                    height="100%"
-                >
-
-
-                    <BarChart
-
-                        data={chartData}
-
-                        layout="vertical"
-
-                        margin={{
-                            top:10,
-                            right:20,
-                            bottom:10
-                        }}
-
-                    >
-
-
-                        <CartesianGrid
-                            strokeDasharray="4 4"
-                            horizontal={false}
-                        />
-
-
-                        <XAxis
-                            type="number"
-                        />
-
-
-                        <YAxis
-
-                            type="category"
-
-                            dataKey="school"
-
-                            width={150}
-
-                            tick={{
-                                fontSize:12
-                            }}
-
-                        />
-
-
-
-                        <Tooltip
-                            content={<CustomTooltip />}
-                        />
-
-
-
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 20, bottom: 10 }}>
+                        <CartesianGrid strokeDasharray="4 4" horizontal={false} stroke="#E7E9F7" />
+                        <XAxis type="number" tick={{ fontSize: 12, fill: "#8A93A0" }} />
+                        <YAxis type="category" dataKey="school" width={150} tick={{ fontSize: 12, fill: "#8A93A0" }} />
+                        <Tooltip content={<CustomTooltip />} />
                         <Legend />
 
-
-
-                        <Bar
-
-                            dataKey="total"
-
-                            name="Total"
-
-                            fill="#6366F1"
-
-                            radius={[
-                                0,
-                                10,
-                                10,
-                                0
-                            ]}
-
-                        />
-
-
-                        <Bar
-
-                            dataKey="boys"
-
-                            name="Hommes"
-
-                            fill="#3B82F6"
-
-                            radius={[
-                                0,
-                                10,
-                                10,
-                                0
-                            ]}
-
-                        />
-
-
-
-                        <Bar
-
-                            dataKey="girls"
-
-                            name="Femmes"
-
-                            fill="#EC4899"
-
-                            radius={[
-                                0,
-                                10,
-                                10,
-                                0
-                            ]}
-
-                        />
-
-
+                        <Bar dataKey="total" name="Total" fill="#4F46E5" radius={[0, 3, 3, 0]} />
+                        <Bar dataKey="boys" name="Hommes" fill="#0284C7" radius={[0, 3, 3, 0]} />
+                        <Bar dataKey="girls" name="Femmes" fill="#DB2777" radius={[0, 3, 3, 0]} />
                     </BarChart>
-
-
                 </ResponsiveContainer>
-
-
             </div>
 
-
-        </motion.div>
-
+        </div>
     );
 }
 
 
-
-function CustomTooltip({
-    active,
-    payload
-}){
-
-
-    if(
-        !active ||
-        !payload ||
-        payload.length===0
-    ){
-
+function CustomTooltip({ active, payload }) {
+    if (!active || !payload || payload.length === 0) {
         return null;
-
     }
 
-
-    const school =
-        payload[0]?.payload;
-
+    const school = payload[0]?.payload;
 
     return (
-
-        <div className="
-            bg-white
-            border
-            border-slate-200
-            shadow-xl
-            rounded-2xl
-            p-4
-        ">
-
-
-            <h3 className="
-                font-bold
-                text-slate-800
-                mb-3
-            ">
-
+        <div className="bg-base-200 rounded-md p-4">
+            <h3 className="font-semibold text-sm text-base-content mb-2">
                 {school.school}
-
             </h3>
 
-
-
-            {
-
-                payload.map((item)=>(
-
-
-                    <div
-
-                        key={item.name}
-
-                        className="
-                            flex
-                            justify-between
-                            gap-8
-                            py-1
-                        "
-
-                    >
-
-
-                        <span
-                            className="text-slate-500"
-                        >
-
-                            {item.name}
-
-                        </span>
-
-
-                        <strong>
-
-                            {item.value}
-
-                        </strong>
-
-
-                    </div>
-
-
-                ))
-
-            }
-
-
+            {payload.map((item) => (
+                <div key={item.name} className="flex justify-between gap-8 py-0.5 text-sm">
+                    <span className="text-base-content/60">{item.name}</span>
+                    <strong className="text-base-content">{item.value}</strong>
+                </div>
+            ))}
         </div>
-
     );
-
 }

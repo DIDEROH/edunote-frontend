@@ -12,24 +12,24 @@ export default function TextInput({ label, icon: Icon, error, id, className = ""
   const inputType = isPasswordType && showPassword ? "text" : props.type;
 
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`space-y-1.5 ${className}`}>
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-slate-400">
+        <label htmlFor={id} className="text-xs font-medium text-base-content/60">
           {label}
         </label>
       )}
       <div
-        className={`flex items-center gap-3 border-b px-3 py-2 transition ${
-          error ? "border-rose-500" : "border-slate-200 bg-transparent"
+        className={`flex items-center gap-3 rounded-md px-3.5 py-3 transition-colors duration-150 ${
+          error ? "bg-error/10" : "bg-base-100"
         }`}
       >
-        {Icon && <Icon size={18} className={`text-slate-400 ${error ? "text-rose-500" : ""}`} />}
-        
+        {Icon && <Icon size={16} className={`${error ? "text-error" : "text-base-content/40"}`} />}
+
         <input
           id={id}
           {...props}
           type={inputType} // On applique le type dynamique ici
-          className="w-full bg-transparent outline-none text-sm text-slate-200 placeholder:text-slate-400"
+          className="w-full bg-transparent outline-none text-sm text-base-content placeholder:text-base-content/40"
         />
 
         {/* On affiche l'icône cliquable uniquement si type="password" a été passé en prop */}
@@ -37,14 +37,14 @@ export default function TextInput({ label, icon: Icon, error, id, className = ""
           <button
             type="button" // Important pour éviter de soumettre le formulaire
             onClick={() => setShowPassword(!showPassword)}
-            className="text-slate-400 hover:text-slate-200 transition focus:outline-none"
+            className="text-base-content/40 hover:text-base-content transition-colors duration-150 focus:outline-none"
             aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
           >
-            {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+            {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
           </button>
         )}
       </div>
-      {error && <p className="text-xs text-rose-600 italic">{error.message}</p>}
+      {error && <p className="text-xs text-error">{error.message}</p>}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useOutletContext } from "react-router-dom"
 import { api } from "../../utils/AxiosClient"
 import { toast } from "sonner";
 import DirectorHeader from "../../components/dashboard/DirectorHeader";
@@ -7,9 +8,13 @@ import { FaChalkboardTeacher, FaUserGraduate } from "react-icons/fa";
 import StudentPieChart from "../../components/dashboard/StudentPieChart";
 import { ClassroomCards } from "../../components/ui/CardsComponents";
 import PerformanceWidget from "../../components/dashboard/PerformanceWidget";
+import usePrintable from "../../utils/usePrintable";
+import PrintableTable from "../../components/print/PrintableTable";
 
 function Director() {
   const [dashboard, setDashboard] = useState();
+  const { setNavbarActions } = useOutletContext();
+  const { printRef, print } = usePrintable("Statistiques de l'etablissement");
 
   useEffect(() => {
     api.get('/statistics/director/dashboard')
@@ -20,9 +25,40 @@ function Director() {
     .catch((error) => {toast.error(error.message)})
   }, [])
 
-  
+  useEffect(() => {
+    setNavbarActions({ onPrint: print });
+    return () => setNavbarActions({});
+  }, [setNavbarActions, print]);
+
+
   return (
     <main className="space-y-8">
+      <PrintableTable
+        ref={printRef}
+        title={`Statistiques - ${dashboard?.general?.school_info?.name || "Etablissement"}`}
+        meta={[
+          { label: "Eleves", value: dashboard?.general?.students?.total ?? "-" },
+          { label: "Enseignants", value: dashboard?.general?.teachers?.total ?? "-" },
+          { label: "Classes", value: dashboard?.general?.classrooms ?? "-" },
+        ]}
+        columns={[
+          { key: "classe", label: "Classe" },
+          { key: "inscrits", label: "Inscrits (G/F)" },
+          { key: "admis", label: "Admis" },
+          { key: "tauxAdmis", label: "Taux reussite" },
+          { key: "echecs", label: "Echecs" },
+          { key: "tauxEchecs", label: "Taux echec" },
+        ]}
+        rows={(dashboard?.performance?.by_classroom || []).map((c) => ({
+          classe: c.nom_classe,
+          inscrits: `${c.inscrits.total} (${c.inscrits.garcons}/${c.inscrits.filles})`,
+          admis: c.admis.total,
+          tauxAdmis: `${c.admis.taux}%`,
+          echecs: c.echecs.total,
+          tauxEchecs: `${c.echecs.taux}%`,
+        }))}
+      />
+
       <DirectorHeader school={dashboard?.general?.school_info} user={dashboard?.general?.director} />
 
 

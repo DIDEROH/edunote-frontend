@@ -46,34 +46,33 @@ function TeacherMarkHub() {
 
   if (authLoading || loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-slate-50">
+      <div className="h-screen flex items-center justify-center bg-base-100">
         <Loading load={true} />
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-slate-50/50">
+    <main className="min-h-screen bg-base-100">
       <PageHeader
         title="Espace enseignant"
         subtitle="Suivez rapidement les grilles de notes que vous pouvez saisir."
       />
 
-      <div className="mt-8">
-        
+      <div className="mt-6">
 
         {mappedAssignments.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-slate-200 p-10 text-center text-slate-500">
+          <div className="rounded-md bg-base-200 p-10 text-center text-sm text-base-content/60">
             Vous n'avez aucune affectation active pour le moment.
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {mappedAssignments.map((assignment) => (
-              <div key={assignment.id} className="rounded-3xl border border-indigo-300 p-5 bg-gradient-to-br from-indigo-200 to-slate-50 flex flex-col items-center text-center">
-                <div className="mb-3 text-sm font-black text-indigo-500 uppercase">{assignment.school}</div>
-                <h3 className="text-lg font-bold text-indigo-600">{assignment.label}</h3>
-                <p className="mt-2 text-sm text-slate-500">{assignment.year}</p>
-                <div className="mt-5 flex flex-wrap gap-3">
+              <div key={assignment.id} className="rounded-md p-5 bg-base-200 flex flex-col items-center text-center">
+                <div className="mb-2 text-xs font-medium text-base-content/50 uppercase">{assignment.school}</div>
+                <h3 className="text-base font-semibold text-base-content">{assignment.label}</h3>
+                <p className="mt-1 text-sm text-base-content/60">{assignment.year}</p>
+                <div className="mt-4 flex flex-wrap gap-3">
                   <CtaNeon
                     type="button"
                     onAction = {() => window.location.assign(`/marks/entry?assignment=${assignment.id}`)}

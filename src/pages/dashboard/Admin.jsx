@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import {
     FaUserGraduate,
     FaSchool,
@@ -15,10 +16,14 @@ import SchoolTable from "../../components/dashboard/SchoolTable";
 import PerformanceTable from "../../components/dashboard/PerformanceTable";
 import { toast } from 'sonner'
 import { api } from '../../utils/AxiosClient'
+import usePrintable from "../../utils/usePrintable";
+import PrintableTable from "../../components/print/PrintableTable";
 
 
 function Admin() {
     const [dashboard, setDashboard] = useState({});
+    const { setNavbarActions } = useOutletContext();
+    const { printRef, print } = usePrintable("Statistiques generales");
 
     useEffect(() => {
       api.get('/statistics/admin/dashboard')
@@ -29,10 +34,55 @@ function Admin() {
       .catch((error) => {toast.error(error.message)})
     }, [])
 
+    useEffect(() => {
+        setNavbarActions({ onPrint: print });
+        return () => setNavbarActions({});
+    }, [setNavbarActions, print]);
+
+    // Fusion des statistiques par école (effectifs + performance) pour l'impression
+    const printRows = useMemo(() => {
+        const bySchool = dashboard?.general?.studentBySchool || [];
+        const performance = dashboard?.performance?.by_school || [];
+
+        return bySchool.map((s) => {
+            const perf = performance.find((p) => p.nom_ecole === s.school_name);
+            return {
+                school: s.school_name,
+                total: s.total_students,
+                boys: s.boys,
+                girls: s.girls,
+                admis: perf?.admis?.total ?? "-",
+                echecs: perf?.echecs?.total ?? "-",
+                taux: perf?.admis?.taux != null ? `${perf.admis.taux}%` : "-",
+            };
+        });
+    }, [dashboard]);
+
     // Plus tard ces données viendront de ton API
 
     return (
         <div className="min-h-screen">
+
+            <PrintableTable
+                ref={printRef}
+                title="Statistiques generales - EDUNOTE"
+                meta={[
+                    { label: "Periode", value: dashboard?.period || "-" },
+                    { label: "Ecoles", value: dashboard?.general?.schools ?? "-" },
+                    { label: "Eleves", value: dashboard?.general?.students?.total ?? "-" },
+                    { label: "Enseignants", value: dashboard?.general?.teachers ?? "-" },
+                ]}
+                columns={[
+                    { key: "school", label: "Etablissement" },
+                    { key: "total", label: "Effectif" },
+                    { key: "boys", label: "Garcons" },
+                    { key: "girls", label: "Filles" },
+                    { key: "admis", label: "Admis" },
+                    { key: "echecs", label: "Echecs" },
+                    { key: "taux", label: "Taux reussite" },
+                ]}
+                rows={printRows}
+            />
 
             <div className="max-w-7xl mx-auto space-y-6">
 

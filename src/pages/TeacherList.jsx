@@ -16,6 +16,8 @@ import LoadingSkeletoon from "../components/LoadingSkeletoon";
 import PageHeader from "../components/elements/PageHeader";
 import { Card4 } from "../components/ui/CardsComponents";
 import { LuUser } from "react-icons/lu";
+import usePrintable from "../utils/usePrintable";
+import PrintableTable from "../components/print/PrintableTable";
 
 function TeachersList() {
     const [teachers, setTeachers] = useState([]);
@@ -49,6 +51,7 @@ function TeachersList() {
     });
 
     const { setNavbarActions } = useOutletContext();
+    const { printRef, print } = usePrintable("Liste des enseignants");
 
     /**
      * Debounce recherche
@@ -226,10 +229,11 @@ function TeachersList() {
 
         setNavbarActions({
             onFilter: handleShowFiltersOptions,
+            onPrint: print,
         });
 
         return () => setNavbarActions({});
-    }, [setNavbarActions]);
+    }, [setNavbarActions, print]);
 
     /**
      * Rechargement auto
@@ -239,7 +243,33 @@ function TeachersList() {
     }, [debouncedSearch, filters]);
 
     return (
-        <div className="min-h-screen bg-slate-50/50">
+        <div className="min-h-screen bg-base-100">
+            <PrintableTable
+                ref={printRef}
+                title="Liste des enseignants"
+                meta={[{ label: "Total", value: teachers.length }]}
+                columns={[
+                    { key: "index", label: "#" },
+                    { key: "name", label: "Noms et Prenoms" },
+                    { key: "email", label: "Email" },
+                    { key: "phone", label: "Telephone" },
+                    { key: "assignments", label: "Affectations" },
+                ]}
+                rows={teachers.map((teacher, index) => {
+                    const assignments = teacher.teacher_assignments || [];
+                    return {
+                        id: teacher.id,
+                        index: index + 1,
+                        name: `${teacher.first_name} ${teacher.last_name}`,
+                        email: teacher.email || "-",
+                        phone: teacher.phone || "-",
+                        assignments: assignments.length
+                            ? assignments.map(a => `${a.subject?.name || "?"} (${a.classroom?.name || "?"})`).join(", ")
+                            : "Aucune",
+                    };
+                })}
+            />
+
             <PageHeader
                 title="Liste des Enseignants"
                 subtitle="Vue d'ensemble et affectations du corps professoral"
@@ -250,7 +280,7 @@ function TeachersList() {
                 <LoadingSkeletoon />
             ) : (
                 <div className="max-w-7xl mx-auto p-4 lg:p-8">
-                    <div className="flex gap-4 mb-8">
+                    <div className="flex gap-4 mb-6">
                         <Card4
                              icon={GraduationCap}
                             title={teachers.length || "0"}
@@ -258,14 +288,14 @@ function TeachersList() {
                         />
                     </div>
 
-                    <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                         {teachers.length === 0 ? (
-                            <div className="col-span-full bg-white rounded-2xl border border-slate-200 p-10 text-center">
-                                <GraduationCap className="mx-auto h-12 w-12 text-slate-300 mb-4" />
-                                <h3 className="text-lg font-semibold text-slate-700">
+                            <div className="col-span-full bg-base-200 rounded-md p-10 text-center">
+                                <GraduationCap className="mx-auto h-10 w-10 text-base-content/25 mb-4" />
+                                <h3 className="text-base font-semibold text-base-content">
                                     Aucun enseignant trouvé
                                 </h3>
-                                <p className="text-slate-500 mt-2">
+                                <p className="text-sm text-base-content/60 mt-2">
                                     Modifiez vos critères de recherche ou vos filtres.
                                 </p>
                             </div>
@@ -277,45 +307,45 @@ function TeachersList() {
                                 return (
                                     <article
                                         key={teacher.id}
-                                        className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                                        className="bg-base-200 rounded-md p-5 flex flex-col justify-between"
                                     >
                                         <div>
-                                            <div className="flex items-center gap-4">
-                                                <div className="h-14 w-14 rounded-full bg-indigo-100 flex items-center justify-center">
-                                                    <LuUser className="h-7 w-7 text-indigo-600" />
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                                    <LuUser className="h-6 w-6 text-primary" />
                                                 </div>
 
-                                                <div className="flex-1 space-y-1">
-                                                    <h3 className="font-semibold text-slate-900">
+                                                <div className="flex-1 space-y-0.5">
+                                                    <h3 className="font-medium text-sm text-base-content">
                                                         {teacher.first_name} {teacher.last_name}
                                                     </h3>
-                                                    <p className="text-sm text-slate-500 italic">
+                                                    <p className="text-xs text-base-content/60">
                                                         {teacher.email}
                                                     </p>
                                                     {teacher.phone && (
-                                                        <p className="text-sm text-slate-500">
+                                                        <p className="text-xs text-base-content/60">
                                                             {teacher.phone}
                                                         </p>
                                                     )}
                                                 </div>
                                             </div>
 
-                                            <div className="mt-6">
+                                            <div className="mt-5">
                                                 {assignmentsCount > 0 ? (
-                                                    <div className="rounded-xl bg-slate-50 p-4 border border-slate-100">
-                                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                                                    <div className="rounded-md bg-base-100 p-4">
+                                                        <p className="text-xs font-medium text-base-content/50 mb-2">
                                                             Affectations actives
                                                         </p>
-                                                        <div className="flex items-center gap-2 text-sm text-slate-700 font-medium">
-                                                            <BookOpen size={16} className="text-indigo-500" />
+                                                        <div className="flex items-center gap-2 text-sm text-base-content font-medium">
+                                                            <BookOpen size={15} className="text-primary" />
                                                             {assignmentsCount} {assignmentsCount > 1 ? 'Matières enseignées' : 'Matière enseignée'}
                                                         </div>
-                                                        <div className="mt-2 text-xs text-slate-500">
+                                                        <div className="mt-2 text-xs text-base-content/50">
                                                             Dernière: {assignments[assignmentsCount - 1]?.subject?.name} ({assignments[assignmentsCount - 1]?.classroom?.name})
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className="bg-orange-50 text-orange-600 text-xs text-center p-4 rounded-xl border border-orange-100">
+                                                    <div className="bg-warning/10 text-warning text-xs text-center p-4 rounded-md">
                                                         Aucune affectation définie
                                                     </div>
                                                 )}
@@ -324,7 +354,7 @@ function TeachersList() {
 
                                         <button
                                             onClick={() => handleOpenAssignmentModal(teacher)}
-                                            className="w-full mt-6 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-medium text-white hover:bg-indigo-700"
+                                            className="w-full mt-5 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95"
                                         >
                                             Gérer les affectations
                                         </button>
@@ -338,16 +368,16 @@ function TeachersList() {
 
             {/* Modal des filtres avancés */}
             {showFiltersModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div className="w-full max-w-lg rounded-3xl bg-white shadow-xl">
-                        <div className="flex items-center justify-between border-b border-slate-200 p-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-0 sm:p-4">
+                    <div className="w-full h-full sm:h-auto sm:max-w-lg sm:rounded-md bg-base-200 overflow-y-auto">
+                        <div className="flex items-center justify-between p-6">
                             <div className="flex items-center gap-3">
-                                <Filter className="h-5 w-5 text-indigo-600" />
-                                <h2 className="text-lg font-semibold">Filtres avancés</h2>
+                                <Filter className="h-4 w-4 text-primary" />
+                                <h2 className="text-base font-semibold text-base-content">Filtres avancés</h2>
                             </div>
                             <button
                                 onClick={() => setShowFiltersModal(false)}
-                                className="rounded-full p-2 hover:bg-slate-100"
+                                className="rounded-md p-2 hover:bg-base-300 transition-colors duration-150"
                             >
                                 <X className="h-5 w-5" />
                             </button>
@@ -356,11 +386,11 @@ function TeachersList() {
                         <div className="space-y-5 p-6">
                             {/* Filtre Ecole */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-slate-700">École</label>
+                                <label className="mb-2 block text-sm font-medium text-base-content/70">École</label>
                                 <select
                                     value={filters.school_id}
                                     onChange={(e) => setFilters(prev => ({ ...prev, school_id: e.target.value }))}
-                                    className="w-full rounded-xl border border-slate-300 py-3 px-4 outline-none focus:border-indigo-500"
+                                    className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
                                 >
                                     <option value="">Toutes les écoles</option>
                                     {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -369,11 +399,11 @@ function TeachersList() {
 
                             {/* Filtre Année */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-slate-700">Année académique</label>
+                                <label className="mb-2 block text-sm font-medium text-base-content/70">Année académique</label>
                                 <select
                                     value={filters.academic_year_id}
                                     onChange={(e) => setFilters(prev => ({ ...prev, academic_year_id: e.target.value }))}
-                                    className="w-full rounded-xl border border-slate-300 py-3 px-4 outline-none focus:border-indigo-500"
+                                    className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
                                 >
                                     <option value="">Toutes les années</option>
                                     {academicYears.map(y => <option key={y.id} value={y.id}>{y.name}</option>)}
@@ -382,11 +412,11 @@ function TeachersList() {
 
                             {/* Filtre Classe */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-slate-700">Classe</label>
+                                <label className="mb-2 block text-sm font-medium text-base-content/70">Classe</label>
                                 <select
                                     value={filters.classroom_id}
                                     onChange={(e) => setFilters(prev => ({ ...prev, classroom_id: e.target.value }))}
-                                    className="w-full rounded-xl border border-slate-300 py-3 px-4 outline-none focus:border-indigo-500"
+                                    className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
                                 >
                                     <option value="">Toutes les classes</option>
                                     {classrooms.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -395,11 +425,11 @@ function TeachersList() {
 
                             {/* Filtre Matière */}
                             <div>
-                                <label className="mb-2 block text-sm font-medium text-slate-700">Matière</label>
+                                <label className="mb-2 block text-sm font-medium text-base-content/70">Matière</label>
                                 <select
                                     value={filters.subject_id}
                                     onChange={(e) => setFilters(prev => ({ ...prev, subject_id: e.target.value }))}
-                                    className="w-full rounded-xl border border-slate-300 py-3 px-4 outline-none focus:border-indigo-500"
+                                    className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
                                 >
                                     <option value="">Toutes les matières</option>
                                     {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -407,16 +437,16 @@ function TeachersList() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 border-t border-slate-200 p-6">
+                        <div className="flex justify-end gap-3 p-6">
                             <button
                                 onClick={handleResetFilters}
-                                className="rounded-xl border border-slate-300 px-5 py-3 font-medium text-slate-700 hover:bg-slate-50"
+                                className="rounded-md bg-base-100 px-5 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300"
                             >
                                 Réinitialiser
                             </button>
                             <button
                                 onClick={handleApplyFilters}
-                                className="rounded-xl bg-indigo-600 px-5 py-3 font-medium text-white hover:bg-indigo-700"
+                                className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95"
                             >
                                 Appliquer
                             </button>
@@ -427,36 +457,36 @@ function TeachersList() {
 
             {/* Modal d'affectation multiple */}
             {showAssignmentModal && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-5xl rounded-3xl bg-white shadow-2xl flex flex-col max-h-[90vh]">
-                        <div className="flex items-center justify-between border-b p-6 shrink-0">
+                <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 p-0 sm:p-4">
+                    <div className="w-full h-full sm:h-auto sm:max-w-5xl sm:rounded-md bg-base-200 flex flex-col sm:max-h-[90vh]">
+                        <div className="flex items-center justify-between p-6 shrink-0">
                             <div>
-                                <h2 className="text-xl font-semibold">Gérer les affectations</h2>
-                                <p className="text-sm text-slate-500">
+                                <h2 className="text-base font-semibold text-base-content">Gérer les affectations</h2>
+                                <p className="text-sm text-base-content/60">
                                     {selectedTeacher?.first_name} {selectedTeacher?.last_name}
                                 </p>
                             </div>
                             <button
                                 onClick={() => setShowAssignmentModal(false)}
-                                className="rounded-full p-2 hover:bg-slate-100"
+                                className="rounded-md p-2 hover:bg-base-300 transition-colors duration-150"
                             >
                                 <X size={20} />
                             </button>
                         </div>
 
-                        <div className="grid gap-8 p-6 lg:grid-cols-2 overflow-y-auto">
+                        <div className="grid gap-6 p-6 lg:grid-cols-2 overflow-y-auto">
                             {/* Formulaire d'affectation */}
-                            <div className="space-y-5 bg-slate-50 p-6 rounded-2xl border border-slate-100 h-fit">
-                                <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                                    <Plus size={18} /> Nouvelle affectation
+                            <div className="space-y-5 bg-base-100 p-6 rounded-md h-fit">
+                                <h3 className="font-medium text-sm text-base-content mb-4 flex items-center gap-2">
+                                    <Plus size={16} /> Nouvelle affectation
                                 </h3>
-                                
+
                                 <div>
-                                    <label className="mb-2 flex items-center gap-2 text-sm font-medium"><Building2 size={16} /> École</label>
+                                    <label className="mb-2 flex items-center gap-2 text-sm font-medium text-base-content/70"><Building2 size={16} /> École</label>
                                     <select
                                         value={assignmentForm.school_id}
                                         onChange={(e) => setAssignmentForm(prev => ({ ...prev, school_id: e.target.value }))}
-                                        className="w-full rounded-xl border p-3 bg-white"
+                                        className="w-full rounded-md p-2.5 bg-base-200 text-sm outline-none"
                                     >
                                         <option value="">Sélectionner une école</option>
                                         {schools.map(s => <option key={s.id} value={s.id}>{s.name} - {s.city}</option>)}
@@ -467,7 +497,7 @@ function TeachersList() {
                                 <button
                                     onClick={handleAssignTeacher}
                                     disabled={assignmentSaving}
-                                    className="w-full mt-4 rounded-xl bg-indigo-600 py-3 font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-all"
+                                    className="w-full mt-4 rounded-md bg-primary py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95 disabled:opacity-50"
                                 >
                                     {assignmentSaving ? "Enregistrement..." : "Enregistrer l'affectation"}
                                 </button>
@@ -475,37 +505,37 @@ function TeachersList() {
 
                             {/* Historique des affectations */}
                             <div>
-                                <h3 className="font-semibold mb-4 text-slate-800">
+                                <h3 className="font-medium text-sm mb-4 text-base-content">
                                     Affectations actuelles ({assignmentHistory.length})
                                 </h3>
 
-                                <div className="space-y-3">
+                                <div className="space-y-2.5">
                                     {assignmentLoading ? (
                                         <LoadingSkeletoon />
                                     ) : assignmentHistory.length === 0 ? (
-                                        <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-slate-500 bg-slate-50">
+                                        <div className="rounded-md p-8 text-center text-sm text-base-content/50 bg-base-100">
                                             Aucune affectation définie pour cet enseignant.
                                         </div>
                                     ) : (
                                         assignmentHistory.map((assignment) => (
-                                            <div key={assignment.id} className="rounded-2xl border border-slate-200 p-4 hover:border-indigo-200 transition-colors bg-white">
+                                            <div key={assignment.id} className="rounded-md p-4 bg-base-100">
                                                 <div className="flex justify-between items-start">
                                                     <div>
-                                                        <p className="font-semibold text-slate-900 text-sm">
+                                                        <p className="font-medium text-base-content text-sm">
                                                             {assignment.subject?.name}
                                                         </p>
-                                                        <p className="text-sm font-medium text-indigo-600 mt-0.5">
+                                                        <p className="text-sm font-medium text-primary mt-0.5">
                                                             Classe: {assignment.classroom?.name}
                                                         </p>
-                                                        <div className="text-xs text-slate-500 mt-2 space-y-1">
+                                                        <div className="text-xs text-base-content/50 mt-2 space-y-1">
                                                             <p>École: {assignment.school?.name}</p>
                                                             <p>Année: {assignment.academic_year?.name}</p>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <button
                                                         onClick={() => handleDeleteAssignment(assignment.id)}
-                                                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                        className="p-2 text-base-content/40 hover:text-error rounded-md transition-colors duration-150"
                                                         title="Supprimer cette affectation"
                                                     >
                                                         <Trash2 size={18} />

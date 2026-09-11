@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 
 function Navbar({ children, className = '' }) {
   return (
-    <header className={`w-full bg-white border-b border-slate-200 px-6 py-4 shadow-sm ${className}`}>
+    <header className={`w-full bg-base-200 px-6 py-4 ${className}`}>
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         {children}
       </div>

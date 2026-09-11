@@ -56,7 +56,7 @@ function Login() {
       footer={
         <>
           Vous n'avez pas encore de compte ?{' '}
-          <Link to="/register" className="font-semibold text-slate-500">
+          <Link to="/register" className="font-medium text-primary">
             Créer un compte
           </Link>
         </>
