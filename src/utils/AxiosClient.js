@@ -1,5 +1,4 @@
 import axios from "axios";
-import { API_URL } from "../constants/constants";
 
 // ============================================
 // Configuration globale sécurisée
@@ -31,7 +30,7 @@ function getSelectedLanguage(config = {}) {
 }
 
 const axiosClient = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
   timeout: 30000, // ✅ Timeout de 30s pour éviter les requêtes pendantes
   headers: {
     Accept: "application/json",

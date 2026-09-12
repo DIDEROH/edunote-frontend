@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-    School, Users, ArrowRight, FileCheck, Calendar, Layout, User
+import {
+    School, Users, ArrowRight, FileCheck, Calendar, Layout, User, Loader2, CheckCircle2, XCircle
 } from "lucide-react";
+import { toast } from "sonner";
 import { api } from "../../utils/AxiosClient";
 import { useHasRole } from "../../hooks/UseHasRole";
 import PageHeader from "../../components/elements/PageHeader";
@@ -110,6 +111,53 @@ export default function Bulletins() {
 
         // Redirection vers le visualiseur de bulletins unique
         navigate(`/report-card/visualiser?${queryParams.toString()}`);
+    };
+
+    // ------------------------------------------------------------------
+    // Génération en arrière-plan (file d'attente) : utile pour préparer
+    // d'un coup les bulletins de toute une classe (ex. avant impression
+    // en masse en fin de trimestre) sans attendre page par page.
+    // ------------------------------------------------------------------
+    const canRunBackground = (isAdmin || isDirector) && scope === 'classroom' && !!classroomId && !!term;
+    const [batchState, setBatchState] = useState(null); // null | { status, total, processed, failed, progress_percent }
+    const pollRef = useRef(null);
+
+    useEffect(() => () => clearInterval(pollRef.current), []);
+
+    const pollBatch = (batchId) => {
+        pollRef.current = setInterval(async () => {
+            try {
+                const { data } = await api.get(`/reports/batches/${batchId}`);
+                setBatchState(data);
+                if (data.status === 'completed' || data.status === 'failed') {
+                    clearInterval(pollRef.current);
+                    if (data.status === 'completed') {
+                        toast.success(`Bulletins générés : ${data.processed}/${data.total} élève(s) traité(s).`);
+                    } else {
+                        toast.error("La génération en arrière-plan a échoué.");
+                    }
+                }
+            } catch (error) {
+                clearInterval(pollRef.current);
+                toast.error("Impossible de suivre la progression de la génération.");
+            }
+        }, 2000);
+    };
+
+    const handleGenerateBackground = async () => {
+        if (!canRunBackground) return;
+        try {
+            const { data } = await api.post("/reports/batches", {
+                school_id: schoolId || undefined,
+                classroom_id: classroomId,
+                term,
+            });
+            setBatchState({ status: 'pending', total: 0, processed: 0, failed: 0, progress_percent: 0 });
+            toast.info("Génération des bulletins lancée en arrière-plan.");
+            pollBatch(data.batch_id);
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Impossible de démarrer la génération en arrière-plan.");
+        }
     };
 
     const inputClass = "w-full bg-base-100 rounded-md px-4 py-3 text-sm font-medium outline-none mb-4 disabled:opacity-50 disabled:cursor-not-allowed";
@@ -226,6 +274,46 @@ export default function Bulletins() {
                 >
                     Générer les bulletins <ArrowRight size={16} />
                 </button>
+
+                {/* GÉNÉRATION EN ARRIÈRE-PLAN (toute la classe d'un coup) */}
+                {canRunBackground && (
+                    <div className="mt-3">
+                        <button
+                            type="button"
+                            disabled={batchState && !['completed', 'failed'].includes(batchState.status)}
+                            onClick={handleGenerateBackground}
+                            className="w-full py-3 rounded-md font-medium text-xs flex items-center justify-center gap-2 bg-base-100 text-base-content/70 hover:text-base-content transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {batchState && !['completed', 'failed'].includes(batchState.status)
+                                ? <Loader2 size={14} className="animate-spin" />
+                                : <FileCheck size={14} />}
+                            Préparer toute la classe en arrière-plan
+                        </button>
+
+                        {batchState && (
+                            <div className="mt-3 rounded-md bg-base-100 p-3">
+                                <div className="flex items-center justify-between text-xs font-medium mb-2">
+                                    <span className="flex items-center gap-1.5 text-base-content/70">
+                                        {batchState.status === 'completed' && <CheckCircle2 size={14} className="text-success" />}
+                                        {batchState.status === 'failed' && <XCircle size={14} className="text-error" />}
+                                        {!['completed', 'failed'].includes(batchState.status) && <Loader2 size={14} className="animate-spin text-primary" />}
+                                        {batchState.status === 'pending' && "En attente de traitement..."}
+                                        {batchState.status === 'processing' && `Traitement en cours (${batchState.processed}/${batchState.total})`}
+                                        {batchState.status === 'completed' && `Terminé : ${batchState.processed}/${batchState.total} élève(s)`}
+                                        {batchState.status === 'failed' && "Échec de la génération"}
+                                    </span>
+                                    <span className="text-base-content/50">{batchState.progress_percent}%</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-base-300 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-primary transition-all duration-300"
+                                        style={{ width: `${batchState.progress_percent}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className="p-6 bg-primary rounded-md text-primary-content">

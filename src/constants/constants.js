@@ -9,11 +9,6 @@ const SIZE_ICON = 15;
 const SIZE_ICON_LG = 20;
 const SIZE_ICON_XL = 28;
 
-// L'url de l'API
- const API_URL = "https://edn.genuime.com";
-//  const API_URL = "http://localhost:8000";
-//  const API_URL = "http://10.123.83.207:8000";
-
 
 // Les classes de l'input
  const INPUT_CLASSES = "input input-bordered w-full bg-base-100/50 focus:border-primary transition-colors outline-none rounded-full";
@@ -32,7 +27,6 @@ export {
     SIZE_ICON,
     SIZE_ICON_LG,
     SIZE_ICON_XL,
-    API_URL,
     INPUT_CLASSES,
     TEXT_AREA_CLASSES,
     SELECT_CLASSES

@@ -91,6 +91,12 @@ function Login() {
           })}
         />
 
+        <div className="flex justify-end -mt-2">
+          <Link to="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+            Mot de passe oublié ?
+          </Link>
+        </div>
+
         <CtaNeon type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? <span>Connexion... <span className="loading"></span></span> : <span>Se connecter</span>}
         </CtaNeon>
