@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import axiosClient from "../../utils/AxiosClient";
 import { toast } from "sonner";
@@ -8,6 +9,7 @@ import { CtaNeon } from "../../components/ui/ButtonsComponents";
 
 function TeacherMarkHub() {
   const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -75,7 +77,7 @@ function TeacherMarkHub() {
                 <div className="mt-4 flex flex-wrap gap-3">
                   <CtaNeon
                     type="button"
-                    onAction = {() => window.location.assign(`/marks/entry?assignment=${assignment.id}`)}
+                    onAction = {() => navigate(`/marks/entry?assignment=${assignment.id}`)}
                   >
                       Saisir les notes
                   </CtaNeon>

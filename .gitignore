@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Service worker de développement (vite-plugin-pwa)
+dev-dist

@@ -3,11 +3,13 @@ import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import axiosClient from "../../utils/AxiosClient";
 import { toast } from "sonner";
-import { Save, Trash2, AlertCircle, CheckCircle2, ChevronRight, User } from "lucide-react";
+import { Save, Trash2, AlertCircle, CheckCircle2, ChevronRight, User, CloudUpload, HardDrive } from "lucide-react";
 
 // Import de tes composants existants (conservés pour la rétrocompatibilité)
 import PageHeader from "../../components/elements/PageHeader";
 import Loading from "../../components/Loading";
+import { hasPending, removeByDedupeKey } from "../../utils/offline/outbox";
+import { OUTBOX_EVENT } from "../../utils/offline/status";
 
 const DRAFT_PREFIX = "edunote_marks_draft";
 
@@ -28,10 +30,13 @@ export default function TeacherMarkEntry() {
   // ==========================================
   // ETAT DES SELECTIONS (Filtres)
   // ==========================================
+  // 🐛 updateFilter() écrit "assignmentId"/"sequenceId"/"termId" dans l'URL : on les relit
+  // (en gardant "assignment" utilisé par le hub enseignant), sinon un rechargement
+  // de la page — notamment hors ligne — perdait la sélection.
   const [filters, setFilters] = useState({
-    assignmentId: searchParams.get("assignment") || "",
-    sequenceId: searchParams.get("sequence") || "",
-    termId: searchParams.get("term") || "",
+    assignmentId: searchParams.get("assignmentId") || searchParams.get("assignment") || "",
+    sequenceId: searchParams.get("sequenceId") || searchParams.get("sequence") || "",
+    termId: searchParams.get("termId") || searchParams.get("term") || "",
     activeSkillId: "", // Utilisé principalement pour la vue mobile en mode compétence
   });
 
@@ -55,6 +60,12 @@ export default function TeacherMarkEntry() {
   // Skill Mode: { studentEnrollmentId: { skillId: "12" } }
   const [marks, setMarks] = useState({});
   const [draftExists, setDraftExists] = useState(false);
+  // 🐛 Le brouillon n'est écrit qu'après une vraie saisie : auparavant le simple
+  // chargement de la grille créait un brouillon et affichait l'alerte à tort.
+  const [isDirty, setIsDirty] = useState(false);
+  // Hors ligne : notes enregistrées sur l'appareil, en attente d'envoi
+  const [pendingSync, setPendingSync] = useState(false);
+  const [gridCachedAt, setGridCachedAt] = useState(null);
 
   // ==========================================
   // DERIVES ET MEMOIZATION
@@ -133,6 +144,9 @@ export default function TeacherMarkEntry() {
     setGridData({ students: [], skills: [], loading: false, saving: false, isLoaded: false, activeDraftKey: null });
     setMarks({});
     setDraftExists(false);
+    setIsDirty(false);
+    setPendingSync(false);
+    setGridCachedAt(null);
   }, []);
 
   // Nettoyage de la grille si on change la période (Séquence/Trimestre)
@@ -160,8 +174,10 @@ export default function TeacherMarkEntry() {
         ...(isSequenceMode ? { sequence_id: filters.sequenceId } : { term_id: filters.termId }),
       };
 
-      const { data } = await axiosClient.get(endpoint, { params });
+      const response = await axiosClient.get(endpoint, { params });
+      const { data } = response;
       const payload = data.data || data;
+      setGridCachedAt(response.fromCache ? response.cachedAt : null);
       
       const loadedStudents = payload.students || [];
       const loadedSkills = payload.skills || [];
@@ -175,6 +191,8 @@ export default function TeacherMarkEntry() {
       const savedDraft = draftKey ? localStorage.getItem(draftKey) : null;
       const parsedDraft = savedDraft ? JSON.parse(savedDraft) : null;
       setDraftExists(!!parsedDraft);
+      setIsDirty(false);
+      setPendingSync(await hasPending(draftKey));
 
       // Constitution du dictionnaire des notes (Fusion BD + Brouillon)
       const initialMarks = {};
@@ -231,7 +249,8 @@ export default function TeacherMarkEntry() {
 
   const handleSetMark = (enrollmentId, value, skillId = null) => {
     const formattedVal = formatMarkInput(value);
-    
+    setIsDirty(true);
+
     setMarks((prev) => {
       const newMarks = { ...prev };
       
@@ -252,21 +271,39 @@ export default function TeacherMarkEntry() {
   // GESTION DU BROUILLON (Auto-save)
   // ==========================================
   useEffect(() => {
-    if (gridData.isLoaded && gridData.activeDraftKey) {
+    if (isDirty && gridData.isLoaded && gridData.activeDraftKey) {
       // Sauvegarde automatique strictement liée à la grille active
       localStorage.setItem(gridData.activeDraftKey, JSON.stringify(marks));
       setDraftExists(true);
     }
-  }, [marks, gridData.isLoaded, gridData.activeDraftKey]);
+  }, [marks, isDirty, gridData.isLoaded, gridData.activeDraftKey]);
 
-  const clearDraft = useCallback(() => {
+  // Les notes en attente ont été envoyées par la synchronisation automatique
+  useEffect(() => {
+    if (!pendingSync || !draftKey) return;
+
+    const onOutboxChange = async () => {
+      if (!(await hasPending(draftKey))) {
+        setPendingSync(false);
+        setDraftExists(!!localStorage.getItem(draftKey));
+      }
+    };
+
+    window.addEventListener(OUTBOX_EVENT, onOutboxChange);
+    return () => window.removeEventListener(OUTBOX_EVENT, onOutboxChange);
+  }, [pendingSync, draftKey]);
+
+  const clearDraft = async () => {
     if (draftKey) {
       localStorage.removeItem(draftKey);
+      // Le brouillon abandonné ne doit pas non plus partir à la prochaine synchronisation
+      await removeByDedupeKey(draftKey);
       setDraftExists(false);
+      setPendingSync(false);
       loadGrid(); // Recharger depuis la base de données
       toast.success("Brouillon effacé, notes restaurées depuis le serveur.");
     }
-  }, [draftKey]);
+  };
 
 
   // ==========================================
@@ -301,15 +338,37 @@ export default function TeacherMarkEntry() {
         });
       }
 
-      await axiosClient.post(endpoint, payload);
-      
-      // Nettoyage après succès
-      if (draftKey) localStorage.removeItem(draftKey);
+      const response = await axiosClient.post(endpoint, payload, {
+        // Hors ligne : la grille complète est mise en file d'attente (envoi idempotent)
+        offlineQueue: {
+          label: `Notes ${selectedAssignment.classroom?.name || ""} — ${selectedAssignment.subject?.name || ""}`.trim(),
+          dedupeKey: draftKey,
+          meta: { draftKey },
+        },
+      });
+
+      setIsDirty(false);
+
+      if (response.queued) {
+        // On garde le brouillon local jusqu'à l'envoi effectif
+        if (draftKey) localStorage.setItem(draftKey, JSON.stringify(marks));
+        setDraftExists(true);
+        setPendingSync(true);
+        toast.info("Hors ligne : notes enregistrées sur cet appareil. Elles seront envoyées automatiquement au retour du réseau.");
+        return;
+      }
+
+      // Nettoyage après succès (y compris une ancienne version restée en file d'attente)
+      if (draftKey) {
+        localStorage.removeItem(draftKey);
+        await removeByDedupeKey(draftKey);
+      }
       setDraftExists(false);
-      
+      setPendingSync(false);
+
       toast.success("Toutes les notes ont été enregistrées avec succès !");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Échec de l'enregistrement des notes.");
+      toast.error(error.message || "Échec de l'enregistrement des notes.");
       console.error(error);
     } finally {
       setGridData((prev) => ({ ...prev, saving: false }));
@@ -320,6 +379,9 @@ export default function TeacherMarkEntry() {
   // ==========================================
   // CALCULS STATISTIQUES (Progression)
   // ==========================================
+  // 🐛 Libellé de la compétence affichée sur mobile (filters.activeSkillName n'était jamais défini)
+  const activeSkillName = gridData.skills.find((skill) => String(skill.id) === String(filters.activeSkillId))?.name;
+
   const completionStats = useMemo(() => {
     let totalFields = 0;
     let filledFields = 0;
@@ -432,8 +494,28 @@ export default function TeacherMarkEntry() {
             </div>
           </div>
 
+          {/* Grille lue depuis l'appareil (hors ligne) */}
+          {gridCachedAt && gridData.isLoaded && (
+            <div className="mt-5 flex items-center gap-3 rounded-md bg-info/10 p-4 text-sm text-base-content/80">
+              <HardDrive size={18} className="shrink-0 text-info" />
+              <span>
+                Grille chargée depuis cet appareil (dernière consultation le {new Date(gridCachedAt).toLocaleString("fr-FR")}).
+              </span>
+            </div>
+          )}
+
+          {/* Notes en attente d'envoi (enregistrées hors ligne) */}
+          {pendingSync && gridData.isLoaded && (
+            <div className="mt-5 flex items-center gap-3 rounded-md bg-primary/10 p-4 text-sm text-base-content/80">
+              <CloudUpload size={18} className="shrink-0 text-primary" />
+              <span>
+                <strong>En attente de synchronisation.</strong> Ces notes sont enregistrées sur l'appareil et seront envoyées automatiquement dès le retour du réseau.
+              </span>
+            </div>
+          )}
+
           {/* Indicateur de brouillon local */}
-          {draftExists && gridData.isLoaded && (
+          {draftExists && !pendingSync && gridData.isLoaded && (
             <div className="mt-5 flex flex-wrap gap-4 items-center justify-between rounded-md bg-warning/10 p-4 text-sm">
               <div className="flex items-center gap-3 text-base-content/80">
                 <AlertCircle size={18} className="text-warning" />
@@ -552,7 +634,7 @@ export default function TeacherMarkEntry() {
                         <label className="block text-xs font-medium text-base-content/60 mb-2">
                           {isSequenceMode
                             ? "Note /20"
-                            : filters.activeSkillName || "Note /20"}
+                            : activeSkillName || "Note /20"}
                         </label>
 
                         {isSequenceMode ? (

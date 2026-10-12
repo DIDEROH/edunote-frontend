@@ -86,8 +86,8 @@ function Classroom() {
             }
             setView('list')
             fetchClassrooms()
-        } catch {
-            toast.error("Erreur lors de la sauvegarde")
+        } catch (error) {
+            toast.error(error.message || "Erreur lors de la sauvegarde")
         } finally {
             setLoading(false)
         }
@@ -102,7 +102,8 @@ function Classroom() {
     }
 
     useEffect(() => {
-        setNavbarActions({ onAdd: () => setView('add'), onPrint: print })
+        // 🐛 On vide la classe courante : sinon le formulaire d'ajout reprenait la dernière classe modifiée
+        setNavbarActions({ onAdd: () => { setCurrentClassroom(null); setView('add'); }, onPrint: print })
         return () => setNavbarActions({})
     }, [setNavbarActions, print])
 
@@ -126,8 +127,9 @@ function Classroom() {
             
             <section className="p-4">
                 {view !== 'list' ? (
-                    <ClassroomForm 
-                        initialData={currentClassroom} 
+                    <ClassroomForm
+                        key={currentClassroom?.id || 'new'}
+                        initialData={currentClassroom}
                         onSubmit={handleFormSubmit} 
                         onCancel={() => setView('list')} 
                         loading={loading} 

@@ -44,7 +44,7 @@ function Forbidden() {
           <div className="mt-10 flex flex-col sm:flex-row gap-3">
 
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate(-1)}
               className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-base-100 px-6 py-3 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300"
             >
               <ArrowLeftIcon className="w-4 h-4" />

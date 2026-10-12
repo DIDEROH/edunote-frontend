@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useOutletContext, useNavigate, useParams } from "react-router-dom";
 import { api } from "../utils/AxiosClient";
 import { toast } from "sonner";
 import LoadingSkeletoon from "../components/LoadingSkeletoon";
-import { useAnimations } from "../utils/animations";
 import { Card5 } from "../components/ui/CardsComponents";
 import { CtaDark } from "../components/ui/ButtonsComponents";
 import { Table, Th, Tr, TdBody } from "../components/Table";
@@ -25,9 +24,7 @@ import {
 function ClassroomDetail() {
   const { setNavbarActions } = useOutletContext();
   const { id } = useParams();
-  const containerRef = useRef(null);
   const navigate = useNavigate();
-  useAnimations(containerRef);
 
   // États principaux
   const [loading, setLoading] = useState(false);

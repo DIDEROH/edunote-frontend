@@ -9,6 +9,7 @@ import PageHeader from "../components/elements/PageHeader";
 import { StudentCard } from "../components/ui/CardsComponents";
 import useShowConfirm from "../hooks/UseShowConfirm";
 import { deleteElement } from "../utils/deleteElement";
+import { useAuth } from "../context/AuthContext";
 
 
 
@@ -54,12 +55,16 @@ export default function StudentIformations() {
     const navigate = useNavigate();
     const showConfirm = useShowConfirm();
     const { setNavbarActions } = useOutletContext(); // Récupération de la fonction pour définir les actions de la navbar
+    // Modification et suppression : directeur uniquement (comme l'API)
+    const canManage = useAuth().hasRole("director");
 
     useEffect(() => {
         const fetchStudentData = async () => {
             setLoading(true);
             try {
-                const response = await api.get(`/director-space/students/${id}`);
+                // 🐛 /students/{id} est ouvert à l'admin, au directeur et à l'assistant
+                // (l'ancienne route /director-space/... renvoyait l'admin en arrière)
+                const response = await api.get(`/students/${id}`);
                 const studentData = response.data?.data;
 
                 if (!studentData) {
@@ -70,7 +75,7 @@ export default function StudentIformations() {
 
                 setStudent(studentData);
             } catch (err) {
-                toast.error(err.response?.data?.message || "Erreur de chargement de l'élève");
+                toast.error(err.message || "Erreur de chargement de l'élève");
                 navigate(-1);
             } finally {
                 setLoading(false);
@@ -117,10 +122,10 @@ export default function StudentIformations() {
 
                     // Recharger les données de l'élève après suppression de l'inscription
                     try {
-                        const response = await api.get(`/director-space/students/${id}`);
+                        const response = await api.get(`/students/${id}`);
                         setStudent(response.data.data);
                     } catch (err) {
-                        toast.error(err.response?.data?.message || "Erreur de chargement après suppression");
+                        toast.error(err.message || "Erreur de chargement après suppression");
                     }
                 },
                 onFinally: () => setLoading(false),
@@ -132,13 +137,15 @@ export default function StudentIformations() {
         // Définir les actions de la navbar pour cette page
         setNavbarActions({
             onBack: () => navigate(-1), // Retour à la page précédente
-            onEdit: () => navigate(`/students/edit/${id}`),
-            onDelete: () => setShowDeleteChoice(true),
+            ...(canManage ? {
+                onEdit: () => navigate(`/students/edit/${id}`),
+                onDelete: () => setShowDeleteChoice(true),
+            } : {}),
         });
 
         // Nettoyage des actions de la navbar lorsque le composant est démonté
         return () => setNavbarActions({});
-    }, [id, navigate, setNavbarActions]);
+    }, [id, navigate, setNavbarActions, canManage]);
 
     const currentEnrollment = student?.enrollments?.[0];
 

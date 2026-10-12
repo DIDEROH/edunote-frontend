@@ -1,7 +1,6 @@
-    import { useEffect, useRef, useState, useCallback } from "react";
+    import { useEffect, useState, useCallback } from "react";
     import { useOutletContext } from "react-router-dom";
     import { api } from "../utils/AxiosClient";
-    import { useAnimations } from "../utils/animations";
     import PageHeader from "../components/elements/PageHeader";
     import { Table, TdBody, Th, Tr } from "../components/Table";
     import LoadingSkeletoon from "../components/LoadingSkeletoon";
@@ -20,11 +19,9 @@
     import PrintableTable from "../components/print/PrintableTable";
 
     function UsersPage() {
-        const containerRef = useRef(null);
         const { printRef, print } = usePrintable("Liste des utilisateurs");
         const { setNavbarActions } = useOutletContext();
 
-        useAnimations(containerRef);
 
         const showConfirm = useShowConfirm();
 
@@ -224,7 +221,7 @@
         }, [isSHowUser]);
 
         return (
-            <div ref={containerRef}>
+            <div>
                 <PrintableTable
                     ref={printRef}
                     title="Liste des utilisateurs"

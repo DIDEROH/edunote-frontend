@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { api } from '../utils/AxiosClient'
-import { User, MapPin, Phone, GraduationCap, Calendar, Loader2, Sparkles, Hash, Camera } from 'lucide-react'
+import { User, MapPin, Phone, GraduationCap, Calendar, Loader2, Sparkles, Hash, Camera, FileSpreadsheet } from 'lucide-react'
+import StudentImportModal from '../components/students/StudentImportModal'
 import convertToWebp from '../utils/imageToWebp'
 import { toast } from 'sonner'
 import InputComponent from '../components/InputComponent'
@@ -36,6 +37,7 @@ export default function EnrollmentStudent() {
   const [classes, setClasses] = useState([])
   const [preview, setPreview] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
 
   useEffect(() => {
     if (!isDirector) {
@@ -163,6 +165,36 @@ export default function EnrollmentStudent() {
       />
 
       <section className="p-4 max-w-6xl mx-auto mt-6">
+        {/* Inscription en masse : alternative au formulaire pour toute une liste */}
+        {!isEditMode && (
+          <div className="mb-6 flex flex-col gap-4 rounded-md bg-primary/10 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <FileSpreadsheet size={18} />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold text-base-content">Plusieurs élèves à inscrire ?</h2>
+                <p className="mt-0.5 text-sm text-base-content/60">
+                  Importez directement la liste depuis un fichier Excel au lieu de saisir chaque élève.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowImportModal(true)}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-content transition-colors duration-150 hover:brightness-95"
+            >
+              <FileSpreadsheet size={16} /> Importer depuis Excel
+            </button>
+          </div>
+        )}
+
+        <StudentImportModal
+          open={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          onImported={() => navigate('/students')}
+        />
+
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 xl:grid-cols-12 gap-6">
           <div className="xl:col-span-7 space-y-6">
             <div className="bg-base-200 p-6 md:p-8 rounded-md">

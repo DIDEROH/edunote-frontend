@@ -1,19 +1,22 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    School, Users, ArrowRight, FileCheck, Calendar, Layout, User, Loader2, CheckCircle2, XCircle
+    Users, ArrowRight, FileCheck, User, Loader2, CheckCircle2, XCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../utils/AxiosClient";
 import { useHasRole } from "../../hooks/UseHasRole";
 import PageHeader from "../../components/elements/PageHeader";
+import { prepareBulletins } from "../../utils/bulletinPreparation";
 
 export default function Bulletins() {
     const navigate = useNavigate();
     
     const isAdmin = useHasRole('admin');
     const isDirector = useHasRole('director');
-    const isTeacher = useHasRole('teacher') || (!isAdmin && !isDirector); // Fallback si le rôle de prof n'est pas explicite
+    const isModerator = useHasRole('moderator');
+    // Directeur ou assistant : l'école est déduite côté serveur de leur affectation
+    const isSchoolStaff = !isAdmin && (isDirector || isModerator);
 
     const [schools, setSchools] = useState([]);
     const [classrooms, setClassrooms] = useState([]);
@@ -35,19 +38,16 @@ export default function Bulletins() {
         if (isAdmin) {
             api.get("/schools")
                 .then(({ data }) => setSchools(data || []))
-                .catch(err => console.error("Erreur de chargement des écoles:", err));
+                .catch(err => toast.error(err.message));
         }
-        
-        // Si directeur ou enseignant, on charge directement les classes associées à leur périmètre
-        if (isDirector || isTeacher) {
-            const classUrl = isDirector ? "/director-space/classrooms" : "/classrooms";
-            api.get(classUrl)
-                .then(({ data }) =>{
-                     setClassrooms(data || []);
-                })
-                .catch(err => console.error("Erreur de chargement des classes:", err));
+
+        // Directeur ou assistant : /classrooms ne renvoie que les classes de leur école
+        if (isSchoolStaff) {
+            api.get("/classrooms")
+                .then(({ data }) => setClassrooms(data || []))
+                .catch(err => toast.error(err.message));
         }
-    }, [isAdmin, isDirector, isTeacher]);
+    }, [isAdmin, isSchoolStaff]);
 
     // 2. Pour l'Admin : charger les classes d'un établissement dès qu'il est sélectionné
     useEffect(() => {
@@ -58,7 +58,7 @@ export default function Bulletins() {
                     setClassroomId(""); // Reset de la classe sélectionnée
                     setStudentId(""); // Reset de l'élève
                 })
-                .catch(err => console.error("Erreur lors du filtrage des classes par établissement:", err));
+                .catch(err => toast.error(err.message));
         }
     }, [schoolId, isAdmin]);
 
@@ -71,7 +71,7 @@ export default function Bulletins() {
                     setStudents(data || []);
                     setStudentId(""); // Reset
                 })
-                .catch(err => console.error("Erreur lors du chargement des élèves:", err))
+                .catch(err => toast.error(err.message))
                 .finally(() => setIsLoadingStudents(false));
         } else {
             setStudents([]);
@@ -81,21 +81,12 @@ export default function Bulletins() {
 
     const isFormValid = useMemo(() => {
         if (!term) return false;
-        
-        if (isTeacher) {
-            if (scope === 'classroom' && !classroomId) return false;
-            if (scope === 'student' && (!classroomId || !studentId)) return false;
-        } else if (isDirector) {
-            if (scope === 'school') return true; // Le directeur n'a pas besoin de choisir d'école (c'est la sienne par défaut)
-            if (scope === 'classroom' && !classroomId) return false;
-            if (scope === 'student' && (!classroomId || !studentId)) return false;
-        } else if (isAdmin) {
-            if (!schoolId) return false;
-            if (scope === 'classroom' && !classroomId) return false;
-            if (scope === 'student' && (!classroomId || !studentId)) return false;
-        }
+        // L'admin choisit l'établissement ; directeur et assistant travaillent sur le leur
+        if (isAdmin && !schoolId) return false;
+        if (!classroomId) return false;
+        if (scope === 'student' && !studentId) return false;
         return true;
-    }, [scope, schoolId, classroomId, studentId, term, isTeacher, isDirector, isAdmin]);
+    }, [scope, schoolId, classroomId, studentId, term, isAdmin]);
 
     const handleGenerate = () => {
         if (!isFormValid) return;
@@ -114,49 +105,39 @@ export default function Bulletins() {
     };
 
     // ------------------------------------------------------------------
-    // Génération en arrière-plan (file d'attente) : utile pour préparer
-    // d'un coup les bulletins de toute une classe (ex. avant impression
-    // en masse en fin de trimestre) sans attendre page par page.
+    // Préparation anticipée : le serveur calcule les bulletins de toute la
+    // classe un par un et les garde en cache (ex. avant l'impression en
+    // masse de fin de trimestre) ; l'affichage est ensuite immédiat.
     // ------------------------------------------------------------------
-    const canRunBackground = (isAdmin || isDirector) && scope === 'classroom' && !!classroomId && !!term;
-    const [batchState, setBatchState] = useState(null); // null | { status, total, processed, failed, progress_percent }
-    const pollRef = useRef(null);
+    const canRunBackground = (isAdmin || isSchoolStaff) && scope === 'classroom' && !!classroomId && !!term;
+    const [batchState, setBatchState] = useState(null); // null | { status, busy, total, processed, failed, progress_percent }
+    const preparationRef = useRef(null);
 
-    useEffect(() => () => clearInterval(pollRef.current), []);
-
-    const pollBatch = (batchId) => {
-        pollRef.current = setInterval(async () => {
-            try {
-                const { data } = await api.get(`/reports/batches/${batchId}`);
-                setBatchState(data);
-                if (data.status === 'completed' || data.status === 'failed') {
-                    clearInterval(pollRef.current);
-                    if (data.status === 'completed') {
-                        toast.success(`Bulletins générés : ${data.processed}/${data.total} élève(s) traité(s).`);
-                    } else {
-                        toast.error("La génération en arrière-plan a échoué.");
-                    }
-                }
-            } catch (error) {
-                clearInterval(pollRef.current);
-                toast.error("Impossible de suivre la progression de la génération.");
-            }
-        }, 2000);
-    };
+    // Arrêt du suivi si l'on quitte la page (le calcul reprendra à la prochaine demande)
+    useEffect(() => () => preparationRef.current?.abort(), []);
 
     const handleGenerateBackground = async () => {
         if (!canRunBackground) return;
+
+        preparationRef.current?.abort();
+        const controller = new AbortController();
+        preparationRef.current = controller;
+        setBatchState({ status: 'pending', busy: false, total: 0, processed: 0, failed: 0, progress_percent: 0 });
+
         try {
-            const { data } = await api.post("/reports/batches", {
-                school_id: schoolId || undefined,
-                classroom_id: classroomId,
-                term,
-            });
-            setBatchState({ status: 'pending', total: 0, processed: 0, failed: 0, progress_percent: 0 });
-            toast.info("Génération des bulletins lancée en arrière-plan.");
-            pollBatch(data.batch_id);
+            const batch = await prepareBulletins(
+                { school_id: schoolId || undefined, classroom_id: classroomId, term },
+                { onProgress: setBatchState, signal: controller.signal }
+            );
+            if (batch.status === 'completed') {
+                toast.success(`Bulletins prêts : ${batch.processed}/${batch.total} élève(s).`);
+            } else {
+                toast.error("La préparation des bulletins a échoué.");
+            }
         } catch (error) {
-            toast.error(error?.response?.data?.message || "Impossible de démarrer la génération en arrière-plan.");
+            if (controller.signal.aborted) return;
+            setBatchState(null);
+            toast.error(error?.message || "Impossible de préparer les bulletins.");
         }
     };
 
@@ -287,7 +268,7 @@ export default function Bulletins() {
                             {batchState && !['completed', 'failed'].includes(batchState.status)
                                 ? <Loader2 size={14} className="animate-spin" />
                                 : <FileCheck size={14} />}
-                            Préparer toute la classe en arrière-plan
+                            Préparer les bulletins de toute la classe à l'avance
                         </button>
 
                         {batchState && (
@@ -297,8 +278,9 @@ export default function Bulletins() {
                                         {batchState.status === 'completed' && <CheckCircle2 size={14} className="text-success" />}
                                         {batchState.status === 'failed' && <XCircle size={14} className="text-error" />}
                                         {!['completed', 'failed'].includes(batchState.status) && <Loader2 size={14} className="animate-spin text-primary" />}
-                                        {batchState.status === 'pending' && "En attente de traitement..."}
-                                        {batchState.status === 'processing' && `Traitement en cours (${batchState.processed}/${batchState.total})`}
+                                        {batchState.busy && !['completed', 'failed'].includes(batchState.status) && "Serveur occupé par une autre génération, en attente de votre tour..."}
+                                        {!batchState.busy && batchState.status === 'pending' && "Démarrage..."}
+                                        {!batchState.busy && batchState.status === 'processing' && `Préparation en cours (${batchState.processed}/${batchState.total})`}
                                         {batchState.status === 'completed' && `Terminé : ${batchState.processed}/${batchState.total} élève(s)`}
                                         {batchState.status === 'failed' && "Échec de la génération"}
                                     </span>

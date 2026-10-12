@@ -11,7 +11,6 @@ const elements = [
     title: "Gestion des matières",
     description: "Organisez les matières scolaires et les programmes d'enseignement de l'établissement.",
     icon: FaBookOpen,
-    color: "from-cyan-500 to-blue-500",
     to: "/subjects"
   },
 
@@ -19,7 +18,6 @@ const elements = [
     title: "Gestion des compétences",
     description: "Définissez le référentiel des compétences, suivez les acquis et les performances des apprenants.",
     icon: FaAward,
-    color: "from-green-400 to-yellow-300",
     to: "/skills"
   }
   
@@ -30,8 +28,8 @@ function Pedagogie() {
   return (
     <div>
       <PageHeader
-        title="Autres fonctionnalités"
-        subtitle="Gérez les autres fonctionnalités de l'application"
+        title="Matières et compétences"
+        subtitle="Organisez les matières enseignées et le référentiel des compétences évaluées"
       />
 
       <div className="py-5 grid grid-cols-1 sm:grid-cols-2 gap-6">

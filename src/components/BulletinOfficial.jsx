@@ -1,7 +1,7 @@
 import {formatDate} from "../utils/FormatDate"
 import BulletinBottomTable from "./BulletinBottomTable";
 import DeviseComponent from "./DeviseComponent";
-import Logo from "./Logo";
+import Logo from "./elements/Logo";
 import SmallStars from "./SmallStars";
 import {forwardRef} from 'react'
 import SubjectsCompetenciesTable from "./SubjectsCompetenciesTable";
@@ -77,7 +77,7 @@ const BulletinOfficial = forwardRef(({bulletin}, ref) => {
   
               <tr>
                 <td className="border border-slate-800 p-1 h-6 font-medium">Matricule : {bulletin?.student?.matricule}</td>
-                <td className="border border-slate-800 p-1 space-x-2 font-medium" colSpan={2}><span>{bulletin?.gender === "F" ? "Redoublante" : "Redoublant"} :</span> {bulletin?.is_repeating ? "Oui" : "Non"}
+                <td className="border border-slate-800 p-1 space-x-2 font-medium" colSpan={2}><span>{bulletin?.student?.gender === "F" ? "Redoublante" : "Redoublant"} :</span> {bulletin?.is_repeating ? "Oui" : "Non"}
                 </td>
                 <td className="border border-slate-800 p-1 font-medium" rowSpan={2}>Professeur principal : </td>
               </tr>
@@ -119,7 +119,8 @@ const BulletinOfficial = forwardRef(({bulletin}, ref) => {
               total: bulletin?.total_weighted_marks,
               rang: bulletin?.rank,
               cote: bulletin?.global_appreciation?.cote,
-              finalAppreciation: bulletin?.global_appreciation?.appreciation
+              finalAppreciation: bulletin?.global_appreciation?.appreciation,
+              StudentName: `${bulletin?.student?.first_name ?? ""} ${bulletin?.student?.last_name ?? ""}`.trim()
            }}
         />
   

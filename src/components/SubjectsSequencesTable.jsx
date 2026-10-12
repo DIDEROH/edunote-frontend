@@ -1,6 +1,8 @@
 export default function SubjectsSequencesTable({ data, subjects, style }) {
   const rows = subjects ?? data?.subjects ?? [];
-  const sequences = rows[0].sequences ?? [];
+  // 🐛 rows[0] plantait sur une classe sans matière : on prend les séquences
+  // de la première matière qui en a (toutes partagent celles du trimestre).
+  const sequences = rows.find((row) => row?.sequences?.length)?.sequences ?? [];
 
   const fmt = (n, digits = 1) => {
     if (n === null || n === undefined || Number.isNaN(Number(n))) return "";
@@ -30,14 +32,6 @@ export default function SubjectsSequencesTable({ data, subjects, style }) {
             const subjectName = item?.name ?? "";
             const teacher = item?.teacher_name ?? "";
 
-            const sequence1 = item?.sequences?.find(
-              (seq) => seq.position === 1
-            );
-
-            const sequence2 = item?.sequences?.find(
-              (seq) => seq.position === 2
-            );
-
             const mean = item?.mark;
             const weighted = item?.weighted_mark;
             const coef = item?.coefficient ?? "";
@@ -61,14 +55,12 @@ export default function SubjectsSequencesTable({ data, subjects, style }) {
                 </td>
 
 
-                <td className={`text-center ${style}`}>
-                  {fmt(sequence1?.mark)}
-                </td>
-
-
-                <td className={`text-center ${style}`}>
-                  {fmt(sequence2?.mark)}
-                </td>
+                {/* Une colonne par séquence du trimestre, alignée sur l'en-tête */}
+                {sequences.map((seq) => (
+                  <td key={seq.sequence_id} className={`text-center ${style}`}>
+                    {fmt(item?.sequences?.find((s) => s.sequence_id === seq.sequence_id)?.mark)}
+                  </td>
+                ))}
 
 
                 <td className={`text-center ${style}`}>
@@ -92,7 +84,7 @@ export default function SubjectsSequencesTable({ data, subjects, style }) {
 
 
                 <td className={`text-center ${style}`}>
-                  {min !== null
+                  {min != null
                     ? `${fmt(min)} – ${fmt(max)}`
                     : ""}
                 </td>

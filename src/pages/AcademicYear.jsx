@@ -37,6 +37,7 @@ function AcademicYear() {
                 setYear(data.data)
                 setActiveYear(data.active_year)
             })
+            .catch((err) => toast.error(err.message))
             .finally(() => setLoading(false))
     }
 
@@ -96,7 +97,8 @@ function AcademicYear() {
 
         setNavbarActions({
             onBack: () => navigate(-1),
-            onAdd: () => setIsModalOpen(true    ),
+            // 🐛 Réinitialise le formulaire : sinon "Ajouter" après une modification modifiait l'année précédente
+            onAdd: () => openModal(),
             onPrint: print,
         });
         return () => setNavbarActions({});

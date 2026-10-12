@@ -4,7 +4,7 @@ export const ROLE_CONFIG = {
     dot: "bg-error",
   },
   MODERATOR: {
-    label: "Modérateur",
+    label: "Assistant d'établissement",
     dot: "bg-warning",
   },
   TEACHER: {
@@ -12,8 +12,16 @@ export const ROLE_CONFIG = {
     dot: "bg-info",
   },
   DIRECTOR: {
-    label: "Directeur",
+    label: "Chef d'établissement",
     dot: "bg-secondary",
+  },
+  STUDENT: {
+    label: "Élève",
+    dot: "bg-accent",
+  },
+  USER: {
+    label: "Utilisateur",
+    dot: "bg-base-content/30",
   },
 };
 
@@ -22,3 +30,5 @@ export const DEFAULT_ROLE = {
   label: "Utilisateur",
   dot: "bg-base-content/30",
 };
+
+export const getRoleConfig = (roleName) => ROLE_CONFIG[roleName?.toUpperCase()] || DEFAULT_ROLE;

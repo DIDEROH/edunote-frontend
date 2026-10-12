@@ -33,6 +33,8 @@ import TeacherMarkHub from './pages/Teachers/TeacherMarkHub'
 import Forbidden from './pages/Forbidden'
 import Bulletins from './pages/ReportCards/Bulletins'
 import Visualiser from './pages/ReportCards/Visualiser'
+import Profile from './pages/Profile'
+import ModeratorsList from './pages/ModeratorsList'
 
 function App() {
 
@@ -51,6 +53,9 @@ function App() {
               <Route index element={<DashboardHome />} />
               <Route path="home" element={<DashboardHome />} />
 
+              {/* Profil de l'utilisateur connecté (tous les rôles) */}
+              <Route path="profile" element={<Profile />} />
+
               {/* Les routes pour autres (admin) */}
               <Route path="others" element={<RoleRoute allow={['admin']}><Others /></RoleRoute>} />
 
@@ -67,6 +72,9 @@ function App() {
 
               {/* Directeur (admin) */}
               <Route path='director-list' element={<RoleRoute allow={['admin']}><DirectorsList /></RoleRoute>} />
+
+              {/* Assistants d'établissement (admin) */}
+              <Route path='moderator-list' element={<RoleRoute allow={['admin']}><ModeratorsList /></RoleRoute>} />
 
               {/* Les enseignants  */}
               <Route path='teacher-list' element={<RoleRoute allow={['admin']}><TeacherList /></RoleRoute>} />
@@ -85,14 +93,14 @@ function App() {
               {/* Les matieres (admin) */}
               <Route path='subjects' element={<RoleRoute allow={['admin']}><Subjects /></RoleRoute>} />
 
-              {/* Les eleves (admin, directeur, moderateur) */}
+              {/* Les eleves : consultation (admin, directeur, assistant) ; inscription et modification par le directeur uniquement (comme l'API) */}
               <Route path='students' element={<RoleRoute allow={['admin', 'director', 'moderator']}><StudentPage /></RoleRoute>} />
-              <Route path='students/create' element={<RoleRoute allow={['admin', 'director', 'moderator']}><EnrollmentStudent /></RoleRoute>} />
-              <Route path='students/edit/:id' element={<RoleRoute allow={['admin', 'director', 'moderator']}><EnrollmentStudent /></RoleRoute>} />
+              <Route path='students/create' element={<RoleRoute allow={['director']}><EnrollmentStudent /></RoleRoute>} />
+              <Route path='students/edit/:id' element={<RoleRoute allow={['director']}><EnrollmentStudent /></RoleRoute>} />
               <Route path='students/:id' element={<RoleRoute allow={['admin', 'director', 'moderator']}><StudentIformations /></RoleRoute>} />
 
 
-              {/* Les bulletins (admin, directeur, moderateur) */}
+              {/* Les bulletins (admin, directeur, assistant) */}
               <Route path='report-card' element={<RoleRoute allow={['admin', 'director', 'moderator']}><Bulletins /></RoleRoute>} />
               <Route path='report-card/visualiser' element={<RoleRoute allow={['admin', 'director', 'moderator']}><Visualiser /></RoleRoute>} />
 

@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { api } from "../utils/AxiosClient";
-import { useAnimations } from "../utils/animations";
+import { useAuth } from "../context/AuthContext";
 import PageHeader from "../components/elements/PageHeader";
 import { Table, TdBody, Th, Tr } from "../components/Table";
 import LoadingSkeletoon from "../components/LoadingSkeletoon";
@@ -9,15 +9,18 @@ import { LuSearchX } from "react-icons/lu";
 import { Card5 } from "../components/ui/CardsComponents";
 import Paginate from "../components/Paginate";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { Filter, X } from "lucide-react";
+import { FileSpreadsheet, Filter, X } from "lucide-react";
 import usePrintable from "../utils/usePrintable";
 import PrintableTable from "../components/print/PrintableTable";
+import StudentImportModal from "../components/students/StudentImportModal";
 
 
 function StudentsPage() {
-    const containerRef = useRef(null);
-    useAnimations(containerRef);
     const { setNavbarActions } = useOutletContext();
+    const { hasRole } = useAuth();
+    // Seul l'admin voit plusieurs écoles ; seul le directeur inscrit des élèves (comme l'API)
+    const isAdmin = hasRole("admin");
+    const canEnroll = hasRole("director");
     const navigate = useNavigate();
     const { printRef, print } = usePrintable("Liste des eleves");
 
@@ -29,6 +32,7 @@ function StudentsPage() {
     const [classrooms, setClassrooms] = useState([]);
     const [schools, setSchools] = useState([]);
     const [showFiltersModal, setShowFiltersModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
 
 
 
@@ -83,28 +87,19 @@ function StudentsPage() {
         try {
             const [classRes, schoolRes] = await Promise.all([
                 api.get("/classrooms"),
-                api.get("/schools")
+                isAdmin ? api.get("/schools") : Promise.resolve({ data: [] })
             ]);
             setClassrooms(classRes.data);
             setSchools(schoolRes.data);
-        } catch (error) {
+        } catch {
             toast.error("Impossible de charger les options de filtrage.");
         }
     };
 
 
-    // Fonction de redirection ou ouverture du formulaire pour inscrire un nouvel élève
-    const handleAddStudent = () => {
-        navigate("/students/create");
-    };
-
     /**
      * Modal filtres
      */
-    const handleShowFiltersOptions = () => {
-        setShowFiltersModal(true);
-    };
-
     const handleApplyFilters = () => {
         setShowFiltersModal(false);
         fetchStudents(1, debouncedQuery);
@@ -138,19 +133,22 @@ function StudentsPage() {
     }, []); 
 
 
-    // Liaison correcte des actions du Navbar
+    // Liaison correcte des actions du Navbar (ajout réservé au directeur)
     useEffect(() => {
         setNavbarActions({
-            onAdd: handleAddStudent, // Correction ici (passage direct de la référence de fonction)
-            onFilter: handleShowFiltersOptions,
+            ...(canEnroll ? {
+                onAdd: () => navigate("/students/create"),
+                onImport: () => setShowImportModal(true),
+            } : {}),
+            onFilter: () => setShowFiltersModal(true),
             onPrint: print,
         });
         return () => setNavbarActions({});
-    }, [setNavbarActions, print]);
+    }, [setNavbarActions, print, canEnroll, navigate]);
 
 
     return (
-        <div ref={containerRef}>
+        <div>
             <PrintableTable
                 ref={printRef}
                 title="Liste des eleves"
@@ -172,7 +170,7 @@ function StudentsPage() {
                         id: student.id,
                         index: index + 1,
                         name: `${student.first_name} ${student.last_name}`,
-                        sexe: student.gender || student.student?.sex || "-",
+                        sexe: student.gender || "-",
                         matricule: student.matricule || "-",
                         classe: currentEnrol?.classroom?.name || "Non inscrit",
                         ecole: currentEnrol?.school?.name || "-",
@@ -193,6 +191,15 @@ function StudentsPage() {
                 ) : !students?.data || students.data.length === 0 ? (
                     <Card5 icon={LuSearchX}>
                         Aucun élève trouvé avec les critères actuels.
+                        {canEnroll && !debouncedQuery && (
+                            <button
+                                type="button"
+                                onClick={() => setShowImportModal(true)}
+                                className="mx-auto mt-4 flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-content transition-colors duration-150 hover:brightness-95"
+                            >
+                                <FileSpreadsheet size={16} /> Importer une liste depuis Excel
+                            </button>
+                        )}
                     </Card5>
                 ) : (<>
                         {/* Cartes mobiles */}
@@ -213,7 +220,7 @@ function StudentsPage() {
                                         </div>
                                         <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-base-content/60">
                                             <span className="px-2 py-0.5 bg-base-300 rounded-sm font-mono">{student.matricule || "Aucun"}</span>
-                                            <span>{student.gender || student.student.sex || "-"}</span>
+                                            <span>{student.gender || "-"}</span>
                                         </div>
                                         <div className="mt-1 text-xs text-base-content/60">
                                             {currentEnrol?.classroom?.name || <span className="text-error">Non inscrit</span>} — {currentEnrol?.school?.name || "-"}
@@ -248,7 +255,7 @@ function StudentsPage() {
                                                 <TdBody className="font-medium">
                                                     {student.first_name} {student.last_name}
                                                 </TdBody>
-                                                <TdBody>{student.gender || student.student.sex || "-"}</TdBody>
+                                                <TdBody>{student.gender || "-"}</TdBody>
                                                 <TdBody>
                                                     <span className="px-2 py-1 bg-base-300 text-base-content/70 rounded-sm text-xs font-mono">
                                                         {student.matricule || "Aucun"}
@@ -282,6 +289,13 @@ function StudentsPage() {
             </section>
 
 
+            {/* Import Excel (directeur) : la liste est rechargée après l'import */}
+            <StudentImportModal
+                open={showImportModal}
+                onClose={() => setShowImportModal(false)}
+                onImported={() => fetchStudents(1, debouncedQuery)}
+            />
+
              {/* Modal des filtres avancés */}
             {showFiltersModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-0 sm:p-4">
@@ -300,18 +314,20 @@ function StudentsPage() {
                         </div>
 
                         <div className="space-y-5 p-6">
-                            {/* Filtre Ecole */}
-                            <div>
-                                <label className="mb-2 block text-sm font-medium text-base-content/70">École</label>
-                                <select
-                                    value={filters.school_id}
-                                    onChange={(e) => setFilters(prev => ({ ...prev, school_id: e.target.value }))}
-                                    className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
-                                >
-                                    <option value="">Toutes les écoles</option>
-                                    {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                                </select>
-                            </div>
+                            {/* Filtre Ecole (admin uniquement : directeur et assistant n'ont qu'une école) */}
+                            {isAdmin && (
+                                <div>
+                                    <label className="mb-2 block text-sm font-medium text-base-content/70">École</label>
+                                    <select
+                                        value={filters.school_id}
+                                        onChange={(e) => setFilters(prev => ({ ...prev, school_id: e.target.value }))}
+                                        className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
+                                    >
+                                        <option value="">Toutes les écoles</option>
+                                        {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                    </select>
+                                </div>
+                            )}
 
                             {/* Filtre Classe */}
                             <div>

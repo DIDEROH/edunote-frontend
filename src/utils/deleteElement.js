@@ -20,7 +20,7 @@ export async function deleteElement(ressource, id, message, showConfirm, { onSta
         toast.success(data.message || "Supprimé avec succès !");
         if (onSuccess) onSuccess(); // Remplace f()
       } catch (err) {
-        toast.error(err.response?.data?.message || "Erreur lors de la suppression");
+        toast.error(err.message || "Erreur lors de la suppression");
       } finally {
         if (onFinally) onFinally(); // Remplace lf()
       }

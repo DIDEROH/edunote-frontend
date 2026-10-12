@@ -7,8 +7,9 @@ function Btn({ icon: Icon, children, ...props }) {
     return (
         <button
             type={props.type || "button"}
+            disabled={props.disabled}
             onClick={() => handleClick(props.onAction)}
-            className={`inline-flex items-center justify-center gap-2 rounded-md ${props.bg} px-6 py-2.5 text-sm font-medium ${props.color} transition-colors duration-150 hover:brightness-95 ${props.className || ""}`}
+            className={`inline-flex items-center justify-center gap-2 rounded-md ${props.bg} px-6 py-2.5 text-sm font-medium ${props.color} transition-colors duration-150 hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed ${props.className || ""}`}
         >
             <span>{children}</span>
             {Icon && <Icon size={18} />}

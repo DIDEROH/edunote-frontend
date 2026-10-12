@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom'; // 👈 Ajout de useNavigate pour le bouton retour
-import { Menu, X, Search, User2, Pencil, Plus, Filter, Printer, ArrowLeft, Trash2 } from 'lucide-react';
+import { Menu, X, Search, User2, Pencil, Plus, Filter, Printer, ArrowLeft, Trash2, WifiOff, RefreshCw, Download, FileSpreadsheet } from 'lucide-react';
 import { FiLogOut, FiInfo } from 'react-icons/fi';
 import { LuBookMarked, LuCalendarRange, LuChartColumnIncreasing, LuClipboardPen, LuFileText, LuLayoutDashboard, LuPresentation, LuSettings, LuUserRound, LuUsers } from 'react-icons/lu';
 import { TbSchool } from 'react-icons/tb';
@@ -11,6 +11,9 @@ import { Appname, SIZE_ICON, VERSION } from '../../constants/constants';
 import  { useNavigationPages } from '../../constants/pages';
 import { useAuth } from '../../context/AuthContext';
 import useShowConfirm from '../../hooks/UseShowConfirm';
+import useOfflineStatus from '../../hooks/useOfflineStatus';
+import useInstallPrompt from '../../hooks/useInstallPrompt';
+import { startAutoSync } from '../../utils/offline/sync';
 import { LinkGhost } from '../ui/LinksComponents';
 
 
@@ -36,13 +39,22 @@ export default function Layout() {
 
   const pages = useNavigationPages();
 
+  // Mode hors ligne : état de connexion, saisies en attente, installation
+  const { offline, pending, syncing, sync } = useOfflineStatus();
+  const { installable, install } = useInstallPrompt();
+
+  useEffect(() => startAutoSync(), []);
+
   // Gestion de la deconnexion
   const { logout, userName, userEmail } = useAuth();
   const showConfirm = useShowConfirm();
   const handleLogOut = () => {
+    setUserCard(false);
     showConfirm({
       title: "Déconnexion",
-      message: "Voulez-vous vraiment vous déconnecter ?",
+      message: pending > 0
+        ? `${pending} enregistrement(s) fait(s) hors ligne n'ont pas encore été envoyé(s) et seront retirés de la file d'attente (vos brouillons de notes restent sur cet appareil). Voulez-vous vraiment vous déconnecter ?`
+        : "Voulez-vous vraiment vous déconnecter ?",
       onSuccess: () => {logout()},
       onError: () => {closeSidebarOnMobile()}
     })
@@ -57,8 +69,9 @@ export default function Layout() {
   }, [location.pathname]);
 
 
-  // Ferme le sidebar sur mobile après un clic
+  // Ferme le sidebar sur mobile après un clic (et la carte utilisateur si elle est ouverte)
   const closeSidebarOnMobile = () => {
+    setUserCard(false);
     if (window.innerWidth < 1024) {
       setIsSidebarOpen(false);
     }
@@ -176,6 +189,29 @@ export default function Layout() {
 
             </div>
 
+            {/* Indicateurs hors ligne : connexion et enregistrements en attente */}
+            {(offline || pending > 0) && (
+              <div className="flex items-center gap-1.5 shrink-0">
+                {offline && (
+                  <span className="inline-flex items-center gap-1.5 rounded-sm bg-warning/10 px-2.5 py-1 text-xs font-medium text-warning" title="Pas de connexion au serveur">
+                    <WifiOff size={13} />
+                    <span className="hidden sm:inline">Hors ligne</span>
+                  </span>
+                )}
+                {pending > 0 && (
+                  <button
+                    onClick={() => sync()}
+                    disabled={offline || syncing}
+                    className="inline-flex items-center gap-1.5 rounded-sm bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors duration-150 hover:bg-primary/15 disabled:cursor-not-allowed"
+                    title={offline ? "Envoi automatique au retour du réseau" : "Synchroniser maintenant"}
+                  >
+                    <RefreshCw size={13} className={syncing ? "animate-spin" : ""} />
+                    {pending} <span className="hidden sm:inline">en attente</span>
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* 🟢 BLOC DES QUATRE ICÔNES DYNAMIQUES DEMANDÉES (S'affichent uniquement si la page active les définit) */}
             <div className="flex items-center gap-1.5 mr-2">
               {navbarActions.onSearch && (
@@ -196,6 +232,11 @@ export default function Layout() {
               {navbarActions.onAdd && (
                 <button onClick={() => navbarActions.onAdd()} className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer" title="Ajouter">
                   <Plus size={17} />
+                </button>
+              )}
+              {navbarActions.onImport && (
+                <button onClick={() => navbarActions.onImport()} className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer" title="Importer depuis Excel">
+                  <FileSpreadsheet size={17} />
                 </button>
               )}
               {navbarActions.onFilter && (
@@ -228,6 +269,16 @@ export default function Layout() {
 
         {/* Zonne d'aafichage de mes pages */}
         <div className="p-4 md:p-6 lg:p-8">
+          {offline && (
+            <div className="mb-4 flex items-start gap-3 rounded-md bg-warning/10 px-4 py-3 text-sm text-base-content/80">
+              <WifiOff size={16} className="mt-0.5 shrink-0 text-warning" />
+              <p>
+                <strong className="font-medium text-base-content">Vous êtes hors ligne.</strong>{' '}
+                Vous consultez les dernières données enregistrées sur cet appareil. Les notes saisies
+                seront envoyées automatiquement au retour du réseau ; les autres modifications demandent une connexion.
+              </p>
+            </div>
+          )}
           <Outlet context={{ setNavbarActions }} />
         </div>
 
@@ -267,7 +318,8 @@ export default function Layout() {
           {/* Actions */}
           <div className="mt-5 space-y-2">
             <LinkGhost
-              link="/user"
+              link="/profile"
+              onAction={() => setUserCard(false)}
               color="
                 flex items-center justify-center gap-2
                 w-full py-2.5 rounded-md
@@ -279,6 +331,17 @@ export default function Layout() {
               <Pencil size={16} />
               Modifier le profil
             </LinkGhost>
+
+            {installable && (
+              <button
+                type="button"
+                onClick={() => { setUserCard(false); install(); }}
+                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-md bg-base-100 hover:bg-base-300 text-base-content font-medium transition-colors duration-150 text-xs"
+              >
+                <Download size={16} />
+                Installer l'application
+              </button>
+            )}
 
             <LinkGhost
               onAction={handleLogOut}

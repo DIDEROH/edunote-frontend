@@ -65,7 +65,7 @@ export default function SubjectsCompetenciesTable({ data, subjects, style }) {
                       {cote}
                     </td>
                     <td rowSpan={rowSpan} className={`text-center ${style}`}>
-                      {min !== null ? `${fmt(min)} – ${fmt(max)}` : ""}
+                      {min != null ? `${fmt(min)} – ${fmt(max)}` : ""}
                     </td>
                     <td rowSpan={rowSpan} className={`text-center ${style} font-light`}>
                       {appreciation}

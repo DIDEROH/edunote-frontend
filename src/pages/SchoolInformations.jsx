@@ -1,8 +1,7 @@
 import { Card5, SchoolCard } from '../components/ui/CardsComponents'
 import { api } from '../utils/AxiosClient'
 import { useOutletContext, useNavigate, useParams } from 'react-router-dom'
-import { useAnimations } from '../utils/animations'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import LoadingSkeleton from '../components/LoadingSkeletoon'
 import { LuClipboardCheck, LuFileQuestion } from 'react-icons/lu'
@@ -23,10 +22,8 @@ import {
 function SchoolInformations() {
     const { setNavbarActions } = useOutletContext();
     const { id } = useParams();
-    const containerRef = useRef(null);
     const navigate = useNavigate();
     const { hasRole } = useAuth();
-    useAnimations(containerRef);
 
     const [loading, setLoading] = useState(false);
     const [school, setSchool] = useState(null);
@@ -152,7 +149,7 @@ function SchoolInformations() {
     };
 
     return (
-        <div ref={containerRef} className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6">
 
             {/* VUE PRINCIPALE : CHARGEMENT OU CONTENU */}
             <div>

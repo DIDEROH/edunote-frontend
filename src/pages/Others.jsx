@@ -1,5 +1,5 @@
 import PageHeader from "../components/elements/PageHeader";
-import { UserCog2 } from "lucide-react";
+import { UserCog, UserCog2 } from "lucide-react";
 import { MdOutlineCalendarMonth } from "react-icons/md"
 import { Card1 } from "../components/ui/CardsComponents";
 import { LinkArrowRight } from "../components/ui/LinksComponents";
@@ -13,27 +13,29 @@ const elements = [
     title: "Gestion des utilisateurs",
     description: "Gérez les utilisateurs de l'application, attribuez des permissions pour contrôler l'accès aux différentes fonctionnalités.",
     icon: UserCog2,
-    color: "from-cyan-500 to-blue-500",
     to: "/users"
   },
   {
       title: "Chefs d'établissement",
       description: "Afficher tous les chefs d'établissements et les informations de leurs écoles assignées",
-      color: "from-green-400 to-yellow-300",
       to: "/director-list",
       icon: FaUserTie
+  },
+  {
+      title: "Assistants d'établissement",
+      description: "Rattachez les assistants à une école : ils consultent les élèves et les bulletins de leur établissement.",
+      to: "/moderator-list",
+      icon: UserCog
   },
   {
       icon: PiChalkboardTeacherFill,
       title: "Enseignants",
       description: "Afficher et gerer les enseignants de tous les établissements",
-      color: "from-indigo-400 to-violet-600",
       to: "/teacher-list"
   },
   {
     title: "Gestion des Années Scolaires",
     description: "Gérez les Années de l'application pour controller les différentes statistiques, Activer, Déseactivez, Supprimez. ",
-    color: "from-blue-500 to-violet-500",
     icon: MdOutlineCalendarMonth,
     to: "/academic-years"
   }

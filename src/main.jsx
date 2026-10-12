@@ -5,6 +5,10 @@ import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { Toaster } from 'sonner'
 import { ConfirmProvider } from './providers/ConfirmProvider.jsx'
+import { registerPwa } from './utils/pwa'
+
+// Service worker : application disponible hors ligne et installable
+registerPwa()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

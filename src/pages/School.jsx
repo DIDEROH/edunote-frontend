@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useOutletContext, useNavigate } from 'react-router-dom'
 import { api } from "../utils/AxiosClient"
 import { useForm } from 'react-hook-form';
@@ -15,7 +15,6 @@ import useShowConfirm from "../hooks/UseShowConfirm"
 import PageHeader from "../components/elements/PageHeader"
 import { Card5 } from "../components/ui/CardsComponents";
 import { LuSearchX } from "react-icons/lu";
-import { useAnimations } from '../utils/animations'
 import { deleteElement } from "../utils/deleteElement";
 import LoadingSkeleton from "../components/LoadingSkeletoon";
 import usePrintable from "../utils/usePrintable";
@@ -221,8 +220,6 @@ function School() {
 
     const showConfirm = useShowConfirm();
     const navigate = useNavigate();
-    const containerRef = useRef(null);
-    useAnimations(containerRef)
     
     /**
      * ✅ Gestion du délai (Debounce) pour la recherche
@@ -328,7 +325,7 @@ function School() {
 
 
     return (
-        <div ref={containerRef}>
+        <div>
             <PrintableTable
                 ref={printRef}
                 title="Liste des ecoles"
