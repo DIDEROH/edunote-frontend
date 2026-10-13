@@ -18,6 +18,7 @@ import { Card4 } from "../components/ui/CardsComponents";
 import { LuUser } from "react-icons/lu";
 import usePrintable from "../utils/usePrintable";
 import PrintableTable from "../components/print/PrintableTable";
+import useNavbarRefresh from "../hooks/useNavbarRefresh";
 
 function DirectorsList() {
     const [directors, setDirectors] = useState([]);
@@ -89,8 +90,9 @@ function DirectorsList() {
     /**
      * Chargement des directeurs
      */
-    const fetchDirectors = async () => {
-        setLoading(true);
+    // silent : actualisation depuis la barre du haut, les cartes restent affichées
+    const fetchDirectors = async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true);
 
         try {
             const params = {};
@@ -119,7 +121,7 @@ function DirectorsList() {
 
             console.error(error);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
@@ -145,6 +147,17 @@ function DirectorsList() {
             setAssignmentLoading(false);
         }
     };
+
+    /**
+     * Actualiser : liste (recherche et filtres conservés), listes de référence
+     * et historique de la fenêtre d'affectation si elle est ouverte
+     */
+    useNavbarRefresh(() => Promise.all([
+        fetchDirectors({ silent: true }),
+        fetchSchools(),
+        fetchAcademicYears(),
+        showAssignmentModal && selectedDirector && fetchDirectorAssignments(selectedDirector.id),
+    ]));
 
     /**
      * Ouvrir modal affectation

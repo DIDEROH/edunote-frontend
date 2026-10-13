@@ -3,6 +3,15 @@ import { Plus, Save, Trash2, GripVertical, Award, Star, RefreshCcw } from "lucid
 import { api } from "../utils/AxiosClient";
 import { toast } from "sonner";
 import PageHeader from "../components/elements/PageHeader";
+import useNavbarRefresh from "../hooks/useNavbarRefresh";
+import { useConfirm } from "../providers/ConfirmProvider";
+
+// Aucune compétence encore définie : une ligne vide à remplir
+const toSkillList = (data) => (Array.isArray(data) ? data : [{ name: "", max_mark: 20, position: 1 }]);
+
+// Comparaison des compétences affichées avec celles enregistrées (modifications en attente)
+const skillsSignature = (list) =>
+  JSON.stringify((list || []).map((skill) => [skill.id ?? null, skill.name, String(skill.max_mark), skill.position]));
 
 function SkillsConfig() {
   const [subjects, setSubjects] = useState([]);
@@ -10,10 +19,20 @@ function SkillsConfig() {
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedClassroom, setSelectedClassroom] = useState("");
   const [skills, setSkills] = useState([]);
+  // Compétences telles qu'enregistrées sur le serveur
+  const [savedSkills, setSavedSkills] = useState([]);
   const [loading, setLoading] = useState(false);
+  const confirm = useConfirm();
 
   const dragItem = useRef(null);
   const dragOverItem = useRef(null);
+
+  // Sélection courante : des compétences reçues après un changement de matière/classe sont ignorées
+  const selectionKey = `${selectedSubject}:${selectedClassroom}`;
+  const currentSelection = useRef(selectionKey);
+  useEffect(() => {
+    currentSelection.current = selectionKey;
+  }, [selectionKey]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -46,13 +65,44 @@ function SkillsConfig() {
       const response = await api.get(
         `/skills?subject_id=${selectedSubject}&classroom_id=${selectedClassroom}`
       );
-      setSkills(Array.isArray(response.data) ? response.data : [{ name: "", max_mark: 20, position: 1 }]);
+      if (currentSelection.current !== selectionKey) return;
+      const list = toSkillList(response.data);
+      setSkills(list);
+      setSavedSkills(list);
     } catch (error) {
       toast.error("Impossible de récupérer les compétences");
     } finally {
       setLoading(false);
     }
   };
+
+  const hasPendingChanges = skillsSignature(skills) !== skillsSignature(savedSkills);
+
+  // Actualiser : matières, classes et compétences de la sélection
+  // (les modifications non enregistrées ne sont remplacées qu'après confirmation)
+  useNavbarRefresh(async () => {
+    const [subjectsResponse, classroomsResponse] = await Promise.all([
+      api.get("/subjects"),
+      api.get("/classrooms")
+    ]);
+    setSubjects(subjectsResponse?.data || []);
+    setClassrooms(classroomsResponse?.data || []);
+
+    if (!selectedSubject || !selectedClassroom) return;
+    const response = await api.get(
+      `/skills?subject_id=${selectedSubject}&classroom_id=${selectedClassroom}`
+    );
+    if (currentSelection.current !== selectionKey) return;
+
+    const list = toSkillList(response.data);
+    setSavedSkills(list);
+    if (!hasPendingChanges || await confirm(
+      "Les compétences modifiées à l'écran ne sont pas encore enregistrées. Les remplacer par celles du serveur ?",
+      { title: "Actualiser les compétences" }
+    )) {
+      setSkills(list);
+    }
+  });
 
   const addSkill = () => {
     setSkills((prev) => [
@@ -104,6 +154,7 @@ function SkillsConfig() {
         skills: validSkills
       });
       setSkills(data.data);
+      setSavedSkills(data.data);
       toast.success("Compétences enregistrées");
     } catch (error) {
       toast.error("Erreur lors de la sauvegarde");

@@ -21,7 +21,8 @@ import DirectorsList from './pages/DirectorsList'
 import TeacherList from './pages/TeacherList'
 import Classroom from './pages/Classroom'
 import Subjects from './pages/Subjects'
-import ClassroomDetail from './pages/ClassroomDetail'
+import SchoolClassroomSubjects from './pages/SchoolClassroomSubjects'
+import MySchoolClasses from './pages/MySchoolClasses'
 import Pedagogie from './pages/Pedagogie'
 import SkillsConfig from './pages/SkillsConfig'
 import StudentPage from './pages/StudentPage'
@@ -84,7 +85,10 @@ function App() {
 
               {/* les salles de classes (admin) */}
               <Route path='classrooms' element={<RoleRoute allow={['admin']}><Classroom /></RoleRoute>} />
-              <Route path='classrooms/:id' element={<RoleRoute allow={['admin']}><ClassroomDetail /></RoleRoute>} />
+              {/* Matières et coefficients d'une classe, propres à chaque école */}
+              <Route path='schools/:schoolId/classrooms/:classroomId' element={<RoleRoute allow={['admin']}><SchoolClassroomSubjects /></RoleRoute>} />
+              <Route path='my-classes' element={<RoleRoute allow={['director']}><MySchoolClasses /></RoleRoute>} />
+              <Route path='my-classes/:classroomId' element={<RoleRoute allow={['director']}><SchoolClassroomSubjects /></RoleRoute>} />
 
               {/* Matieres et competences (admin) */}
               <Route path='pedagogie' element={<RoleRoute allow={['admin']}><Pedagogie /></RoleRoute>} />

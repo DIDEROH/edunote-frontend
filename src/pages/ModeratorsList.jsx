@@ -10,8 +10,15 @@ import { Card4 } from "../components/ui/CardsComponents";
 import usePrintable from "../utils/usePrintable";
 import PrintableTable from "../components/print/PrintableTable";
 import useShowConfirm from "../hooks/UseShowConfirm";
+import useNavbarRefresh from "../hooks/useNavbarRefresh";
 
 const EMPTY_ASSIGNMENT = { school_id: "", academic_year_id: "" };
+
+// Paramètres de la liste : recherche et filtre école
+const listParams = (search, schoolId) => ({
+    ...(search ? { search } : {}),
+    ...(schoolId ? { school_id: schoolId } : {}),
+});
 
 /**
  * Assistants d'établissement (rôle "moderator") : rattachement à une école.
@@ -121,17 +128,24 @@ function ModeratorsList() {
     // Chargement de la liste (recherche, filtre école, rechargement après affectation)
     useEffect(() => {
         let ignore = false;
-        const params = {};
-        if (debouncedSearch) params.search = debouncedSearch;
-        if (schoolFilter) params.school_id = schoolFilter;
 
-        api.get("/users/moderators", { params })
+        api.get("/users/moderators", { params: listParams(debouncedSearch, schoolFilter) })
             .then(({ data }) => { if (!ignore) setModerators(data.data || []); })
             .catch((error) => toast.error(error.message))
             .finally(() => { if (!ignore) setLoading(false); });
 
         return () => { ignore = true; };
     }, [debouncedSearch, schoolFilter, reloadKey]);
+
+    // Actualiser : liste (recherche et filtre conservés), listes de référence
+    // et historique de la fenêtre d'affectation si elle est ouverte
+    useNavbarRefresh(() => Promise.all([
+        api.get("/users/moderators", { params: listParams(debouncedSearch, schoolFilter) })
+            .then(({ data }) => setModerators(data.data || [])),
+        api.get("/schools").then(({ data }) => setSchools(data.data || data)),
+        api.get("/academic-years").then(({ data }) => setAcademicYears(data.data || data)),
+        selectedModerator && fetchAssignments(selectedModerator.id),
+    ]));
 
     return (
         <div className="min-h-screen bg-base-100">

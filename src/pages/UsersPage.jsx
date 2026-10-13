@@ -17,6 +17,7 @@
     } from "../components/ui/ButtonsComponents";
     import usePrintable from "../utils/usePrintable";
     import PrintableTable from "../components/print/PrintableTable";
+    import useNavbarRefresh from "../hooks/useNavbarRefresh";
 
     function UsersPage() {
         const { printRef, print } = usePrintable("Liste des utilisateurs");
@@ -162,10 +163,11 @@
         };
 
 
-        const fetchUsers = useCallback(async (page = 1, query = "") => {
-            setLoading(true);
+        // silent : actualisation depuis la barre du haut, la liste (ou la fiche ouverte) reste affichée
+        const fetchUsers = useCallback(async (page = 1, query = "", { silent = false } = {}) => {
+            if (!silent) setLoading(true);
 
-            api.get(`/users?page=${page}&search=${query}`)
+            return api.get(`/users?page=${page}&search=${query}`)
                 .then(({ data }) => {
                     setUsers(data);
 
@@ -173,6 +175,11 @@
                         currentPage: data.current_page,
                         lastPage: data.last_page
                     });
+
+                    // Fiche ouverte : mise à jour avec les données actualisées
+                    if (silent) {
+                        setUserInfo((prev) => data.data?.find((user) => user.id === prev?.id) ?? prev);
+                    }
                 })
                 .catch((error) =>
                     toast.error(
@@ -180,7 +187,7 @@
                         "Erreur lors du chargement des utilisateurs"
                     )
                 )
-                .finally(() => setLoading(false));
+                .finally(() => { if (!silent) setLoading(false); });
         }, []);
 
         const fetchRoles = async () => {
@@ -208,6 +215,12 @@
         useEffect(() => {
             fetchRoles();
         }, []);
+
+        // Actualiser : page et recherche en cours conservées
+        useNavbarRefresh(() => Promise.all([
+            fetchUsers(pagination.currentPage, debouncedQuery, { silent: true }),
+            fetchRoles(),
+        ]));
 
         useEffect(() => {
             setNavbarActions({ onPrint: print });

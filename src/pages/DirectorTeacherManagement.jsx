@@ -1,9 +1,11 @@
 import { useEffect, useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { Plus, Trash2, Loader2, Search, Users, Edit2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import axiosClient from '../utils/AxiosClient'
 import useShowConfirm from '../hooks/UseShowConfirm'
 import PageHeader from '../components/elements/PageHeader'
+import useNavbarRefresh from '../hooks/useNavbarRefresh'
 
 function DirectorTeacherManagement() {
     const [loading, setLoading] = useState(true)
@@ -67,6 +69,12 @@ function DirectorTeacherManagement() {
             setSubjects([])
         }
     }
+
+    // Actualiser : affectations, enseignants, classes et matières de la classe choisie (formulaire conservé)
+    useNavbarRefresh(() => Promise.all([
+        loadInitialData(),
+        formData.classroom_id && fetchSubjectsForClass(formData.classroom_id),
+    ]))
 
     const handleClassroomChange = async (value) => {
         setFormData(prev => ({ ...prev, classroom_id: value, subject_id: '' }))
@@ -183,6 +191,14 @@ function DirectorTeacherManagement() {
                                     <option value="">Sélectionner...</option>
                                     {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                 </select>
+                                {formData.classroom_id && subjects.length === 0 && (
+                                    <p className="mt-2 text-xs text-warning">
+                                        Aucune matière n'est configurée pour cette classe.{' '}
+                                        <Link to={`/my-classes/${formData.classroom_id}`} className="font-medium underline">
+                                            Configurer ses matières
+                                        </Link>
+                                    </p>
+                                )}
                             </div>
 
                             <div className="flex gap-2">

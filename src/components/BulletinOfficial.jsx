@@ -9,12 +9,13 @@ import { User } from "lucide-react";
 import SubjectsSequencesTable from "./SubjectsSequencesTable";
 
 const BulletinOfficial = forwardRef(({bulletin}, ref) => {
-  const tdStyle = "border border-slate-800 font-bold text-[10px]"
+  const tdStyle = "border border-slate-800 font-bold text-[8px]"
   return (
-    <main ref={ref} className="bg-base-100 print:bg-white text-black p-3 w-full max-w-5xl mx-auto text-sm">
-      {/* EN-TETE */}
-      <header className="flex justify-between mb-2">
-        <aside className="flex flex-col items-center text-[8px]">
+    // À l'impression, la marge de 0,7 cm vient de la feuille (PrintSheet) : pas de retrait en plus
+    <main ref={ref} className="bg-base-100 print:bg-white text-black p-3 print:p-0 w-full max-w-5xl print:max-w-none mx-auto text-[9px]">
+      {/* EN-TETE (jamais coupé entre deux pages) */}
+      <header className="flex justify-between mb-2 break-inside-avoid">
+        <aside className="flex flex-col items-center text-[6px]">
           <span>REPUBLIQUE DU CAMEROUN</span>
           <DeviseComponent>Paix - Travail - Patrie</DeviseComponent>
           <SmallStars />
@@ -28,14 +29,14 @@ const BulletinOfficial = forwardRef(({bulletin}, ref) => {
   
         <aside className="flex items-center flex-col">
           <span className="font-bold text-xs">{bulletin?.school?.name}</span>
-          <span className="capitalize text-[9px] italic">{bulletin?.school?.motto}</span>
+          <span className="capitalize text-[7px] italic">{bulletin?.school?.motto}</span>
           <Logo className="w-18" />
-          <span className="font-semibold uppercase text-xs">{bulletin?.school?.code}</span>
-          <span className="font-semibold uppercase text-center text-xs">BULLETIN SCOLAIRE DU {bulletin?.term?.name}</span>
-          <span className="font-semibold text-xs">Année scolaire :  {bulletin?.academic_year?.name}</span>
+          <span className="font-semibold uppercase text-[9px]">{bulletin?.school?.code}</span>
+          <span className="font-semibold uppercase text-center text-[9px]">BULLETIN SCOLAIRE DU {bulletin?.term?.name}</span>
+          <span className="font-semibold text-[9px]">Année scolaire :  {bulletin?.academic_year?.name}</span>
         </aside>
   
-        <aside className="flex flex-col items-center text-[8px]">
+        <aside className="flex flex-col items-center text-[6px]">
           <span>REPUBLIC OF CAMEROON</span>
           <DeviseComponent>Peace - Work - Fatherland</DeviseComponent>
           <SmallStars />
@@ -53,18 +54,18 @@ const BulletinOfficial = forwardRef(({bulletin}, ref) => {
       <section>
   
         {/* INFORMATIONS DE L'ELEVE */}
-        <aside className="flex mb-2">
-  
+        <aside className="flex mb-2 break-inside-avoid">
+
           <div className="aspect-square h-20 border border-slate-300 m-2 rounded-xl flex-none flex items-center justify-center overflow-hidden">
             {bulletin?.student?.photo ? <img src={bulletin.student.photo} className="h-full w-full object-cover object-center" /> : <User size={50} />}
           </div>
   
-          <table className="border-collapse border border-slate-400 w-full text-[11px]">
+          <table className="border-collapse border border-slate-400 w-full text-[10px]">
             <tbody>
 
               <tr>
                 <td colSpan={3} className={tdStyle}>
-                  Noms et Prénoms de l'élève : <span className="font-bold uppercase text-xs">{bulletin?.student?.first_name } {bulletin?.student?.last_name}</span>
+                  Noms et Prénoms de l'élève : <span className="font-bold uppercase text-[10px]">{bulletin?.student?.first_name } {bulletin?.student?.last_name}</span>
                 </td>
                 <td className="border border-slate-800 p-1 font-medium">Classe : {bulletin?.classroom?.name} </td>
               </tr>
@@ -104,8 +105,8 @@ const BulletinOfficial = forwardRef(({bulletin}, ref) => {
   
       </section>
   
-      {/* BAS DE PAGE DU BULLETIN */}
-      <footer className="flex text-xs mt-2">
+      {/* BAS DE PAGE DU BULLETIN (résultats et signatures restent sur la même page) */}
+      <footer className="flex text-xs mt-2 break-inside-avoid">
   
         <BulletinBottomTable tdStyle={tdStyle}
           data={{ 

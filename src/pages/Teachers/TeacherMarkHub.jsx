@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Loading from "../../components/Loading";
 import PageHeader from "../../components/elements/PageHeader";
 import { CtaNeon } from "../../components/ui/ButtonsComponents";
+import useNavbarRefresh from "../../hooks/useNavbarRefresh";
 
 function TeacherMarkHub() {
   const { user, loading: authLoading } = useAuth();
@@ -13,9 +14,10 @@ function TeacherMarkHub() {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const loadAssignments = async () => {
+  // silent : actualisation depuis la barre du haut, sans remplacer la page par le chargement
+  const loadAssignments = async ({ silent = false } = {}) => {
     if (!user) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const { data } = await axiosClient.get(`/teachers/${user.id}/assignments`);
       setAssignments(data.data || []);
@@ -23,7 +25,7 @@ function TeacherMarkHub() {
       toast.error("Impossible de récupérer vos affectations.");
       console.error(error);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -32,6 +34,8 @@ function TeacherMarkHub() {
       loadAssignments();
     }
   }, [authLoading, user]);
+
+  useNavbarRefresh(() => loadAssignments({ silent: true }));
 
   const mappedAssignments = useMemo(
     () =>

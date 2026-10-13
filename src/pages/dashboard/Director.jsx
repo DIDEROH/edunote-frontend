@@ -9,6 +9,7 @@ import StudentPieChart from "../../components/dashboard/StudentPieChart";
 import { ClassroomCards } from "../../components/ui/CardsComponents";
 import PerformanceWidget from "../../components/dashboard/PerformanceWidget";
 import usePrintable from "../../utils/usePrintable";
+import useNavbarRefresh from "../../hooks/useNavbarRefresh";
 import PrintableTable from "../../components/print/PrintableTable";
 
 function Director() {
@@ -24,6 +25,12 @@ function Director() {
     })
     .catch((error) => {toast.error(error.message)})
   }, [])
+
+  // Actualiser : le serveur recalcule les statistiques au lieu de servir son cache (5 min)
+  useNavbarRefresh(() =>
+    api.get('/statistics/director/dashboard', { headers: { 'X-Refresh': '1' } })
+      .then(({ data }) => setDashboard(data))
+  );
 
   useEffect(() => {
     setNavbarActions({ onPrint: print });

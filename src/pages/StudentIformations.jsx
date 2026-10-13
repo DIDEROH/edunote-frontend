@@ -10,6 +10,7 @@ import { StudentCard } from "../components/ui/CardsComponents";
 import useShowConfirm from "../hooks/UseShowConfirm";
 import { deleteElement } from "../utils/deleteElement";
 import { useAuth } from "../context/AuthContext";
+import useNavbarRefresh from "../hooks/useNavbarRefresh";
 
 
 
@@ -84,6 +85,13 @@ export default function StudentIformations() {
 
         fetchStudentData();
     }, [id, navigate]);
+
+    // Actualiser : la fiche reste affichée pendant le rechargement
+    useNavbarRefresh(() =>
+        api.get(`/students/${id}`).then((response) => {
+            if (response.data?.data) setStudent(response.data.data);
+        })
+    );
 
     const handleDeleteStudent = async () => {
         deleteElement(

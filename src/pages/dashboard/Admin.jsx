@@ -17,6 +17,7 @@ import PerformanceTable from "../../components/dashboard/PerformanceTable";
 import { toast } from 'sonner'
 import { api } from '../../utils/AxiosClient'
 import usePrintable from "../../utils/usePrintable";
+import useNavbarRefresh from "../../hooks/useNavbarRefresh";
 import PrintableTable from "../../components/print/PrintableTable";
 
 
@@ -33,6 +34,12 @@ function Admin() {
       })
       .catch((error) => {toast.error(error.message)})
     }, [])
+
+    // Actualiser : le serveur recalcule les statistiques au lieu de servir son cache (5 min)
+    useNavbarRefresh(() =>
+        api.get('/statistics/admin/dashboard', { headers: { 'X-Refresh': '1' } })
+            .then(({ data }) => setDashboard(data))
+    );
 
     useEffect(() => {
         setNavbarActions({ onPrint: print });

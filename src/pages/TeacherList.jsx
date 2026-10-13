@@ -18,6 +18,7 @@ import { Card4 } from "../components/ui/CardsComponents";
 import { LuUser } from "react-icons/lu";
 import usePrintable from "../utils/usePrintable";
 import PrintableTable from "../components/print/PrintableTable";
+import useNavbarRefresh from "../hooks/useNavbarRefresh";
 
 function TeachersList() {
     const [teachers, setTeachers] = useState([]);
@@ -89,8 +90,9 @@ function TeachersList() {
     /**
      * Chargement des enseignants
      */
-    const fetchTeachers = async () => {
-        setLoading(true);
+    // silent : actualisation depuis la barre du haut, les cartes restent affichées
+    const fetchTeachers = async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true);
 
         try {
             const params = {};
@@ -108,7 +110,7 @@ function TeachersList() {
             toast.error("Erreur lors du chargement des enseignants");
             console.error(error);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
@@ -129,6 +131,16 @@ function TeachersList() {
             setAssignmentLoading(false);
         }
     };
+
+    /**
+     * Actualiser : liste (recherche et filtres conservés), listes de référence
+     * et historique de la fenêtre d'affectation si elle est ouverte
+     */
+    useNavbarRefresh(() => Promise.all([
+        fetchTeachers({ silent: true }),
+        fetchReferenceData(),
+        showAssignmentModal && selectedTeacher && fetchTeacherAssignments(selectedTeacher.id),
+    ]));
 
     /**
      * Ouvrir modal affectation

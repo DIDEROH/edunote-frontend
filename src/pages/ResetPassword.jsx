@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FiLock, FiKey } from "react-icons/fi";
@@ -8,11 +8,17 @@ import AuthCard from "../components/ui/AuthCard";
 import TextInput from "../components/ui/TextInput";
 import { CtaNeon } from "../components/ui/ButtonsComponents";
 
+/**
+ * Nouveau mot de passe, après vérification du code reçu par e-mail
+ * (page ForgotPassword). Le jeton arrive par l'état de navigation : il
+ * n'apparaît ni dans l'adresse ni dans l'historique.
+ */
 function ResetPassword() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
-  const token = searchParams.get("token") || "";
-  const email = searchParams.get("email") || "";
+  const token = location.state?.token || searchParams.get("token") || "";
+  const email = location.state?.email || searchParams.get("email") || "";
   const [linkInvalid] = useState(!token || !email);
 
   const {
@@ -34,9 +40,9 @@ function ResetPassword() {
       toast.success("Mot de passe réinitialisé avec succès. Connectez-vous.");
       navigate("/login", { replace: true });
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Ce lien n'est plus valide. Demandez-en un nouveau."
-      );
+      toast.error(error.message || "Votre demande a expiré. Recommencez : un nouveau code vous sera envoyé.");
+      // Jeton expiré ou déjà utilisé : on repart de la demande de code
+      if (error.status === 422 && !error.response?.data?.errors) navigate("/forgot-password", { replace: true });
     }
   };
 
@@ -44,8 +50,8 @@ function ResetPassword() {
     return (
       <AuthCard
         icon={FiKey}
-        title="Lien invalide"
-        description="Ce lien de réinitialisation est incomplet ou a expiré."
+        title="Demande expirée"
+        description="Pour choisir un nouveau mot de passe, faites-vous d'abord envoyer un code par e-mail."
         footer={
           <Link to="/login" className="font-medium text-primary">
             Retour à la connexion
@@ -57,7 +63,7 @@ function ResetPassword() {
           className="w-full"
           onAction={() => navigate("/forgot-password")}
         >
-          Demander un nouveau lien
+          Recevoir un code
         </CtaNeon>
       </AuthCard>
     );

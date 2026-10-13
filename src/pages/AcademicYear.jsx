@@ -14,6 +14,7 @@ import { LuSearchX } from 'react-icons/lu'
 import { deleteElement } from '../utils/deleteElement'
 import usePrintable from '../utils/usePrintable'
 import PrintableTable from '../components/print/PrintableTable'
+import useNavbarRefresh from '../hooks/useNavbarRefresh'
 
 function AcademicYear() {
     const { setNavbarActions } = useOutletContext()
@@ -30,16 +31,19 @@ function AcademicYear() {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [currentYear, setCurrentYear] = useState({ id: null, name: ''})
 
-    const fetchYears = async () => {
-        setLoading(true)
-        api.get('/academic-years')
+    // silent : actualisation depuis la barre du haut, le tableau reste affiché
+    const fetchYears = async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true)
+        return api.get('/academic-years')
             .then(({ data }) => {
                 setYear(data.data)
                 setActiveYear(data.active_year)
             })
             .catch((err) => toast.error(err.message))
-            .finally(() => setLoading(false))
+            .finally(() => { if (!silent) setLoading(false) })
     }
+
+    useNavbarRefresh(() => fetchYears({ silent: true }))
 
     // Ouvrir la modale (vide pour ajout, remplie pour modif)
     const openModal = (data = { id: null, name: '' }) => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { api } from '../utils/AxiosClient'
@@ -9,6 +9,8 @@ import { toast } from 'sonner'
 import InputComponent from '../components/InputComponent'
 import { useHasRole } from '../hooks/UseHasRole'
 import PageHeader from '../components/elements/PageHeader'
+import useNavbarRefresh from '../hooks/useNavbarRefresh'
+import { useConfirm } from '../providers/ConfirmProvider'
 
 export default function EnrollmentStudent() {
   const { id } = useParams()
@@ -16,7 +18,9 @@ export default function EnrollmentStudent() {
   const navigate = useNavigate()
   const isDirector = useHasRole('director')
 
-  const { register, handleSubmit, setValue, getValues, reset, formState: { errors } } = useForm({
+  const confirm = useConfirm()
+
+  const { register, handleSubmit, setValue, getValues, reset, formState: { errors, isDirty } } = useForm({
     defaultValues: {
       matricule: '',
       first_name: '',
@@ -39,6 +43,44 @@ export default function EnrollmentStudent() {
   const [uploading, setUploading] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
 
+  // Remplit le formulaire avec la fiche de l'élève (modification)
+  const fillForm = useCallback((student) => {
+    reset({
+      matricule: student.matricule || '',
+      first_name: student.first_name || '',
+      last_name: student.last_name || '',
+      gender: student.gender || '',
+      birth_date: student.birth_date ? student.birth_date.split('T')[0] : '',
+      birth_place: student.birth_place || '',
+      contact: student.contact || '',
+      photo: student.photo || '',
+      school_id: student.enrollments?.[0]?.school_id?.toString() || '',
+      classroom_id: student.enrollments?.[0]?.classroom_id?.toString() || ''
+    })
+
+    setSelectedGender(student.gender || '')
+
+    if (student.photo) {
+      setPreview(student.photo)
+    }
+  }, [reset])
+
+  // Actualiser : liste des classes et, en modification, la fiche de l'élève
+  // (les changements non enregistrés ne sont remplacés qu'après confirmation)
+  useNavbarRefresh(isDirector ? async () => {
+    const { data: classrooms } = await api.get('/classrooms')
+    setClasses(classrooms || [])
+
+    if (!isEditMode) return
+    if (isDirty && !(await confirm(
+      'Les modifications non enregistrées du formulaire seront remplacées par les informations du serveur.',
+      { title: 'Actualiser la fiche' }
+    ))) return
+
+    const { data } = await api.get(`/director-space/students/${id}`)
+    fillForm(data.data)
+  } : null)
+
   useEffect(() => {
     if (!isDirector) {
       toast.error('Seul le directeur peut effectuer cette opération.')
@@ -57,26 +99,8 @@ export default function EnrollmentStudent() {
 
         if (isEditMode) {
           const { data } = await api.get(`/director-space/students/${id}`)
-          const student = data.data
-
-          reset({
-            matricule: student.matricule || '',
-            first_name: student.first_name || '',
-            last_name: student.last_name || '',
-            gender: student.gender || '',
-            birth_date: student.birth_date ? student.birth_date.split('T')[0] : '',
-            birth_place: student.birth_place || '',
-            contact: student.contact || '',
-            photo: student.photo || '',
-            school_id: student.enrollments?.[0]?.school_id?.toString() || '',
-            classroom_id: student.enrollments?.[0]?.classroom_id?.toString() || ''
-          })
-
-          setSelectedGender(student.gender || '')
-
-          if (student.photo) {
-            setPreview(student.photo)
-          }
+          if (!isMounted) return
+          fillForm(data.data)
         }
       } catch (error) {
         console.error(error)
@@ -92,7 +116,7 @@ export default function EnrollmentStudent() {
     return () => {
       isMounted = false
     }
-  }, [id, isEditMode, isDirector, navigate, reset])
+  }, [id, isEditMode, isDirector, navigate, fillForm])
 
   const handleImageChange = async (e) => {
     const file = e.target.files?.[0]

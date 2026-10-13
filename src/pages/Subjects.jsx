@@ -13,6 +13,7 @@ import { Table, Th, Tr, TdBody } from "../components/Table";
 import InputComponent from "../components/InputComponent";
 import usePrintable from "../utils/usePrintable";
 import PrintableTable from "../components/print/PrintableTable";
+import useNavbarRefresh from "../hooks/useNavbarRefresh";
 
 // --- COMPOSANT : FORMULAIRE DÉDIÉ AVEC REACT-HOOK-FORM ---
 const SubjectForm = ({ initialData, onSubmit, onCancel, loading }) => {
@@ -110,20 +111,24 @@ function Subjects() {
   }, [search]);
 
   // Charger les matières
-  const fetchSubjects = async () => {
-    setLoading(true);
+  // silent : actualisation depuis la barre du haut, la liste reste affichée
+  const fetchSubjects = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     const params = debouncedSearch ? { search: debouncedSearch } : {};
-    api.get('/subjects', { params })
+    return api.get('/subjects', { params })
       .then(({ data }) => {
         setSubjects(Array.isArray(data) ? data : (data.data || []));
       })
       .catch((error) => toast.error(error.message || "Impossible de charger les matières"))
-      .finally(() => setLoading(false));
+      .finally(() => { if (!silent) setLoading(false); });
   };
 
   useEffect(() => {
     fetchSubjects();
   }, [debouncedSearch]);
+
+  // Actualiser la liste (pas pendant la saisie du formulaire)
+  useNavbarRefresh(view === 'list' ? () => fetchSubjects({ silent: true }) : null);
 
   const handleAddSubjectClick = () => {
     setCurrentSubject(null);

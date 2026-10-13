@@ -8,6 +8,10 @@ import { api } from "../../utils/AxiosClient";
 import { useHasRole } from "../../hooks/UseHasRole";
 import PageHeader from "../../components/elements/PageHeader";
 import { prepareBulletins } from "../../utils/bulletinPreparation";
+import useNavbarRefresh from "../../hooks/useNavbarRefresh";
+
+// La sélection est gardée si l'élément figure toujours dans la liste rechargée
+const stillListed = (list, id) => !id || (list || []).some((item) => String(item.id) === String(id));
 
 export default function Bulletins() {
     const navigate = useNavigate();
@@ -66,7 +70,8 @@ export default function Bulletins() {
     useEffect(() => {
         if (scope === 'student' && classroomId) {
             setIsLoadingStudents(true);
-            api.get(`/classrooms/${classroomId}/students`)
+            // Une classe peut être partagée par plusieurs écoles : l'admin précise la sienne
+            api.get(`/classrooms/${classroomId}/students`, { params: isAdmin && schoolId ? { school_id: schoolId } : {} })
                 .then(({ data }) => {
                     setStudents(data || []);
                     setStudentId(""); // Reset
@@ -77,7 +82,27 @@ export default function Bulletins() {
             setStudents([]);
             setStudentId("");
         }
-    }, [classroomId, scope]);
+    }, [classroomId, scope, isAdmin, schoolId]);
+
+    // Actualiser : établissements, classes et élèves, sans perdre la sélection en cours
+    useNavbarRefresh(() => {
+        const applyClassrooms = ({ data }) => {
+            setClassrooms(data || []);
+            if (!stillListed(data, classroomId)) setClassroomId("");
+        };
+
+        return Promise.all([
+            isAdmin && api.get("/schools").then(({ data }) => setSchools(data || [])),
+            isSchoolStaff && api.get("/classrooms").then(applyClassrooms),
+            isAdmin && schoolId && api.get(`/schools/${schoolId}/classrooms`).then(applyClassrooms),
+            scope === 'student' && classroomId && api
+                .get(`/classrooms/${classroomId}/students`, { params: isAdmin && schoolId ? { school_id: schoolId } : {} })
+                .then(({ data }) => {
+                    setStudents(data || []);
+                    if (!stillListed(data, studentId)) setStudentId("");
+                }),
+        ]);
+    });
 
     const isFormValid = useMemo(() => {
         if (!term) return false;

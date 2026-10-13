@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import axiosClient from "../../utils/AxiosClient";
@@ -10,8 +10,69 @@ import PageHeader from "../../components/elements/PageHeader";
 import Loading from "../../components/Loading";
 import { hasPending, removeByDedupeKey } from "../../utils/offline/outbox";
 import { OUTBOX_EVENT } from "../../utils/offline/status";
+import useNavbarRefresh from "../../hooks/useNavbarRefresh";
 
 const DRAFT_PREFIX = "edunote_marks_draft";
+
+// Affectations de l'enseignant, séquences et trimestres
+async function fetchMetaData(userId) {
+  const [assignmentsRes, sequencesRes, termsRes] = await Promise.all([
+    axiosClient.get(`/teachers/${userId}/assignments`),
+    axiosClient.get("/sequences"),
+    axiosClient.get("/terms"),
+  ]);
+
+  return {
+    assignments: assignmentsRes.data.data || [],
+    sequences: sequencesRes.data.data || sequencesRes.data || [],
+    terms: termsRes.data.data || termsRes.data || [],
+    loading: false,
+  };
+}
+
+const markText = (mark) => (mark !== null && mark !== undefined ? String(mark) : "");
+
+// Notes enregistrées sur le serveur, au format de la saisie :
+// séquence { inscription: "15" } ; compétences { inscription: { compétence: "12" } }
+function serverMarksOf(students, skills, isSequence) {
+  const result = {};
+  students.forEach((student) => {
+    if (isSequence) {
+      result[student.student_enrollment_id] = markText(student.mark);
+      return;
+    }
+    const bySkill = {};
+    (Array.isArray(student.marks) ? student.marks : []).forEach((m) => { bySkill[m.skill_id] = markText(m.mark); });
+    result[student.student_enrollment_id] = Object.fromEntries(skills.map((skill) => [skill.id, bySkill[skill.id] ?? ""]));
+  });
+  return result;
+}
+
+// Chargement : le brouillon local passe devant les notes du serveur
+function applyDraft(server, draft, isSequence) {
+  if (!draft) return server;
+  return Object.fromEntries(Object.entries(server).map(([id, value]) => [
+    id,
+    isSequence
+      ? draft[id] ?? value
+      : Object.fromEntries(Object.entries(value).map(([skillId, mark]) => [skillId, draft[id]?.[skillId] ?? mark])),
+  ]));
+}
+
+// Actualisation : une note modifiée sur cet appareil depuis le dernier chargement est
+// conservée ; les autres prennent la valeur actuelle du serveur (saisie faite ailleurs)
+function keepLocalEdits(server, current, previous, isSequence) {
+  const pick = (mine, before, fresh) => (mine !== undefined && mine !== before ? mine : fresh);
+  return Object.fromEntries(Object.entries(server).map(([id, value]) => [
+    id,
+    isSequence
+      ? pick(current[id], previous[id], value)
+      : Object.fromEntries(Object.entries(value).map(([skillId, mark]) => [
+          skillId,
+          pick(current[id]?.[skillId], previous[id]?.[skillId], mark),
+        ])),
+  ]));
+}
 
 export default function TeacherMarkEntry() {
   const { user, loading: authLoading } = useAuth();
@@ -89,6 +150,18 @@ export default function TeacherMarkEntry() {
     return `${DRAFT_PREFIX}_u${user.id}_a${filters.assignmentId}_${periodKey}`;
   }, [user, filters, isSequenceMode, isCompetenceMode]);
 
+  // Sélection courante : une grille reçue après un changement d'affectation ou de période est ignorée
+  const currentDraftKey = useRef(draftKey);
+  useEffect(() => {
+    currentDraftKey.current = draftKey;
+  }, [draftKey]);
+
+  // Dernière saisie, lue par l'actualisation (l'enseignant peut taper pendant le rechargement)
+  const latestMarks = useRef(marks);
+  useEffect(() => {
+    latestMarks.current = marks;
+  }, [marks]);
+
 
   // ==========================================
   // CHARGEMENT INITIAL DES META-DONNEES
@@ -98,18 +171,7 @@ export default function TeacherMarkEntry() {
 
     const fetchInitialData = async () => {
       try {
-        const [assignmentsRes, sequencesRes, termsRes] = await Promise.all([
-          axiosClient.get(`/teachers/${user.id}/assignments`),
-          axiosClient.get("/sequences"),
-          axiosClient.get("/terms"),
-        ]);
-
-        setMetaData({
-          assignments: assignmentsRes.data.data || [],
-          sequences: sequencesRes.data.data || sequencesRes.data || [],
-          terms: termsRes.data.data || termsRes.data || [],
-          loading: false,
-        });
+        setMetaData(await fetchMetaData(user.id));
       } catch (error) {
         toast.error("Impossible de récupérer les paramètres initiaux.");
         console.error(error);
@@ -158,12 +220,13 @@ export default function TeacherMarkEntry() {
   // ==========================================
   // CHARGEMENT DE LA GRILLE (API)
   // ==========================================
-  const loadGrid = async () => {
+  // silent : actualisation depuis la barre du haut, la grille reste affichée pendant le rechargement
+  const loadGrid = async ({ silent = false } = {}) => {
     if (!selectedAssignment) return toast.warning("Sélectionnez une affectation.");
     if (isSequenceMode && !filters.sequenceId) return toast.warning("Sélectionnez une séquence.");
     if (isCompetenceMode && !filters.termId) return toast.warning("Sélectionnez un trimestre.");
 
-    setGridData((prev) => ({ ...prev, loading: true, isLoaded: false }));
+    if (!silent) setGridData((prev) => ({ ...prev, loading: true, isLoaded: false }));
 
     try {
       const endpoint = isSequenceMode ? "/sequence-marks/load" : "/skill-marks/load";
@@ -175,6 +238,7 @@ export default function TeacherMarkEntry() {
       };
 
       const response = await axiosClient.get(endpoint, { params });
+      if (currentDraftKey.current !== draftKey) return;
       const { data } = response;
       const payload = data.data || data;
       setGridCachedAt(response.fromCache ? response.cachedAt : null);
@@ -182,43 +246,39 @@ export default function TeacherMarkEntry() {
       const loadedStudents = payload.students || [];
       const loadedSkills = payload.skills || [];
 
-      // Initialisation de la compétence active pour le mobile
-      if (isCompetenceMode && loadedSkills.length > 0) {
+      // Initialisation de la compétence active pour le mobile (conservée lors d'une actualisation)
+      const keepActiveSkill = silent && loadedSkills.some((skill) => String(skill.id) === String(filters.activeSkillId));
+      if (isCompetenceMode && loadedSkills.length > 0 && !keepActiveSkill) {
         updateFilter("activeSkillId", String(loadedSkills[0].id));
       }
 
-      // Traitement du brouillon local
-      const savedDraft = draftKey ? localStorage.getItem(draftKey) : null;
-      const parsedDraft = savedDraft ? JSON.parse(savedDraft) : null;
-      setDraftExists(!!parsedDraft);
+      const pending = await hasPending(draftKey);
+      if (currentDraftKey.current !== draftKey) return;
       setIsDirty(false);
-      setPendingSync(await hasPending(draftKey));
+      setPendingSync(pending);
 
-      // Constitution du dictionnaire des notes (Fusion BD + Brouillon)
-      const initialMarks = {};
+      // Constitution du dictionnaire des notes
+      const serverMarks = serverMarksOf(loadedStudents, loadedSkills, isSequenceMode);
+      let initialMarks;
 
-      if (isSequenceMode) {
-        loadedStudents.forEach((student) => {
-          const dbValue = (student.mark !== null && student.mark !== undefined) ? String(student.mark) : "";
-          initialMarks[student.student_enrollment_id] = parsedDraft?.[student.student_enrollment_id] ?? dbValue;
-        });
+      if (silent) {
+        // Actualisation : seules les notes modifiées ici sont conservées, le reste vient du serveur
+        const previousServerMarks = serverMarksOf(gridData.students, gridData.skills, isSequenceMode);
+        initialMarks = keepLocalEdits(serverMarks, latestMarks.current, previousServerMarks, isSequenceMode);
+
+        // Le brouillon ne garde que la grille fusionnée, ou disparaît s'il n'y a plus rien à envoyer
+        if (draftKey) {
+          const hasEdits = JSON.stringify(initialMarks) !== JSON.stringify(serverMarks);
+          if (hasEdits) localStorage.setItem(draftKey, JSON.stringify(initialMarks));
+          else if (!pending) localStorage.removeItem(draftKey);
+          setDraftExists(Boolean(localStorage.getItem(draftKey)));
+        }
       } else {
-        loadedStudents.forEach((student) => {
-          const studentDraft = parsedDraft?.[student.student_enrollment_id] || {};
-          const dbMarks = {};
-          
-          if (Array.isArray(student.marks)) {
-            student.marks.forEach((m) => {
-              dbMarks[m.skill_id] = (m.mark !== null && m.mark !== undefined) ? String(m.mark) : "";
-            });
-          }
-
-          const finalStudentMarks = {};
-          loadedSkills.forEach((skill) => {
-            finalStudentMarks[skill.id] = studentDraft[skill.id] ?? dbMarks[skill.id] ?? "";
-          });
-          initialMarks[student.student_enrollment_id] = finalStudentMarks;
-        });
+        // Traitement du brouillon local (Fusion BD + Brouillon)
+        const savedDraft = draftKey ? localStorage.getItem(draftKey) : null;
+        const parsedDraft = savedDraft ? JSON.parse(savedDraft) : null;
+        setDraftExists(!!parsedDraft);
+        initialMarks = applyDraft(serverMarks, parsedDraft, isSequenceMode);
       }
 
       setMarks(initialMarks);
@@ -229,6 +289,15 @@ export default function TeacherMarkEntry() {
       setGridData((prev) => ({ ...prev, loading: false }));
     }
   };
+
+
+  // Actualiser : affectations et périodes, puis les notes de la grille ouverte
+  // (les notes modifiées sur cet appareil et pas encore enregistrées sont conservées)
+  useNavbarRefresh(async () => {
+    if (!user) return;
+    setMetaData(await fetchMetaData(user.id));
+    if (gridData.isLoaded) await loadGrid({ silent: true });
+  });
 
 
   // ==========================================
@@ -481,7 +550,7 @@ export default function TeacherMarkEntry() {
             <div className="md:col-span-1">
               <button
                 type="button"
-                onClick={loadGrid}
+                onClick={() => loadGrid()}
                 disabled={gridData.loading}
                 className="w-full rounded-md bg-primary px-5 py-3 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
               >

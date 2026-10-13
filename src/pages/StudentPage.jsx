@@ -13,6 +13,7 @@ import { FileSpreadsheet, Filter, X } from "lucide-react";
 import usePrintable from "../utils/usePrintable";
 import PrintableTable from "../components/print/PrintableTable";
 import StudentImportModal from "../components/students/StudentImportModal";
+import useNavbarRefresh from "../hooks/useNavbarRefresh";
 
 
 function StudentsPage() {
@@ -55,8 +56,9 @@ function StudentsPage() {
 
 
     // Chargement des élèves basé sur les filtres et la pagination
-    const fetchStudents = useCallback(async (page = 1, query = "") => {
-        setLoading(true);
+    // silent : actualisation depuis la barre du haut, la liste reste affichée pendant le rechargement
+    const fetchStudents = useCallback(async (page = 1, query = "", { silent = false } = {}) => {
+        if (!silent) setLoading(true);
 
         const payload = {
             search: query,
@@ -66,7 +68,7 @@ function StudentsPage() {
             sex: filters.sexe // Correspondance avec le paramètre attendu par votre API ('sex')
         };
 
-        api.post(`/student_enrollments`, payload)
+        return api.post(`/student_enrollments`, payload)
             .then(({ data }) => {
                 setStudents(data);
                 setPagination({
@@ -79,7 +81,7 @@ function StudentsPage() {
                     error.message || "Erreur lors du chargement des élèves."
                 )
             )
-            .finally(() => setLoading(false));
+            .finally(() => { if (!silent) setLoading(false); });
     }, [filters]); // Dépendance mise à jour sur l'objet filters complet
 
     // Chargement global initial des options de filtrage (Écoles, Classes)
@@ -130,7 +132,13 @@ function StudentsPage() {
     // Chargement initial unique
     useEffect(() => {
         fetchFilterOptions();
-    }, []); 
+    }, []);
+
+    // Actualiser : page, recherche et filtres en cours sont conservés
+    useNavbarRefresh(() => Promise.all([
+        fetchStudents(pagination.currentPage, debouncedQuery, { silent: true }),
+        fetchFilterOptions(),
+    ]));
 
 
     // Liaison correcte des actions du Navbar (ajout réservé au directeur)

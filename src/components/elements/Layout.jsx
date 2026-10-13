@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom'; // 👈 Ajout de useNavigate pour le bouton retour
 import { Menu, X, Search, User2, Pencil, Plus, Filter, Printer, ArrowLeft, Trash2, WifiOff, RefreshCw, Download, FileSpreadsheet } from 'lucide-react';
 import { FiLogOut, FiInfo } from 'react-icons/fi';
@@ -14,6 +14,8 @@ import useShowConfirm from '../../hooks/UseShowConfirm';
 import useOfflineStatus from '../../hooks/useOfflineStatus';
 import useInstallPrompt from '../../hooks/useInstallPrompt';
 import { startAutoSync } from '../../utils/offline/sync';
+import { isOnline, isServerReachable } from '../../utils/offline/status';
+import { toast } from 'sonner';
 import { LinkGhost } from '../ui/LinksComponents';
 
 
@@ -28,7 +30,30 @@ export default function Layout() {
 
   // 🟢 Gestion des actions dynamiques de la Navbar partagées avec l'Outlet
   const [navbarActions, setNavbarActions] = useState({});
-  
+
+  // Bouton « Actualiser » : fonction de rechargement enregistrée par la page (hook useNavbarRefresh)
+  const [navbarRefresh, setNavbarRefresh] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Contexte stable : les pages ne sont pas re-rendues à chaque rendu du Layout
+  const outletContext = useMemo(() => ({ setNavbarActions, setNavbarRefresh }), []);
+
+  const handleRefresh = async () => {
+    if (!navbarRefresh || refreshing) return;
+    setRefreshing(true);
+    try {
+      // Durée minimale pour que l'animation reste perceptible quand la réponse est immédiate
+      await Promise.all([navbarRefresh(), new Promise((resolve) => setTimeout(resolve, 500))]);
+      if (!isOnline() || !isServerReachable()) {
+        toast.info("Hors ligne : les données affichées sont les dernières enregistrées sur cet appareil.");
+      }
+    } catch (error) {
+      toast.error(error?.message || "Impossible d'actualiser les données.");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
 
   // Gestion de la carte utilisateur
   const [userCard, setUserCard] = useState(false)
@@ -244,6 +269,17 @@ export default function Layout() {
                   <Filter size={17} />
                 </button>
               )}
+              {navbarRefresh && (
+                <button
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                  className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer disabled:cursor-wait disabled:text-primary"
+                  title={refreshing ? "Actualisation..." : "Actualiser les données"}
+                  aria-label="Actualiser les données"
+                >
+                  <RefreshCw size={17} className={refreshing ? "animate-spin" : ""} />
+                </button>
+              )}
               {navbarActions.onPrint && (
                 <button onClick={() => navbarActions.onPrint()} className="p-2 hover:bg-base-300 rounded-md text-base-content/70 hover:text-primary transition-colors cursor-pointer" title="Imprimer">
                   <Printer size={17} />
@@ -279,7 +315,7 @@ export default function Layout() {
               </p>
             </div>
           )}
-          <Outlet context={{ setNavbarActions }} />
+          <Outlet context={outletContext} />
         </div>
 
       </main>

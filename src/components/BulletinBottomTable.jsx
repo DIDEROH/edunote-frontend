@@ -19,9 +19,9 @@ export default function BulletinBottomTable({ tdStyle, data }) {
 
         <thead>
           <tr>
-            <th className="border border-slate-800 p-1 bg-gray-400 text-black font-black text-[10px]" colSpan={4}>Discipline</th>
-            <th className="border border-slate-800 p-1 bg-gray-400 text-black font-black text-[10px]" colSpan={4}>Travail de l'élève</th>
-            <th className="border border-slate-800 p-1 bg-gray-400 text-black font-black text-[10px]" colSpan={4}>Profil de la classe</th>
+            <th className="border border-slate-800 p-1 bg-gray-400 text-black font-black text-[9px]" colSpan={4}>Discipline</th>
+            <th className="border border-slate-800 p-1 bg-gray-400 text-black font-black text-[9px]" colSpan={4}>Travail de l'élève</th>
+            <th className="border border-slate-800 p-1 bg-gray-400 text-black font-black text-[9px]" colSpan={4}>Profil de la classe</th>
           </tr>
         </thead>
 

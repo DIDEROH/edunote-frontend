@@ -10,6 +10,8 @@ import { CtaNeon } from "../components/ui/ButtonsComponents";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../utils/AxiosClient";
 import { getRoleConfig } from "../constants/roles";
+import useNavbarRefresh from "../hooks/useNavbarRefresh";
+import { useConfirm } from "../providers/ConfirmProvider";
 
 const EMPTY_PROFILE = {
   firstName: "",
@@ -36,28 +38,45 @@ function Profile() {
   });
 
   const selectedGender = useWatch({ control: profileForm.control, name: "gender" });
+  // Lu au rendu pour que react-hook-form suive cet état (utilisé par l'actualisation)
+  const { isDirty: profileDirty } = profileForm.formState;
+  const confirm = useConfirm();
+
+  const applyProfile = (data) => {
+    profileForm.reset({
+      firstName: data.first_name || "",
+      lastName: data.last_name || "",
+      email: data.email || "",
+      phone: data.phone || "",
+      address: data.address || "",
+      birth_date: data.birth_date ? String(data.birth_date).split("T")[0] : "",
+      birth_place: data.birth_place || "",
+      gender: data.gender || "",
+    });
+    setCreatedAt(data.created_at);
+  };
 
   useEffect(() => {
     if (!user?.id) return;
 
     api.get(`/users/${user.id}`)
-      .then(({ data }) => {
-        profileForm.reset({
-          firstName: data.first_name || "",
-          lastName: data.last_name || "",
-          email: data.email || "",
-          phone: data.phone || "",
-          address: data.address || "",
-          birth_date: data.birth_date ? String(data.birth_date).split("T")[0] : "",
-          birth_place: data.birth_place || "",
-          gender: data.gender || "",
-        });
-        setCreatedAt(data.created_at);
-      })
+      .then(({ data }) => applyProfile(data))
       .catch((error) => toast.error(error.message))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
+
+  // Actualiser : rôles et établissement du compte, puis la fiche
+  // (les changements non enregistrés ne sont remplacés qu'après confirmation)
+  useNavbarRefresh(async () => {
+    if (!user?.id) return;
+    const [{ data }] = await Promise.all([api.get(`/users/${user.id}`), refreshUser()]);
+    if (profileDirty && !(await confirm(
+      "Les modifications non enregistrées de vos informations seront remplacées par celles du serveur.",
+      { title: "Actualiser le profil" }
+    ))) return;
+    applyProfile(data);
+  });
 
   const onSaveProfile = async (values) => {
     try {

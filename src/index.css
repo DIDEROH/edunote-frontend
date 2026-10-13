@@ -87,3 +87,51 @@ code, .lab-data, .arduino-script {
 .print-only {
   display: none;
 }
+
+/* Impression des bulletins (components/print/PrintSheet.jsx).
+   Marge de 0,7 cm sur chaque page imprimée, même quand un bulletin déborde :
+   en haut et en bas, elle est portée par l'en-tête et le pied d'un tableau
+   « feuille » que le navigateur répète sur chaque page ; à gauche et à
+   droite, par le retrait de la cellule. La marge @page reste à 0 : le
+   navigateur n'a alors aucune place pour ajouter ses propres en-têtes et
+   pieds de page (date, adresse), qui seraient coupés par l'imprimante. */
+.print-sheet {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.print-sheet > thead > tr > td,
+.print-sheet > tbody > tr > td,
+.print-sheet > tfoot > tr > td {
+  padding: 0;
+  vertical-align: top;
+}
+
+.print-sheet-margin {
+  display: none;
+}
+
+@media print {
+  .print-sheet > thead {
+    display: table-header-group;
+  }
+
+  .print-sheet > tfoot {
+    display: table-footer-group;
+  }
+
+  .print-sheet-margin {
+    display: block;
+    height: 7mm;
+  }
+
+  .print-sheet > tbody > tr > td {
+    padding: 0 7mm;
+  }
+
+  /* Une ligne des tableaux du bulletin n'est jamais coupée entre deux pages */
+  .print-sheet table tr {
+    break-inside: avoid;
+  }
+}

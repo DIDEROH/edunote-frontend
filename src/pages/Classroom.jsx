@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
-import { useOutletContext, useNavigate } from 'react-router-dom'
+import { useOutletContext } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { api } from "../utils/AxiosClient"
 import { toast } from "sonner"
-import { BookOpenCheck, Save, X } from "lucide-react"
+import { BookOpenCheck, Info, Save, X } from "lucide-react"
 
 import LoadingSkeletoon from "../components/LoadingSkeletoon"
-import { EditBtn, DeleteBtn, CtaDark, CtaNeon, InfoBtn } from "../components/ui/ButtonsComponents"
+import { EditBtn, DeleteBtn, CtaDark, CtaNeon } from "../components/ui/ButtonsComponents"
 import useShowConfirm from "../hooks/UseShowConfirm"
 import { Table, Th, Tr, TdBody } from "../components/Table"
 import PageHeader from "../components/elements/PageHeader"
@@ -16,6 +16,7 @@ import { deleteElement } from "../utils/deleteElement"
 import InputComponent from "../components/InputComponent"
 import usePrintable from "../utils/usePrintable"
 import PrintableTable from "../components/print/PrintableTable"
+import useNavbarRefresh from "../hooks/useNavbarRefresh"
 
 // Composant Formulaire dédié
 const ClassroomForm = ({ initialData, onSubmit, onCancel, loading }) => {
@@ -51,7 +52,6 @@ function Classroom() {
     const [debouncedSearch, setDebouncedSearch] = useState("")
     
     const showConfirm = useShowConfirm()
-    const navigate = useNavigate()
     const { setNavbarActions } = useOutletContext();
     const { printRef, print } = usePrintable("Liste des classes");
 
@@ -60,19 +60,23 @@ function Classroom() {
         return () => clearTimeout(timer)
     }, [search])
 
-    const fetchClassrooms = async () => {
-        setLoading(true)
+    // silent : actualisation depuis la barre du haut, la liste reste affichée
+    const fetchClassrooms = async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true)
         try {
             const { data } = await api.get('/classrooms', { params: debouncedSearch ? { search: debouncedSearch } : {} })
             setClassrooms(Array.isArray(data) ? data : (data.data || []))
         } catch {
             toast.error("Erreur de chargement")
         } finally {
-            setLoading(false)
+            if (!silent) setLoading(false)
         }
     }
 
     useEffect(() => { fetchClassrooms() }, [debouncedSearch])
+
+    // Actualiser la liste (pas pendant la saisie du formulaire)
+    useNavbarRefresh(view === 'list' ? () => fetchClassrooms({ silent: true }) : null)
 
     const handleFormSubmit = async (data) => {
         setLoading(true)
@@ -123,8 +127,17 @@ function Classroom() {
                 rows={classrooms.map((c, index) => ({ id: c.id, index: index + 1, ...c }))}
             />
 
-            <PageHeader title="Gestion des classes" subtitle="Configuration des salles" onSearch={setSearch} />
-            
+            <PageHeader title="Catalogue des classes" subtitle="Liste commune dans laquelle chaque établissement choisit ses classes" onSearch={setSearch} />
+
+            {/* Les matières et coefficients ne sont plus communs : chaque école les configure */}
+            <div className="mx-4 mt-4 flex items-start gap-3 rounded-md bg-primary/10 p-4 text-sm text-base-content/70">
+                <Info size={16} className="mt-0.5 shrink-0 text-primary" />
+                <p>
+                    Chaque établissement choisit ses classes dans ce catalogue, puis définit lui-même les matières
+                    enseignées et leurs coefficients (Écoles → fiche de l'école, ou « Classes et matières » pour un directeur).
+                </p>
+            </div>
+
             <section className="p-4">
                 {view !== 'list' ? (
                     <ClassroomForm
@@ -153,7 +166,6 @@ function Classroom() {
                                         <div className="flex gap-1">
                                             <EditBtn onAction={() => { setCurrentClassroom(s); setView('edit'); }} />
                                             <DeleteBtn onAction={() => onDelete(s.id)} />
-                                            <InfoBtn onAction={() => navigate(`/classrooms/${s.id}`)} />
                                         </div>
                                     </TdBody>
                                 </Tr>

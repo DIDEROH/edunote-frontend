@@ -29,6 +29,7 @@ export const useNavigationPages = () => {
     // Les access des admins et directeurs
     if (isDirector) {
         pages.push(
+            { name: 'Classes et matières', to: '/my-classes', icon: 'Classrooms' },
             { name: 'Affectations enseignants', to: '/director/teachers', icon: 'Teachers' },
         )
     }

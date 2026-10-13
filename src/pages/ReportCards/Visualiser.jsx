@@ -9,7 +9,9 @@ import LoadingSkeleton from "../../components/LoadingSkeletoon";
 import Paginate from "../../components/Paginate";
 import { useReactToPrint } from "react-to-print";
 import BulletinOfficial from "../../components/BulletinOfficial";
+import PrintSheet from "../../components/print/PrintSheet";
 import { Card5 } from "../../components/ui/CardsComponents";
+import useNavbarRefresh from "../../hooks/useNavbarRefresh";
 
 function Visualiser() {
     const [searchParams] = useSearchParams();
@@ -26,19 +28,25 @@ function Visualiser() {
     const [bulletinsData, setBulletinsData] = useState(null);
     const [cachedAt, setCachedAt] = useState(null);
     const bulletinRef = useRef(null);
+    // Actualisation en cours (annulée si l'on change de page ou quitte l'aperçu)
+    const refreshController = useRef(null);
     const { setNavbarActions } = useOutletContext();
 
     const handlePrint = useReactToPrint({
         contentRef: bulletinRef,
+        // Marge @page à 0 : la marge de 0,7 cm est portée par PrintSheet sur chaque
+        // page (même celles où un bulletin déborde), et le navigateur n'a pas de
+        // place pour imprimer ses en-têtes et pieds de page (date, adresse).
         pageStyle: `
             @page {
             size: A4;
-            margin: 0mm; /* Marges minimales pour maximiser l'espace */
+            margin: 0;
             }
             @media print {
-            body {
+            html, body {
                 -webkit-print-color-adjust: exact;
-                margin: 0; /* Supprime les marges par défaut du navigateur */
+                print-color-adjust: exact;
+                margin: 0;
                 padding: 0;
             }
             /* Empêche un bloc (ex: tableau, carte) de se couper en deux entre deux pages */
@@ -52,6 +60,11 @@ function Visualiser() {
                 margin-top: 0;
                 padding-top: 0;
             }
+            /* Pas de page blanche après le dernier bulletin */
+            .break-after-page:last-child {
+                page-break-after: auto;
+                break-after: auto;
+            }
             .bulletin-container {
                 display: block;
                 width: 100%;
@@ -64,6 +77,7 @@ function Visualiser() {
     const [page, setPage] = useState(1);
 
     const changePage = useCallback((nextPage) => {
+        refreshController.current?.abort();
         setLoading(true);
         setPage(nextPage);
     }, []);
@@ -144,6 +158,35 @@ function Visualiser() {
         return () => { ignore = true; };
     }, [prepared, selection, page]);
 
+    // 3. Actualiser : les bulletins invalidés depuis l'affichage (note, coefficient
+    // modifiés...) sont recalculés par le serveur, puis la page courante est relue.
+    // L'aperçu reste affiché pendant ce temps.
+    useEffect(() => () => refreshController.current?.abort(), []);
+
+    useNavbarRefresh(prepared ? async () => {
+        refreshController.current?.abort();
+        const controller = new AbortController();
+        refreshController.current = controller;
+        const { signal } = controller;
+
+        try {
+            try {
+                await prepareBulletins(selection, { signal });
+            } catch (error) {
+                // Hors ligne : on relit les bulletins enregistrés sur l'appareil
+                if (signal.aborted || !error.isNetworkError) throw error;
+            }
+
+            const response = await api.post("/reports/generate", { ...selection, page }, { signal });
+            if (signal.aborted) return;
+            setBulletinsData(response.data);
+            setCachedAt(response.fromCache ? response.cachedAt : null);
+        } catch (error) {
+            // Annulée (page quittée ou changée) : rien à signaler
+            if (!signal.aborted) throw error;
+        }
+    } : null);
+
     const firstBulletin = bulletinsData?.data?.[0];
     const subtitle = firstBulletin
         ? `${firstBulletin.school?.name || ""} | ${firstBulletin.term?.name || ""}`
@@ -181,7 +224,9 @@ function Visualiser() {
                         <div className="bulletin-container bg-white" ref={bulletinRef}>
                             {bulletinsData.data.map((bulletin, index) => (
                                 <div key={index} className="break-after-page w-full">
-                                    <BulletinOfficial bulletin={bulletin} />
+                                    <PrintSheet>
+                                        <BulletinOfficial bulletin={bulletin} />
+                                    </PrintSheet>
                                 </div>
                             ))}
                         </div>

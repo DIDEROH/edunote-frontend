@@ -11,8 +11,8 @@ export default function SubjectsCompetenciesTable({ data, subjects, style }) {
 
 
   return (
-    <div className="w-full overflow-x-auto">
-      <table className="border border-slate-400 w-full table-xs text-[11px]">
+    <div className="w-full overflow-x-auto print:overflow-visible">
+      <table className="border border-slate-400 w-full table-xs text-[9px]">
         <thead>
           <tr>
             <th className={style}>MATIÈRES</th>
@@ -45,10 +45,10 @@ export default function SubjectsCompetenciesTable({ data, subjects, style }) {
                 {idx === 0 && (
                   <td rowSpan={rowSpan} className={style}>
                     {subjectName}
-                    <span className="block font-light text-[8px] italic">M./Mme {teacher}</span>
+                    <span className="block font-light text-[7px] italic">M./Mme {teacher}</span>
                   </td>
                 )}
-                <td className={`${style} font-light text-[7px]`}>{comp?.skill_name}</td>
+                <td className={`${style} font-light text-[6px]`}>{comp?.skill_name}</td>
                 <td className={`text-center ${style}`}>{fmt(comp?.mark)}</td>
                 {idx === 0 && (
                   <>

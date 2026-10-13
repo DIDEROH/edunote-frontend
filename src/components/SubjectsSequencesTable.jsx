@@ -10,8 +10,8 @@ export default function SubjectsSequencesTable({ data, subjects, style }) {
   };
 
   return (
-    <div className="w-full overflow-x-auto">
-      <table className="border border-slate-400 w-full table-xs text-[10px]">
+    <div className="w-full overflow-x-auto print:overflow-visible">
+      <table className="border border-slate-400 w-full table-xs text-[9px]">
         <thead>
           <tr>
             <th className={style}>MATIÈRES</th>

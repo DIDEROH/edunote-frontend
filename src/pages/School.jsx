@@ -19,6 +19,7 @@ import { deleteElement } from "../utils/deleteElement";
 import LoadingSkeleton from "../components/LoadingSkeletoon";
 import usePrintable from "../utils/usePrintable";
 import PrintableTable from "../components/print/PrintableTable";
+import useNavbarRefresh from "../hooks/useNavbarRefresh";
 
 // --- COMPOSANT : FORMULAIRE (AJOUT & MODIF) ---
 const SchoolForm = ({ initialData, onSubmit, loading, isEditMode, onReset }) => {
@@ -235,8 +236,9 @@ function School() {
     /**
      * ✅ Récupération des écoles avec prise en compte du filtre de recherche
      */
-    const fetchSchools = async () => {
-        setLoading(true);
+    // silent : actualisation depuis la barre du haut, la liste reste affichée
+    const fetchSchools = async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true);
         try {
             const params = {};
             if (debouncedSearch) {
@@ -249,9 +251,12 @@ function School() {
         } catch (err) {
             toast.error("Erreur lors de la récupération");
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }
+
+    // Actualiser la liste (pas pendant la saisie du formulaire)
+    useNavbarRefresh(view === 'list' ? () => fetchSchools({ silent: true }) : null);
 
     /**
      * ✅ Gestionnaire de la saisie de recherche (Passé au PageHeader)
