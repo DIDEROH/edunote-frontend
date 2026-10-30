@@ -1,9 +1,10 @@
 import verfiFunction from '../utils/verifFunction'
 
+/** Tableau de données : en-têtes en petites capitales, lignes aérées, survol léger */
 function Table({ children }) {
   return (
     <div className="w-full overflow-x-auto">
-      <table className="w-full min-w-max border-collapse">
+      <table className="ui-table min-w-max">
         {children}
       </table>
     </div>
@@ -13,7 +14,7 @@ function Table({ children }) {
 Table.Head = function ({ children }) {
   return (
     <thead>
-      <tr className="text-left">
+      <tr>
         {children}
       </tr>
     </thead>
@@ -28,7 +29,6 @@ Table.Body = function ({ children }) {
   );
 };
 
-
 Table.Foot = function ({ children }) {
   return (
     <tfoot>
@@ -37,23 +37,18 @@ Table.Foot = function ({ children }) {
   );
 };
 
-
 function Th ({ children }) {
-  return (
-    <th className="px-4 py-3 text-xs font-medium text-base-content/50">
-      {children}
-    </th>
-  )
+  return <th>{children}</th>
 }
 
 function TdBody ({ children, ...props }) {
-  return(
-    <td className={`px-4 py-3 whitespace-nowrap ${props.className || ""}`}>{children}</td>
+  return (
+    <td className={`whitespace-nowrap ${props.className || ""}`}>{children}</td>
   )
 }
 
 function TdFooter ({ children }) {
-  return(
+  return (
     <td className="px-4 py-3 text-xs text-base-content/50">
       {children}
     </td>
@@ -61,10 +56,10 @@ function TdFooter ({ children }) {
 }
 
 function Tr ({ children, ...props }) {
-  return(
+  return (
     <tr
       onClick={() => verfiFunction(props.onAction)}
-      className={`even:bg-zebra hover:bg-base-300 transition-colors duration-150 ${props.className || ""}`}
+      className={`${props.onAction ? "cursor-pointer" : ""} ${props.className || ""}`}
     >
       {children}
     </tr>

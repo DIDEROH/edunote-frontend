@@ -97,12 +97,12 @@ export default function MySchool() {
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader title="Mon établissement" subtitle="Ces informations figurent sur les bulletins de vos élèves." />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 rounded-md bg-base-200 p-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="surface space-y-6 p-6">
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md bg-base-100">
             {logo ? <img src={logo} alt="Logo" className="h-full w-full object-cover" /> : <SchoolIcon size={30} className="text-base-content/30" />}
           </div>
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-base-100 px-4 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300">
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-base-100 px-4 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300 ring-1 ring-base-300/60">
             <Camera size={16} /> {uploading ? "Envoi..." : "Changer le logo"}
             <input type="file" accept="image/*" className="hidden" onChange={uploadLogo} disabled={uploading} />
           </label>
@@ -122,15 +122,15 @@ export default function MySchool() {
 
         <div className="flex justify-end">
           <button type="submit" disabled={isSubmitting || !isDirty}
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-content transition-colors duration-150 hover:brightness-95 disabled:opacity-50">
+            className="ui-btn ui-btn-primary">
             <Save size={16} /> {isSubmitting ? "Enregistrement..." : "Enregistrer"}
           </button>
         </div>
       </form>
 
-      <section className="flex flex-col gap-4 rounded-md bg-base-200 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <section className="surface flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/8 text-primary ring-1 ring-primary/15">
             {isSkill ? <Award size={18} /> : <ListOrdered size={18} />}
           </div>
           <div>
@@ -139,7 +139,7 @@ export default function MySchool() {
           </div>
         </div>
         <button type="button" onClick={toggleEvaluation}
-          className="rounded-md bg-base-100 px-4 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300">
+          className="ui-btn ui-btn-soft">
           Passer {isSkill ? "aux séquences" : "aux compétences"}
         </button>
       </section>

@@ -1,97 +1,69 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useRef, useState } from "react";
+import { AnimatePresence, m } from "motion/react";
+import { AlertTriangle, HelpCircle } from "lucide-react";
+import { popIn } from "../components/motion/variants";
 
 const ConfirmContext = createContext(null);
 
+// Action destructrice : bouton et icône en rouge
+const DANGER = /supprim|annul|retir|déconnex|refus|efface/i;
+
 export function ConfirmProvider({ children }) {
-  const [state, setState] = useState({
-    open: false,
-    message: "",
-    title: "",
-    resolve: null,
-  });
+  const [state, setState] = useState({ open: false, message: "", title: "" });
+  const resolver = useRef(null);
 
   // Fonction confirm globale (Promise)
   const confirm = (message, options = {}) =>
     new Promise((resolve) => {
-      setState({
-        open: true,
-        message,
-        title: options.title || "Confirmation",
-        resolve,
-      });
+      resolver.current = resolve;
+      setState({ open: true, message, title: options.title || "Confirmation" });
     });
 
-  // Fermer et retourner résultat
+  // Fermer et retourner le résultat
   const handleClose = (result) => {
-    setState((prev) => {
-      if (prev.resolve) prev.resolve(result);
-      return { ...prev, open: false, message: "", resolve: null };
-    });
+    resolver.current?.(result);
+    resolver.current = null;
+    setState((prev) => ({ ...prev, open: false }));
   };
+
+  const danger = DANGER.test(state.title);
+  const Icon = danger ? AlertTriangle : HelpCircle;
 
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
 
-      {state.open && (
-        <dialog open className="modal modal-open">
-          <div className="modal-box max-w-md rounded-md bg-base-200">
-
-            {/* Icône */}
-            <div className="flex justify-center mb-5">
-              <div className="flex items-center justify-center w-16 h-16 rounded-full bg-error/10">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-8 h-8 text-error"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z"
-                  />
-                </svg>
+      <AnimatePresence>
+        {state.open && (
+          <m.div
+            className="fixed inset-0 z-[90] flex items-center justify-center bg-night/60 p-4 backdrop-blur-sm"
+            role="alertdialog"
+            aria-modal="true"
+            aria-label={state.title}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => event.target === event.currentTarget && handleClose(false)}
+          >
+            <m.div variants={popIn} initial="hidden" animate="show" exit="exit" className="surface w-full max-w-md p-6 text-center">
+              <div className={`mx-auto grid size-14 place-items-center rounded-2xl ${danger ? "bg-error/10 text-error" : "bg-primary/10 text-primary"}`}>
+                <Icon size={26} />
               </div>
-            </div>
+              <h3 className="mt-4 text-base font-semibold">{state.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-base-content/65">{state.message}</p>
 
-            {/* Titre */}
-            <h3 className="text-center text-base font-semibold text-base-content">
-              {state.title}
-            </h3>
-
-            {/* Message */}
-            <p className="mt-2 text-center text-sm text-base-content/60 leading-relaxed">
-              {state.message}
-            </p>
-
-            {/* Boutons */}
-            <div className="mt-6 flex gap-3">
-              <button
-                className="btn btn-outline flex-1"
-                onClick={() => handleClose(false)}
-              >
-                Annuler
-              </button>
-
-              <button
-                className="btn btn-error flex-1 text-white"
-                onClick={() => handleClose(true)}
-              >
-                Confirmer
-              </button>
-            </div>
-          </div>
-
-          <form method="dialog" className="modal-backdrop bg-black/40">
-            <button onClick={() => handleClose(false)}>
-              fermer
-            </button>
-          </form>
-        </dialog>
-      )}
+              <div className="mt-6 flex flex-col-reverse justify-center gap-2.5 sm:flex-row">
+                <button type="button" autoFocus={danger} className="ui-btn ui-btn-soft" onClick={() => handleClose(false)}>
+                  Annuler
+                </button>
+                <button type="button" autoFocus={!danger} className={`ui-btn ${danger ? "ui-btn-danger-solid" : "ui-btn-primary"}`} onClick={() => handleClose(true)}>
+                  Confirmer
+                </button>
+              </div>
+            </m.div>
+          </m.div>
+        )}
+      </AnimatePresence>
     </ConfirmContext.Provider>
   );
 }

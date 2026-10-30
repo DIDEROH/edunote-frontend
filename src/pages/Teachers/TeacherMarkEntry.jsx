@@ -11,6 +11,7 @@ import Loading from "../../components/Loading";
 import { hasPending, removeByDedupeKey } from "../../utils/offline/outbox";
 import { OUTBOX_EVENT } from "../../utils/offline/status";
 import useNavbarRefresh from "../../hooks/useNavbarRefresh";
+import MarkLockBanner from "../../components/marks/MarkLockBanner";
 
 const DRAFT_PREFIX = "edunote_marks_draft";
 
@@ -114,6 +115,7 @@ export default function TeacherMarkEntry() {
     saving: false,
     isLoaded: false,
     activeDraftKey: null,
+    lock: null, // clôture de la saisie (renvoyée avec la grille)
   });
 
   // ==========================================
@@ -219,7 +221,7 @@ export default function TeacherMarkEntry() {
   };
 
   const resetGrid = useCallback(() => {
-    setGridData({ students: [], skills: [], loading: false, saving: false, isLoaded: false, activeDraftKey: null });
+    setGridData({ students: [], skills: [], loading: false, saving: false, isLoaded: false, activeDraftKey: null, lock: null });
     setMarks({});
     setDraftExists(false);
     setIsDirty(false);
@@ -298,7 +300,7 @@ export default function TeacherMarkEntry() {
       }
 
       setMarks(initialMarks);
-      setGridData({ students: loadedStudents, skills: loadedSkills, loading: false, saving: false, isLoaded: true, activeDraftKey: draftKey });
+      setGridData({ students: loadedStudents, skills: loadedSkills, loading: false, saving: false, isLoaded: true, activeDraftKey: draftKey, lock: payload.lock ?? null });
       
     } catch (error) {
       toast.error(error.response?.data?.message || "Erreur lors du chargement de la grille.");
@@ -467,6 +469,9 @@ export default function TeacherMarkEntry() {
   // 🐛 Libellé de la compétence affichée sur mobile (filters.activeSkillName n'était jamais défini)
   const activeSkillName = gridData.skills.find((skill) => String(skill.id) === String(filters.activeSkillId))?.name;
 
+  // Saisie clôturée (sans autorisation de correction) : grille en lecture seule
+  const locked = Boolean(gridData.isLoaded && gridData.lock && !gridData.lock.can_edit);
+
   const completionStats = useMemo(() => {
     let totalFields = 0;
     let filledFields = 0;
@@ -501,7 +506,7 @@ export default function TeacherMarkEntry() {
   }
 
   return (
-    <main className="min-h-screen bg-base-100 pb-28">
+    <main className=" pb-28">
       <PageHeader
         title="Saisie des notes"
         subtitle="Gérez les évaluations de vos classes avec sauvegarde automatique"
@@ -510,7 +515,7 @@ export default function TeacherMarkEntry() {
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* === PANNEAU DE CONFIGURATION === */}
-        <section className="rounded-md bg-base-200 p-5">
+        <section className="surface p-5">
           <div className="grid gap-5 md:grid-cols-4 items-end">
 
             <div className="md:col-span-1">
@@ -518,7 +523,7 @@ export default function TeacherMarkEntry() {
                 Affectation (Classe / Matière)
               </label>
               <select
-                className="w-full rounded-md bg-base-100 p-3 text-sm outline-none"
+                className="ui-field w-full"
                 value={filters.assignmentId}
                 onChange={(e) => updateFilter("assignmentId", e.target.value)}
               >
@@ -535,15 +540,20 @@ export default function TeacherMarkEntry() {
               <div className="md:col-span-1">
                 <label className="text-xs font-medium text-base-content/60 mb-2 block">Séquence</label>
                 <select
-                  className="w-full rounded-md bg-base-100 p-3 text-sm outline-none"
+                  className="ui-field w-full"
                   value={filters.sequenceId}
                   onChange={(e) => updateFilter("sequenceId", e.target.value)}
                 >
                   <option value="">Sélectionner...</option>
                   {calendar.sequences.map((seq) => (
-                    <option key={seq.id} value={seq.id}>{seq.name} ({seq.term?.name})</option>
+                    <option key={seq.id} value={seq.id}>{seq.name} ({seq.term?.name}){seq.is_closed ? " — clôturée" : ""}</option>
                   ))}
                 </select>
+                {selectedAssignment && calendar.sequences.length === 0 && (
+                  <p className="mt-2 text-xs text-warning">
+                    Aucune séquence dans cet établissement : le chef d'établissement doit les créer dans « Calendrier ».
+                  </p>
+                )}
               </div>
             )}
 
@@ -551,7 +561,7 @@ export default function TeacherMarkEntry() {
               <div className="md:col-span-1">
                 <label className="text-xs font-medium text-base-content/60 mb-2 block">Trimestre</label>
                 <select
-                  className="w-full rounded-md bg-base-100 p-3 text-sm outline-none"
+                  className="ui-field w-full"
                   value={filters.termId}
                   onChange={(e) => updateFilter("termId", e.target.value)}
                 >
@@ -560,6 +570,11 @@ export default function TeacherMarkEntry() {
                     <option key={term.id} value={term.id}>{term.name}</option>
                   ))}
                 </select>
+                {selectedAssignment && calendar.terms.length === 0 && (
+                  <p className="mt-2 text-xs text-warning">
+                    Aucun trimestre dans cet établissement : le chef d'établissement doit les créer dans « Calendrier ».
+                  </p>
+                )}
               </div>
             )}
 
@@ -568,7 +583,7 @@ export default function TeacherMarkEntry() {
                 type="button"
                 onClick={() => loadGrid()}
                 disabled={gridData.loading}
-                className="w-full rounded-md bg-primary px-5 py-3 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                className="ui-btn ui-btn-primary"
               >
                 {gridData.loading ? (
                   <span>Chargement...</span>
@@ -591,12 +606,26 @@ export default function TeacherMarkEntry() {
 
           {/* Notes en attente d'envoi (enregistrées hors ligne) */}
           {pendingSync && gridData.isLoaded && (
-            <div className="mt-5 flex items-center gap-3 rounded-md bg-primary/10 p-4 text-sm text-base-content/80">
+            <div className="mt-5 flex items-center gap-3 rounded-xl bg-primary/8 p-4 text-sm text-base-content/80 ring-1 ring-primary/15">
               <CloudUpload size={18} className="shrink-0 text-primary" />
               <span>
                 <strong>En attente de synchronisation.</strong> Ces notes sont enregistrées sur l'appareil et seront envoyées automatiquement dès le retour du réseau.
               </span>
             </div>
+          )}
+
+          {/* Clôture de la saisie : date limite, lecture seule, demande de correction */}
+          {gridData.isLoaded && selectedAssignment && (
+            <MarkLockBanner
+              lock={gridData.lock}
+              target={{
+                school_id: selectedAssignment.school_id,
+                classroom_id: selectedAssignment.classroom_id,
+                subject_id: selectedAssignment.subject_id,
+                ...(isSequenceMode ? { sequence_id: filters.sequenceId } : { term_id: filters.termId }),
+              }}
+              onChanged={() => loadGrid({ silent: true })}
+            />
           )}
 
           {/* Indicateur de brouillon local */}
@@ -608,7 +637,7 @@ export default function TeacherMarkEntry() {
                   <strong>Brouillon non enregistré</strong> en base de données. Vos saisies sont gardées localement.
                 </span>
               </div>
-              <button onClick={clearDraft} className="text-warning hover:brightness-90 font-medium text-xs flex items-center gap-1.5 bg-warning/10 px-3 py-1.5 rounded-sm transition-colors duration-150">
+              <button onClick={clearDraft} className="ui-btn bg-warning/10 text-warning ui-btn-sm">
                 <Trash2 size={14} /> Restaurer B.D
               </button>
             </div>
@@ -618,14 +647,14 @@ export default function TeacherMarkEntry() {
 
         {/* === ZONE DE SAISIE === */}
         {gridData.isLoaded && (
-          <section className="rounded-md bg-base-200 overflow-hidden relative flex flex-col">
+          <section className="surface overflow-hidden relative flex flex-col">
 
             {/* Header de la zone */}
             <div className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h2 className="text-base font-semibold text-base-content flex items-center gap-2">
                   Grille d'évaluation
-                  <span className="text-xs font-medium bg-primary/10 text-primary px-2.5 py-1 rounded-sm">
+                  <span className="ui-chip bg-primary/10 text-primary">
                     {gridData.students.length} élèves
                   </span>
                 </h2>
@@ -639,7 +668,7 @@ export default function TeacherMarkEntry() {
                 <div className="w-full sm:w-auto md:hidden">
                   <label className="text-xs font-medium text-base-content/60 mb-1.5 block">Compétence affichée</label>
                   <select
-                    className="w-full rounded-md bg-base-100 p-2.5 text-sm outline-none"
+                    className="ui-field w-full"
                     value={filters.activeSkillId}
                     onChange={(e) => updateFilter("activeSkillId", e.target.value)}
                   >
@@ -676,7 +705,7 @@ export default function TeacherMarkEntry() {
 
                     <div
                       key={stId}
-                      className={`rounded-md p-4
+                      className={`rounded-2xl p-4 ring-1 ring-base-300/60
                         ${
                           hasMark
                             ? "bg-success/10"
@@ -731,8 +760,8 @@ export default function TeacherMarkEntry() {
                             onChange={(e) =>
                               handleSetMark(stId, e.target.value)
                             }
-                            disabled={gridData.saving}
-                            className="w-full rounded-md bg-base-200 px-4 py-3 text-center text-lg font-semibold outline-none disabled:opacity-50"
+                            disabled={gridData.saving || locked}
+                            className="ui-field w-full text-center text-lg font-semibold disabled:opacity-50"
                             placeholder="0 - 20"
                           />
 
@@ -753,9 +782,10 @@ export default function TeacherMarkEntry() {
                             }
                             disabled={
                               gridData.saving ||
+                              locked ||
                               !filters.activeSkillId
                             }
-                            className="w-full rounded-md bg-base-200 px-4 py-3 text-center text-lg font-semibold outline-none disabled:opacity-50"
+                            className="ui-field w-full text-center text-lg font-semibold disabled:opacity-50"
                             placeholder="0 - 20"
                           />
 
@@ -773,26 +803,26 @@ export default function TeacherMarkEntry() {
 
               {/* ================= DESKTOP ================= */}
 
-              <div className="hidden md:block overflow-x-auto w-full">
+              <div className="hidden w-full overflow-x-auto px-3 pb-3 md:block">
 
-                <table className="w-full text-left text-sm border-collapse min-w-[600px]">
+                <table className="w-full min-w-[600px] border-separate border-spacing-0 text-left text-sm">
 
                   {/* EN-TETES */}
                   <thead>
                     <tr>
-                      <th className="p-4 font-medium text-base-content/70 sticky left-0 z-10 bg-base-300 min-w-[250px]">
+                      <th className="sticky left-0 z-10 min-w-[250px] rounded-l-xl px-4 py-3 bg-base-100 text-[11px] font-semibold tracking-wider text-base-content/55 uppercase">
                         Élève
                       </th>
 
                       {isSequenceMode && (
-                        <th className="p-4 font-medium text-base-content/70 text-center w-40">
+                        <th className="w-40 rounded-r-xl px-4 py-3 text-center bg-base-100 text-[11px] font-semibold tracking-wider text-base-content/55 uppercase">
                           Note / 20
                         </th>
                       )}
 
                       {/* Desktop : Affichage de toutes les compétences en colonnes */}
                       {isCompetenceMode && gridData.skills.map(skill => (
-                        <th key={skill.id} className="p-4 text-xs font-normal text-base-content/70 text-center min-w-[140px] hidden md:table-cell">
+                        <th key={skill.id} className="hidden min-w-[140px] px-3 py-3 text-center md:table-cell bg-base-100 text-[11px] font-semibold tracking-wider text-base-content/55 uppercase">
                           <div className="truncate max-w-[150px] mx-auto" title={skill.name}>
                             {skill.name}
                           </div>
@@ -801,7 +831,7 @@ export default function TeacherMarkEntry() {
 
                       {/* Mobile : Colonne unique pour la compétence active */}
                       {isCompetenceMode && (
-                        <th className="p-4 font-medium text-base-content/70 text-center md:hidden w-32">
+                        <th className="w-32 rounded-r-xl px-4 py-3 text-center md:hidden bg-base-100 text-[11px] font-semibold tracking-wider text-base-content/55 uppercase">
                           Note / 20
                         </th>
                       )}
@@ -814,9 +844,9 @@ export default function TeacherMarkEntry() {
                       const stId = student.student_enrollment_id;
 
                       return (
-                        <tr key={stId} className={`transition-colors duration-150 hover:bg-base-300 ${idx % 2 === 1 ? 'bg-zebra' : ''}`}>
+                        <tr key={stId} className="group transition-colors duration-150 hover:bg-primary/4 [&>td]:border-b [&>td]:border-base-300/60 last:[&>td]:border-0">
                           {/* Cellule Élève fixe */}
-                          <td className="p-4 sticky left-0 z-10 bg-base-200">
+                          <td className="sticky left-0 z-10 bg-white px-4 py-3 transition-colors duration-150 group-hover:bg-[#F8F8FE]">
                             <div className="flex items-center gap-3">
                               <span className="text-base-content/40 font-medium text-xs w-5 text-right">{idx + 1}.</span>
                               <div>
@@ -834,8 +864,8 @@ export default function TeacherMarkEntry() {
                                 inputMode="decimal"
                                 value={marks[stId] ?? ""}
                                 onChange={(e) => handleSetMark(stId, e.target.value)}
-                                disabled={gridData.saving}
-                                className="w-24 text-center rounded-md bg-base-100 px-3 py-2.5 text-sm font-medium text-base-content outline-none disabled:opacity-50"
+                                disabled={gridData.saving || locked}
+                                className="ui-field w-24 text-center font-medium disabled:opacity-50"
                                 placeholder="--"
                               />
                             </td>
@@ -849,8 +879,8 @@ export default function TeacherMarkEntry() {
                                 inputMode="decimal"
                                 value={marks[stId]?.[skill.id] ?? ""}
                                 onChange={(e) => handleSetMark(stId, e.target.value, skill.id)}
-                                disabled={gridData.saving}
-                                className="w-20 mx-auto block text-center rounded-md bg-base-100 px-2 py-2.5 text-sm font-medium text-base-content outline-none disabled:opacity-50"
+                                disabled={gridData.saving || locked}
+                                className="ui-field w-20 mx-auto block text-center font-medium disabled:opacity-50"
                                 placeholder="--"
                               />
                             </td>
@@ -864,8 +894,8 @@ export default function TeacherMarkEntry() {
                                 inputMode="decimal"
                                 value={marks[stId]?.[filters.activeSkillId] ?? ""}
                                 onChange={(e) => handleSetMark(stId, e.target.value, filters.activeSkillId)}
-                                disabled={gridData.saving || !filters.activeSkillId}
-                                className="w-24 text-center rounded-md bg-base-100 px-3 py-2.5 text-sm font-medium text-base-content outline-none disabled:opacity-50"
+                                disabled={gridData.saving || locked || !filters.activeSkillId}
+                                className="ui-field w-24 text-center font-medium disabled:opacity-50"
                                 placeholder="--"
                               />
                             </td>
@@ -893,7 +923,7 @@ export default function TeacherMarkEntry() {
 
       {/* === BARRE D'ACTION FLOTTANTE === */}
       {gridData.isLoaded && gridData.students.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-base-200 p-4">
+        <div className="glass-panel glow-top fixed right-3 bottom-24 left-3 z-40 bg-night/85 p-4 shadow-2xl shadow-black/50 md:right-6 lg:bottom-4 lg:left-[var(--content-left)]">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
 
             {/* Statistiques */}
@@ -907,7 +937,7 @@ export default function TeacherMarkEntry() {
 
               <div className="w-32 h-1.5 bg-base-300 rounded-sm overflow-hidden">
                 <div
-                  className={`h-full transition-all duration-300 rounded-sm ${completionStats.percentage === 100 ? 'bg-success' : 'bg-primary'}`}
+                  className={`h-full transition-all duration-500 rounded-full bg-linear-to-r ${completionStats.percentage === 100 ? 'from-emerald-500 to-teal-400' : 'from-primary to-glow-cyan'}`}
                   style={{ width: `${completionStats.percentage}%` }}
                 />
               </div>
@@ -916,11 +946,11 @@ export default function TeacherMarkEntry() {
             {/* Bouton de sauvegarde final */}
             <button
               onClick={saveMarksToServer}
-              disabled={gridData.saving}
-              className="w-full sm:w-auto px-8 py-3 bg-success text-white font-medium text-sm rounded-md transition-colors duration-150 hover:brightness-95 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              disabled={gridData.saving || locked}
+              className="ui-btn ui-btn-success"
             >
               <Save size={18} />
-              {gridData.saving ? "Enregistrement en cours..." : "Enregistrer dans la base"}
+              {gridData.saving ? "Enregistrement en cours..." : locked ? "Saisie clôturée" : "Enregistrer dans la base"}
             </button>
 
           </div>

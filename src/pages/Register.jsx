@@ -72,6 +72,7 @@ function Register() {
 
   return (
     <AuthCard
+      size="max-w-xl"
       icon={FiUserPlus}
       title={step === 1 ? "Inscrire mon établissement" : "Votre établissement"}
       description={step === 1
@@ -88,8 +89,8 @@ function Register() {
       }
     >
       <div className="flex gap-2" aria-hidden>
-        <span className="h-1.5 flex-1 rounded-sm bg-primary" />
-        <span className={`h-1.5 flex-1 rounded-sm ${step === 2 ? "bg-primary" : "bg-base-300"}`} />
+        <span className="h-1.5 flex-1 rounded-full bg-linear-to-r from-primary to-glow-indigo" />
+        <span className={`h-1.5 flex-1 rounded-full transition-colors duration-500 ${step === 2 ? "bg-linear-to-r from-glow-indigo to-glow-cyan" : "bg-base-300"}`} />
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
@@ -117,9 +118,11 @@ function Register() {
               validate: (value) => value === password || "Les mots de passe ne correspondent pas.",
             })} />
 
-          <CtaNeon type="button" onAction={goToSchool} className="w-full" icon={ArrowRight}>
-            Continuer
-          </CtaNeon>
+          <div className="flex justify-end">
+            <CtaNeon type="button" onAction={goToSchool} icon={ArrowRight}>
+              Continuer
+            </CtaNeon>
+          </div>
         </div>
 
         <div className={step === 2 ? "space-y-5" : "hidden"}>
@@ -143,8 +146,8 @@ function Register() {
                   type="button"
                   onClick={() => setValue("evaluation_type", value)}
                   aria-pressed={evaluationType === value}
-                  className={`flex items-start gap-3 rounded-md p-3 text-left transition-colors duration-150 ${
-                    evaluationType === value ? "bg-primary/10 text-primary" : "bg-base-100 text-base-content hover:bg-base-300"
+                  className={`flex items-start gap-3 rounded-2xl p-3.5 text-left ring-1 transition-colors duration-150 ${
+                    evaluationType === value ? "bg-primary/8 text-primary ring-primary/40" : "bg-base-100 text-base-content ring-base-300 hover:bg-base-300"
                   }`}
                 >
                   <Icon size={18} className="mt-0.5 shrink-0" />
@@ -158,16 +161,12 @@ function Register() {
             <p className="text-xs text-base-content/50">Vous pourrez le changer plus tard dans « Mon établissement ».</p>
           </fieldset>
 
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-base-100 px-4 py-3 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300"
-            >
+          <div className="flex items-center justify-between gap-3">
+            <button type="button" onClick={() => setStep(1)} className="ui-btn ui-btn-ghost">
               <ArrowLeft size={16} /> Retour
             </button>
-            <CtaNeon type="submit" disabled={isSubmitting} className="flex-1">
-              {isSubmitting ? "Envoi..." : "Envoyer mon inscription"}
+            <CtaNeon type="submit" disabled={isSubmitting}>
+              {isSubmitting ? <><span className="ui-spinner" /> Envoi…</> : "Envoyer mon inscription"}
             </CtaNeon>
           </div>
         </div>

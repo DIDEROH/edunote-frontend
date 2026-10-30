@@ -183,7 +183,7 @@ export default function EnrollmentStudent() {
   }
 
   return (
-    <main className="min-h-screen bg-base-100 pb-20">
+    <main className=" pb-20">
       <PageHeader
         title={isEditMode ? 'Modifier les informations' : 'Inscription'}
         subtitle={isEditMode ? '' : 'Inscrire un nouvel élève dans le système'}
@@ -192,9 +192,9 @@ export default function EnrollmentStudent() {
       <section className="p-4 max-w-6xl mx-auto mt-6">
         {/* Inscription en masse : alternative au formulaire pour toute une liste */}
         {!isEditMode && (
-          <div className="mb-6 flex flex-col gap-4 rounded-md bg-primary/10 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-6 flex flex-col gap-4 rounded-xl bg-primary/8 p-5 sm:flex-row sm:items-center sm:justify-between ring-1 ring-primary/15">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/8 text-primary ring-1 ring-primary/15">
                 <FileSpreadsheet size={18} />
               </div>
               <div>
@@ -207,7 +207,7 @@ export default function EnrollmentStudent() {
             <button
               type="button"
               onClick={() => setShowImportModal(true)}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-content transition-colors duration-150 hover:brightness-95"
+              className="ui-btn ui-btn-primary shrink-0"
             >
               <FileSpreadsheet size={16} /> Importer depuis Excel
             </button>
@@ -222,7 +222,7 @@ export default function EnrollmentStudent() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 xl:grid-cols-12 gap-6">
           <div className="xl:col-span-7 space-y-6">
-            <div className="bg-base-200 p-6 md:p-8 rounded-md">
+            <div className="surface p-6 md:p-8">
               <h2 className="text-primary font-semibold text-sm mb-6 flex items-center gap-2">
                 <Sparkles size={15} /> Identité
               </h2>
@@ -291,10 +291,10 @@ export default function EnrollmentStudent() {
                         setValue('gender', g, { shouldValidate: true })
                         setSelectedGender(g)
                       }}
-                      className={`flex-1 py-3.5 rounded-md text-sm font-medium transition-colors duration-150 ${
+                      className={`flex-1 rounded-full py-2.5 text-sm font-semibold ring-1 transition-all duration-200 ${
                         selectedGender === g
-                          ? 'bg-primary/10 text-primary'
-                          : 'bg-base-100 text-base-content/50'
+                          ? 'bg-primary/8 text-primary ring-primary/40'
+                          : 'bg-base-100 text-base-content/50 ring-base-300 hover:text-base-content'
                       }`}
                     >
                       {g === 'M' ? 'GARÇON' : 'FILLE'}
@@ -306,7 +306,7 @@ export default function EnrollmentStudent() {
           </div>
 
           <div className="xl:col-span-5 space-y-6">
-            <div className="bg-base-200 p-6 md:p-8 rounded-md flex flex-col items-center">
+            <div className="surface p-6 md:p-8 flex flex-col items-center">
               <div className="relative w-32 h-32">
                 <div className="w-full h-full rounded-md overflow-hidden bg-base-100 flex items-center justify-center">
                   {preview ? (
@@ -315,7 +315,7 @@ export default function EnrollmentStudent() {
                     <Camera size={32} className="text-base-content/25" />
                   )}
                 </div>
-                <label className="absolute bottom-0 right-0 p-2.5 bg-primary text-white rounded-md cursor-pointer">
+                <label className="absolute bottom-0 right-0 p-2.5 bg-primary text-white rounded-full cursor-pointer shadow-lg shadow-primary/30">
                   <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
                   {uploading ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
                 </label>
@@ -323,14 +323,14 @@ export default function EnrollmentStudent() {
               <input type="hidden" {...register('photo')} />
             </div>
 
-            <div className="bg-base-200 p-6 md:p-8 rounded-md">
+            <div className="surface p-6 md:p-8">
               <h2 className="text-primary font-semibold text-sm mb-5 flex items-center gap-2">
                 <GraduationCap size={16} /> Scolarité
               </h2>
               <div className="space-y-4">
                 <select
                   {...register('classroom_id', { required: 'Requis' })}
-                  className="w-full p-3 rounded-md bg-base-100 text-base-content text-sm outline-none"
+                  className="ui-field w-full"
                 >
                   <option value="">Classe...</option>
                   {classes.map((c) => (
@@ -355,7 +355,7 @@ export default function EnrollmentStudent() {
             <button
               type="submit"
               disabled={loading || uploading}
-              className="w-full py-3.5 rounded-md bg-primary text-white font-medium text-sm transition-colors duration-150 hover:brightness-95 disabled:opacity-50 flex justify-center items-center gap-3"
+              className="ui-btn ui-btn-primary"
             >
               {loading ? <Loader2 className="animate-spin" size={18} /> : isEditMode ? 'Mettre à jour' : "Valider l'inscription"}
             </button>

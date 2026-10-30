@@ -107,12 +107,14 @@ function EmailStep({ defaultEmail, onSubmit }) {
           })}
         />
 
-        <CtaNeon type="submit" disabled={isSubmitting} className="w-full">
+        <div className="flex justify-end">
+          <CtaNeon type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Envoi en cours..." : "Recevoir le code"}
         </CtaNeon>
+        </div>
       </form>
 
-      <p className="rounded-md bg-base-100 p-3 text-center text-xs leading-relaxed text-base-content/60">
+      <p className="rounded-2xl bg-base-100 p-3.5 text-center text-xs leading-relaxed text-base-content/60 ring-1 ring-base-300">
         Votre compte n'a pas d'adresse e-mail ? Demandez à votre chef d'établissement de vous envoyer
         un nouveau mot de passe par WhatsApp (Personnel → « Nouveau mot de passe »).
       </p>
@@ -195,16 +197,18 @@ function CodeStep({ email, resendIn, onResend, onChangeEmail, onVerified }) {
             disabled={verifying}
             placeholder="000000"
             aria-invalid={Boolean(error)}
-            className={`w-full rounded-md px-4 py-4 text-center font-mono text-2xl font-semibold tracking-[0.5em] text-base-content outline-none placeholder:text-base-content/20 disabled:opacity-60 ${
+            className={`w-full rounded-2xl px-4 py-4 text-center font-mono text-2xl ring-1 ring-base-300 focus:ring-2 focus:ring-primary/40 font-semibold tracking-[0.5em] text-base-content outline-none placeholder:text-base-content/20 disabled:opacity-60 ${
               error ? "bg-error/10" : "bg-base-100"
             }`}
           />
           {error && <p className="text-xs text-error">{error}</p>}
         </div>
 
-        <CtaNeon type="submit" disabled={verifying} className="w-full">
+        <div className="flex justify-end">
+          <CtaNeon type="submit" disabled={verifying}>
           {verifying ? "Vérification..." : "Vérifier le code"}
         </CtaNeon>
+        </div>
       </form>
 
       <div className="flex flex-col items-center gap-2 text-sm sm:flex-row sm:justify-between">

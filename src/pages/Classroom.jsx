@@ -25,7 +25,7 @@ const ClassroomForm = ({ initialData, onSubmit, onCancel, loading }) => {
     });
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 bg-base-200 rounded-md max-w-4xl mx-auto">
+        <form onSubmit={handleSubmit(onSubmit)} className="surface p-6 max-w-4xl mx-auto">
             <h2 className="text-base font-semibold text-base-content mb-6">{initialData ? "Modifier la classe" : "Ajouter une classe"}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputComponent nom="Nom" name="name" register={register} errors={errors} req={true} />
@@ -130,7 +130,7 @@ function Classroom() {
             <PageHeader title="Catalogue des classes" subtitle="Liste commune dans laquelle chaque établissement choisit ses classes" onSearch={setSearch} />
 
             {/* Les matières et coefficients ne sont plus communs : chaque école les configure */}
-            <div className="mx-4 mt-4 flex items-start gap-3 rounded-md bg-primary/10 p-4 text-sm text-base-content/70">
+            <div className="mb-5 flex items-start gap-3 rounded-2xl bg-primary/8 p-4 text-sm text-base-content/75 ring-1 ring-primary/20">
                 <Info size={16} className="mt-0.5 shrink-0 text-primary" />
                 <p>
                     Catalogue commun : chaque établissement y choisit ses classes, puis définit lui-même les matières
@@ -138,7 +138,7 @@ function Classroom() {
                 </p>
             </div>
 
-            <section className="p-4">
+            <section className="surface p-3 sm:p-5">
                 {view !== 'list' ? (
                     <ClassroomForm
                         key={currentClassroom?.id || 'new'}

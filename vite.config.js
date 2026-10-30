@@ -23,8 +23,8 @@ export default defineConfig({
         scope: '/',
         display: 'standalone',
         orientation: 'any',
-        background_color: '#F3F4FC',
-        theme_color: '#4F46E5',
+        background_color: '#07071C',
+        theme_color: '#0E0D33',
         categories: ['education', 'productivity'],
         icons: [
           { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
@@ -36,6 +36,8 @@ export default defineConfig({
       workbox: {
         // Interface complète précachée : l'application s'ouvre sans réseau
         globPatterns: ['**/*.{js,css,html,png,svg,webp,woff2}'],
+        // Image de fond d'origine (1,8 Mo) : seules ses versions webp sont utilisées
+        globIgnores: ['**/images/edunote-fond.png'],
         navigateFallback: '/index.html',
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,

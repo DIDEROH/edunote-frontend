@@ -163,13 +163,13 @@ export default function StudentImportModal({ open, onClose, onImported }) {
   };
 
   return (
-    <div className="fixed inset-0 z-80 flex items-center justify-center bg-black/40 p-0 sm:p-4">
-      <div className="flex h-full w-full flex-col overflow-hidden bg-base-200 sm:h-auto sm:max-h-[90vh] sm:max-w-5xl sm:rounded-md">
+    <div className="fixed inset-0 z-80 flex items-center justify-center bg-night/60 backdrop-blur-sm p-0 sm:p-4">
+      <div className="surface rounded-none sm:rounded-2xl flex h-full w-full flex-col overflow-hidden sm:h-auto sm:max-h-[90vh] sm:max-w-5xl">
 
         {/* En-tête */}
         <div className="flex items-center justify-between gap-4 p-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/8 text-primary ring-1 ring-primary/15">
               <FileSpreadsheet size={20} />
             </div>
             <div>
@@ -179,7 +179,7 @@ export default function StudentImportModal({ open, onClose, onImported }) {
               </p>
             </div>
           </div>
-          <button onClick={close} disabled={importing} className="rounded-md p-2 transition-colors duration-150 hover:bg-base-300 disabled:opacity-50">
+          <button onClick={close} disabled={importing} className="ui-icon-btn ui-icon-btn-sm">
             <X size={20} />
           </button>
         </div>
@@ -189,7 +189,7 @@ export default function StudentImportModal({ open, onClose, onImported }) {
           {/* Étape 1 : choix du fichier */}
           {step === "choose" && (
             <>
-              <div className="flex flex-col gap-4 rounded-md bg-primary/10 p-4 text-sm text-base-content/70 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-col gap-4 rounded-xl bg-primary/8 p-4 text-sm text-base-content/70 md:flex-row md:items-center md:justify-between ring-1 ring-primary/15">
                 <div className="flex items-start gap-3">
                   <Info size={16} className="mt-0.5 shrink-0 text-primary" />
                   <p className="leading-relaxed">
@@ -200,7 +200,7 @@ export default function StudentImportModal({ open, onClose, onImported }) {
                 </div>
                 <button
                   onClick={handleTemplate}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-base-200 px-4 py-2.5 text-sm font-medium text-primary transition-colors duration-150 hover:bg-base-300"
+                  className="ui-btn ui-btn-soft shrink-0"
                 >
                   <Download size={16} /> Télécharger le modèle
                 </button>
@@ -213,7 +213,7 @@ export default function StudentImportModal({ open, onClose, onImported }) {
                 <select
                   value={defaultClassroomId}
                   onChange={(e) => setDefaultClassroomId(e.target.value)}
-                  className="w-full rounded-md bg-base-100 px-4 py-3 text-sm outline-none"
+                  className="ui-field w-full"
                 >
                   <option value="">Aucune — la classe est indiquée dans le fichier</option>
                   {classrooms.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -224,7 +224,7 @@ export default function StudentImportModal({ open, onClose, onImported }) {
                 onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={(e) => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files?.[0]); }}
-                className={`flex cursor-pointer flex-col items-center justify-center rounded-md px-6 py-12 text-center transition-colors duration-150 ${
+                className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-base-300 px-6 py-12 text-center transition-colors duration-150 ${
                   dragging ? "bg-primary/10" : "bg-base-100 hover:bg-base-300"
                 }`}
               >
@@ -265,14 +265,14 @@ export default function StudentImportModal({ open, onClose, onImported }) {
               ) : (
                 <>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-sm bg-base-300 px-2.5 py-1 text-xs font-medium text-base-content/70">
+                    <span className="ui-chip bg-base-300 text-base-content/70">
                       {parsed.rows.length} ligne(s)
                     </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-sm bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
+                    <span className="ui-chip bg-success/10 text-success">
                       <CheckCircle2 size={13} /> {validRows.length} prête(s)
                     </span>
                     {invalidCount > 0 && (
-                      <span className="inline-flex items-center gap-1.5 rounded-sm bg-error/10 px-2.5 py-1 text-xs font-medium text-error">
+                      <span className="ui-chip bg-error/10 text-error">
                         <AlertCircle size={13} /> {invalidCount} à corriger
                       </span>
                     )}
@@ -282,7 +282,7 @@ export default function StudentImportModal({ open, onClose, onImported }) {
                         <select
                           value={sheetName}
                           onChange={(e) => setSheetName(e.target.value)}
-                          className="rounded-md bg-base-100 px-3 py-2 text-xs outline-none"
+                          className="ui-field text-xs"
                           title="Feuille du classeur"
                         >
                           {workbook.SheetNames.map((name) => <option key={name} value={name}>Feuille : {name}</option>)}
@@ -292,7 +292,7 @@ export default function StudentImportModal({ open, onClose, onImported }) {
                         <select
                           value={defaultClassroomId}
                           onChange={(e) => setDefaultClassroomId(e.target.value)}
-                          className="rounded-md bg-base-100 px-3 py-2 text-xs outline-none"
+                          className="ui-field text-xs"
                           title="Classe des élèves du fichier"
                         >
                           <option value="">Choisir la classe...</option>
@@ -302,7 +302,7 @@ export default function StudentImportModal({ open, onClose, onImported }) {
                       {invalidCount > 0 && (
                         <button
                           onClick={() => setOnlyErrors((value) => !value)}
-                          className="rounded-md bg-base-100 px-3 py-2 text-xs font-medium text-base-content/70 transition-colors duration-150 hover:bg-base-300"
+                          className="ui-btn ui-btn-soft ui-btn-sm"
                         >
                           {onlyErrors ? "Afficher toutes les lignes" : "Afficher les lignes à corriger"}
                         </button>
@@ -356,11 +356,11 @@ export default function StudentImportModal({ open, onClose, onImported }) {
                               <TdBody>{row.classroom_name}</TdBody>
                               <TdBody>
                                 {row.errors.length === 0 ? (
-                                  <span className="inline-flex items-center gap-1 rounded-sm bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                                  <span className="ui-chip bg-success/10 text-success">
                                     <CheckCircle2 size={12} /> Prête
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center gap-1 rounded-sm bg-error/10 px-2 py-0.5 text-xs font-medium text-error">
+                                  <span className="ui-chip bg-error/10 text-error">
                                     <AlertCircle size={12} /> À corriger
                                   </span>
                                 )}
@@ -398,11 +398,11 @@ export default function StudentImportModal({ open, onClose, onImported }) {
                   <div className="flex items-center gap-2 text-xs font-medium text-success"><UserPlus size={14} /> Nouveaux élèves</div>
                   <div className="mt-1 text-2xl font-semibold text-success">{result.created}</div>
                 </div>
-                <div className="rounded-md bg-primary/10 p-4">
+                <div className="rounded-xl bg-primary/8 p-4 ring-1 ring-primary/15">
                   <div className="flex items-center gap-2 text-xs font-medium text-primary"><RefreshCw size={14} /> Réinscriptions</div>
                   <div className="mt-1 text-2xl font-semibold text-primary">{result.re_enrolled}</div>
                 </div>
-                <div className="rounded-md bg-base-100 p-4">
+                <div className="rounded-xl bg-base-100 p-4 ring-1 ring-base-300/60">
                   <div className="flex items-center gap-2 text-xs font-medium text-base-content/60"><UserCheck size={14} /> Déjà inscrits cette année</div>
                   <div className="mt-1 text-2xl font-semibold text-base-content">{result.already_enrolled}</div>
                 </div>
@@ -444,7 +444,7 @@ export default function StudentImportModal({ open, onClose, onImported }) {
         {/* Actions */}
         <div className="flex flex-col-reverse gap-2 p-6 pt-0 sm:flex-row sm:justify-end">
           {step === "choose" && (
-            <button onClick={close} className="rounded-md bg-base-100 px-5 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300">
+            <button onClick={close} className="ui-btn ui-btn-soft">
               Annuler
             </button>
           )}
@@ -454,14 +454,14 @@ export default function StudentImportModal({ open, onClose, onImported }) {
               <button
                 onClick={reset}
                 disabled={importing}
-                className="rounded-md bg-base-100 px-5 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300 disabled:opacity-50"
+                className="ui-btn ui-btn-soft"
               >
                 Changer de fichier
               </button>
               <button
                 onClick={handleImport}
                 disabled={importing || validRows.length === 0}
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-content transition-colors duration-150 hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="ui-btn ui-btn-primary"
               >
                 {importing ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
                 {importing ? "Import en cours..." : `Importer ${validRows.length} élève(s)`}
@@ -470,7 +470,7 @@ export default function StudentImportModal({ open, onClose, onImported }) {
           )}
 
           {step === "done" && (
-            <button onClick={close} className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-content transition-colors duration-150 hover:brightness-95">
+            <button onClick={close} className="ui-btn ui-btn-primary">
               Terminer
             </button>
           )}

@@ -193,13 +193,13 @@ function Visualiser() {
         : "Aperçu avant impression";
 
     return (
-        <div className="min-h-screen bg-base-100">
+        <div className="">
             <PageHeader
                 title="Génération des Bulletins"
                 subtitle={subtitle}
             />
 
-            <div className="max-w-5xl mx-auto p-6">
+            <div className="max-w-5xl mx-auto">
                 {cachedAt && (
                     <div className="mb-4 flex items-center gap-2 rounded-md bg-info/10 px-4 py-2.5 text-xs font-medium text-info">
                         <HardDrive size={14} />
@@ -221,7 +221,7 @@ function Visualiser() {
                         )}
 
                         {/* Contenu des bulletins */}
-                        <div className="bulletin-container bg-white" ref={bulletinRef}>
+                        <div className="bulletin-container light overflow-hidden rounded-2xl bg-white shadow-2xl shadow-black/50 print:rounded-none print:shadow-none" ref={bulletinRef}>
                             {bulletinsData.data.map((bulletin, index) => (
                                 <div key={index} className="break-after-page w-full">
                                     <PrintSheet>
@@ -258,8 +258,8 @@ function PreparationProgress({ progress }) {
     const percent = progress?.progress_percent || 0;
 
     return (
-        <div className="mx-auto max-w-xl rounded-md bg-base-200 p-8 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 text-primary">
+        <div className="surface mx-auto max-w-xl p-8 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/8 text-primary ring-1 ring-primary/15">
                 <Loader2 size={22} className="animate-spin" />
             </div>
             <h2 className="mt-4 text-base font-semibold text-base-content">Préparation des bulletins</h2>
@@ -270,8 +270,8 @@ function PreparationProgress({ progress }) {
                         ? `${processed} / ${total} bulletin(s) prêt(s)`
                         : "Démarrage..."}
             </p>
-            <div className="mt-5 h-1.5 w-full overflow-hidden rounded-sm bg-base-300">
-                <div className="h-full rounded-sm bg-primary transition-all duration-300" style={{ width: `${percent}%` }} />
+            <div className="mt-5 h-1.5 w-full overflow-hidden rounded-full bg-base-300">
+                <div className="h-full rounded-full bg-linear-to-r from-primary to-glow-cyan transition-all duration-500" style={{ width: `${percent}%` }} />
             </div>
             <p className="mt-4 text-xs text-base-content/50">
                 Les bulletins sont calculés un par un puis gardés en mémoire : les prochains affichages et impressions seront immédiats.

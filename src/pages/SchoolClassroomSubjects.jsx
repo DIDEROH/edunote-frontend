@@ -240,13 +240,13 @@ function SchoolClassroomSubjects() {
     <div className="max-w-7xl mx-auto space-y-6">
 
       {/* EN-TÊTE */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-base-200 p-6 rounded-md">
+      <div className="surface flex flex-col md:flex-row md:items-center justify-between gap-4 p-6">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-primary/10 text-primary rounded-md">
+          <div className="p-3 bg-primary/8 text-primary rounded-xl ring-1 ring-primary/15">
             <Layers size={22} />
           </div>
           <div>
-            <span className="text-xs bg-primary/10 text-primary font-medium px-2.5 py-1 rounded-sm">
+            <span className="ui-chip bg-primary/10 text-primary">
               {schoolName || "Établissement"}
             </span>
             <h1 className="text-lg font-semibold text-base-content mt-1.5">
@@ -259,11 +259,11 @@ function SchoolClassroomSubjects() {
         </div>
 
         <div className="flex gap-3">
-          <div className="bg-base-100 p-4 rounded-md text-center min-w-25">
+          <div className="bg-base-100 p-4 rounded-xl text-center min-w-25 ring-1 ring-base-300/60">
             <span className="block text-lg font-semibold text-base-content">{tempAssignments.length}</span>
             <span className="text-xs text-base-content/50">Matières</span>
           </div>
-          <div className="bg-base-100 p-4 rounded-md text-center min-w-25">
+          <div className="bg-base-100 p-4 rounded-xl text-center min-w-25 ring-1 ring-base-300/60">
             <span className="block text-lg font-semibold text-primary">{totalCoefficients}</span>
             <span className="text-xs text-base-content/50">Total Coeff</span>
           </div>
@@ -274,7 +274,7 @@ function SchoolClassroomSubjects() {
 
         {/* GUIDE ET COPIE */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-base-200 p-6 rounded-md space-y-4">
+          <div className="surface p-6 space-y-4">
             <h3 className="text-xs font-semibold text-base-content/50">Programme de votre établissement</h3>
             <p className="text-sm text-base-content/60 leading-relaxed">
               Les matières et coefficients définis ici ne concernent que <strong>{schoolName || "cet établissement"}</strong>.
@@ -282,7 +282,7 @@ function SchoolClassroomSubjects() {
             </p>
             <div className="space-y-3 pt-2">
               <div className="flex items-start gap-3 text-sm text-base-content/70">
-                <div className="p-1.5 bg-primary/10 text-primary rounded-md mt-0.5">
+                <div className="p-1.5 bg-primary/8 text-primary rounded-xl mt-0.5 ring-1 ring-primary/15">
                   <Hash size={14} />
                 </div>
                 <span>Le <strong>Coefficient</strong> détermine le poids de la matière dans les moyennes trimestrielles et annuelles.</span>
@@ -297,14 +297,14 @@ function SchoolClassroomSubjects() {
           </div>
 
           {schoolClassrooms.length > 0 && (
-            <div className="bg-base-200 p-6 rounded-md space-y-3">
+            <div className="surface p-6 space-y-3">
               <h3 className="flex items-center gap-2 text-xs font-semibold text-base-content/50">
                 <Copy size={14} /> Reprendre le programme d'une autre classe
               </h3>
               <select
                 value={copySourceId}
                 onChange={(e) => setCopySourceId(e.target.value)}
-                className="w-full rounded-md bg-base-100 px-4 py-2.5 text-sm outline-none"
+                className="ui-field w-full"
               >
                 <option value="">Choisir une classe de l'établissement...</option>
                 {schoolClassrooms.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -313,7 +313,7 @@ function SchoolClassroomSubjects() {
                 type="button"
                 onClick={handleCopyFrom}
                 disabled={!copySourceId}
-                className="w-full rounded-md bg-base-100 px-4 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300 disabled:cursor-not-allowed disabled:opacity-50"
+                className="ui-btn ui-btn-soft"
               >
                 Reprendre ce programme
               </button>
@@ -337,19 +337,19 @@ function SchoolClassroomSubjects() {
               <p className="mb-4">Aucune matière n'est encore configurée pour cette classe dans votre établissement.</p>
               <button
                 onClick={openLibrary}
-                className="px-4 py-2.5 bg-primary hover:brightness-95 text-white text-sm font-medium rounded-md transition-colors duration-150 flex items-center gap-2 mx-auto"
+                className="ui-btn ui-btn-primary mx-auto"
               >
                 <Plus size={14} /> Ajouter des matières
               </button>
             </Card5>
           ) : (
-            <div className="bg-base-200 rounded-md overflow-hidden">
+            <div className="surface overflow-hidden">
               <div className="p-6 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <Sliders className="text-primary" size={16} />
                   <h2 className="text-sm font-semibold text-base-content">Matières enseignées</h2>
                 </div>
-                <span className="text-xs bg-base-300 text-base-content/60 font-medium px-2.5 py-1 rounded-sm">
+                <span className="ui-chip bg-base-300 text-base-content/60">
                   {tempAssignments.length} matière(s)
                 </span>
               </div>
@@ -366,7 +366,7 @@ function SchoolClassroomSubjects() {
                     <Tr key={assignment.id}>
                       <TdBody>
                         <span className="block font-medium text-base-content">{assignment.name}</span>
-                        <span className="text-xs bg-base-300 text-base-content/60 px-1.5 py-0.5 rounded-sm mt-1 inline-block">
+                        <span className="ui-chip bg-base-300 text-base-content/60 mt-1 inline-block">
                           {assignment.code}
                         </span>
                       </TdBody>
@@ -379,7 +379,7 @@ function SchoolClassroomSubjects() {
                             max="50"
                             value={assignment.coefficient}
                             onChange={(e) => handleUpdatePivot(assignment.id, "coefficient", e.target.value)}
-                            className="w-full px-3 py-2 bg-base-100 text-base-content font-medium text-center rounded-md outline-none"
+                            className="ui-field w-full font-medium text-center"
                           />
                         </div>
                       </TdBody>
@@ -389,7 +389,7 @@ function SchoolClassroomSubjects() {
                           placeholder="ex: Scientifique, Littéraire..."
                           value={assignment.group}
                           onChange={(e) => handleUpdatePivot(assignment.id, "group", e.target.value)}
-                          className="w-full px-3 py-2 bg-base-100 text-base-content text-sm rounded-md outline-none"
+                          className="ui-field w-full"
                         />
                       </TdBody>
                       <TdBody>
@@ -409,14 +409,14 @@ function SchoolClassroomSubjects() {
               <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <button
                   onClick={openLibrary}
-                  className="px-4 py-2.5 bg-base-100 hover:bg-base-300 text-base-content text-sm font-medium rounded-md transition-colors duration-150 flex items-center justify-center gap-2"
+                  className="ui-btn ui-btn-soft"
                 >
                   <Plus size={14} /> Ajouter d'autres matières
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="px-5 py-3 bg-primary hover:brightness-95 disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors duration-150 flex items-center justify-center gap-2"
+                  className="ui-btn ui-btn-primary"
                 >
                   <Save size={15} />
                   {saving ? "Enregistrement..." : "Enregistrer la configuration"}
@@ -436,11 +436,11 @@ function SchoolClassroomSubjects() {
 
       {/* BIBLIOTHÈQUE DES MATIÈRES */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/40">
-          <div className="bg-base-200 w-full h-full sm:h-auto sm:max-w-xl sm:rounded-md overflow-hidden flex flex-col sm:max-h-[80vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-night/60 backdrop-blur-sm">
+          <div className="surface rounded-none sm:rounded-2xl w-full h-full sm:h-auto sm:max-w-xl overflow-hidden flex flex-col sm:max-h-[80vh]">
             <div className="p-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 text-primary rounded-md">
+                <div className="p-2 bg-primary/8 text-primary rounded-xl ring-1 ring-primary/15">
                   <BookOpen size={18} />
                 </div>
                 <div>
@@ -450,7 +450,7 @@ function SchoolClassroomSubjects() {
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 hover:bg-base-300 text-base-content/50 hover:text-base-content rounded-md transition-colors duration-150"
+                className="ui-icon-btn ui-icon-btn-sm hover:text-base-content"
               >
                 <X size={18} />
               </button>
@@ -462,7 +462,7 @@ function SchoolClassroomSubjects() {
                 placeholder="Rechercher une matière (nom, code)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2.5 bg-base-100 text-sm rounded-md outline-none"
+                className="ui-field w-full"
               />
             </div>
 
@@ -472,7 +472,7 @@ function SchoolClassroomSubjects() {
               ) : filteredGlobalSubjects.map((subject) => {
                 const isSelected = tempAssignments.some((item) => item.id === subject.id);
                 return (
-                  <div key={subject.id} className={`p-4 rounded-md flex items-center justify-between bg-base-100 ${isSelected ? "opacity-60" : ""}`}>
+                  <div key={subject.id} className={`p-4 rounded-xl ring-1 ring-base-300/60 flex items-center justify-between bg-base-100 ${isSelected ? "opacity-60" : ""}`}>
                     <div>
                       <span className="text-sm font-medium text-base-content">{subject.name}</span>
                       <span className="block text-xs text-primary mt-0.5">
@@ -488,7 +488,7 @@ function SchoolClassroomSubjects() {
                       <button
                         type="button"
                         onClick={() => handleSelectSubject(subject)}
-                        className="px-3 py-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-primary-content text-xs font-medium rounded-sm transition-colors duration-150 flex items-center gap-1.5"
+                        className="ui-btn bg-primary/10 text-primary ui-btn-sm hover:bg-primary"
                       >
                         <Plus size={12} /> Ajouter
                       </button>
@@ -503,11 +503,11 @@ function SchoolClassroomSubjects() {
                   <p className="text-xs font-medium text-base-content/60">Matière absente du catalogue ? Créez-la pour votre établissement :</p>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <input value={newSubject.name} onChange={(e) => setNewSubject({ ...newSubject, name: e.target.value })} placeholder="Nom (ex : Langue nationale)"
-                      className="flex-1 rounded-md bg-base-200 px-3 py-2 text-sm outline-none" />
+                      className="ui-field flex-1" />
                     <input value={newSubject.code} onChange={(e) => setNewSubject({ ...newSubject, code: e.target.value })} placeholder="Code"
-                      className="w-full rounded-md bg-base-200 px-3 py-2 text-sm uppercase outline-none sm:w-28" />
+                      className="ui-field w-full uppercase sm:w-28" />
                     <button type="submit" disabled={creatingSubject || !newSubject.name.trim() || !newSubject.code.trim()}
-                      className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-content transition-colors duration-150 hover:brightness-95 disabled:opacity-50">
+                      className="ui-btn ui-btn-primary ui-btn-sm">
                       <Plus size={12} /> Créer et ajouter
                     </button>
                   </div>

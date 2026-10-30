@@ -185,7 +185,7 @@ function StudentsPage() {
                 searchPlaceholder="Rechercher un élève par nom ou matricule..."
             />
 
-            <section className="p-4">
+            <section className="surface p-3 sm:p-5">
                 {loading ? (
                     <LoadingSkeletoon />
                 ) : !students?.data || students.data.length === 0 ? (
@@ -195,7 +195,7 @@ function StudentsPage() {
                             <button
                                 type="button"
                                 onClick={() => setShowImportModal(true)}
-                                className="mx-auto mt-4 flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-content transition-colors duration-150 hover:brightness-95"
+                                className="ui-btn ui-btn-primary mx-auto mt-4"
                             >
                                 <FileSpreadsheet size={16} /> Importer une liste depuis Excel
                             </button>
@@ -210,7 +210,7 @@ function StudentsPage() {
                                     <button
                                         key={student.id}
                                         onClick={() => navigate(`/students/${student.id}`)}
-                                        className="text-left rounded-md bg-base-200 p-4 transition-colors duration-150 hover:bg-base-300"
+                                        className="rounded-2xl bg-base-100 p-4 text-left ring-1 ring-base-300/60 transition-colors duration-150 hover:bg-base-300"
                                     >
                                         <div className="flex items-center justify-between">
                                             <span className="font-medium text-sm text-base-content">
@@ -219,7 +219,7 @@ function StudentsPage() {
                                             <span className="text-xs text-base-content/40">#{index + 1}</span>
                                         </div>
                                         <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-base-content/60">
-                                            <span className="px-2 py-0.5 bg-base-300 rounded-sm font-mono">{student.matricule || "Aucun"}</span>
+                                            <span className="ui-chip bg-base-300 font-mono text-base-content/70">{student.matricule || "Aucun"}</span>
                                             <span>{student.gender || "-"}</span>
                                         </div>
                                         <div className="mt-1 text-xs text-base-content/60">
@@ -257,7 +257,7 @@ function StudentsPage() {
                                                 </TdBody>
                                                 <TdBody>{student.gender || "-"}</TdBody>
                                                 <TdBody>
-                                                    <span className="px-2 py-1 bg-base-300 text-base-content/70 rounded-sm text-xs font-mono">
+                                                    <span className="ui-chip bg-base-300 text-base-content/70 font-mono">
                                                         {student.matricule || "Aucun"}
                                                     </span>
                                                 </TdBody>
@@ -298,8 +298,8 @@ function StudentsPage() {
 
              {/* Modal des filtres avancés */}
             {showFiltersModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-0 sm:p-4">
-                    <div className="w-full h-full sm:h-auto sm:max-w-lg sm:rounded-md bg-base-200 overflow-y-auto">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-night/60 backdrop-blur-sm p-0 sm:p-4">
+                    <div className="surface rounded-none sm:rounded-2xl w-full h-full sm:h-auto sm:max-w-lg overflow-y-auto">
                         <div className="flex items-center justify-between p-6">
                             <div className="flex items-center gap-3">
                                 <Filter className="h-4 w-4 text-primary" />
@@ -307,7 +307,7 @@ function StudentsPage() {
                             </div>
                             <button
                                 onClick={() => setShowFiltersModal(false)}
-                                className="rounded-md p-2 hover:bg-base-300 transition-colors duration-150"
+                                className="ui-icon-btn ui-icon-btn-sm"
                             >
                                 <X className="h-5 w-5" />
                             </button>
@@ -320,7 +320,7 @@ function StudentsPage() {
                                 <select
                                     value={filters.classroom_id}
                                     onChange={(e) => setFilters(prev => ({ ...prev, classroom_id: e.target.value }))}
-                                    className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
+                                    className="ui-field w-full"
                                 >
                                     <option value="">Toutes les classes</option>
                                     {classrooms.map(y => <option key={y.id} value={y.id}>{y.name}</option>)}
@@ -333,7 +333,7 @@ function StudentsPage() {
                                 <select
                                     value={filters.sexe}
                                     onChange={(e) => setFilters(prev => ({ ...prev, sexe: e.target.value }))}
-                                    className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
+                                    className="ui-field w-full"
                                 >
                                     <option value="">Tous les sexes</option>
                                     <option value="M">Masculin</option>
@@ -346,13 +346,13 @@ function StudentsPage() {
                         <div className="flex justify-end gap-3 p-6">
                             <button
                                 onClick={handleResetFilters}
-                                className="rounded-md bg-base-100 px-5 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300"
+                                className="ui-btn ui-btn-soft"
                             >
                                 Réinitialiser
                             </button>
                             <button
                                 onClick={handleApplyFilters}
-                                className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95"
+                                className="ui-btn ui-btn-primary"
                             >
                                 Appliquer
                             </button>

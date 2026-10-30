@@ -4,8 +4,9 @@ import { useOutletContext, useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import LoadingSkeleton from '../components/LoadingSkeletoon'
-import { LuClipboardCheck, LuFileQuestion } from 'react-icons/lu'
-import { BookOpen, Info } from 'lucide-react'
+import { BookOpen, ClipboardCheck, FileQuestion, Info } from 'lucide-react'
+import { Panel } from '../components/dashboard/Board'
+import PageHeader from '../components/elements/PageHeader'
 import SchoolClassroomsPanel from '../components/schools/SchoolClassroomsPanel'
 import useNavbarRefresh from '../hooks/useNavbarRefresh'
 
@@ -47,6 +48,7 @@ function SchoolInformations() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-6">
+            <PageHeader kicker="Établissement" title={school?.name || "Fiche de l'établissement"} subtitle="Classes, matières et mode d'évaluation, gérés par le chef d'établissement." />
             {loading ? (
                 <LoadingSkeleton />
             ) : school ? (
@@ -67,63 +69,42 @@ function SchoolInformations() {
                         />
 
                         {/* MATIÈRES ENSEIGNÉES DANS L'ÉCOLE */}
-                        <div className="bg-base-200 rounded-md p-6">
-                            <div className="flex items-center gap-2.5 mb-5">
-                                <div className="p-1.5 bg-primary/10 text-primary rounded-md">
-                                    <BookOpen size={16} />
-                                </div>
-                                <div>
-                                    <h2 className="text-sm font-semibold text-base-content">Matières enseignées</h2>
-                                    <p className="text-xs text-base-content/50">Toutes classes confondues</p>
-                                </div>
-                            </div>
-
+                        <Panel icon={BookOpen} title="Matières enseignées" subtitle="Toutes classes confondues">
                             {taughtSubjects.length === 0 ? (
-                                <div className="text-center py-8 bg-base-100 rounded-md">
-                                    <p className="text-sm text-base-content/50">Aucune matière n'est encore configurée dans cet établissement.</p>
-                                </div>
+                                <p className="rounded-2xl bg-base-100 py-8 text-center text-sm text-base-content/50">Aucune matière n'est encore configurée dans cet établissement.</p>
                             ) : (
                                 <div className="space-y-4">
                                     <div className="flex flex-wrap gap-2">
                                         {taughtSubjects.map((name) => (
-                                            <span key={name} className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-medium rounded-sm flex items-center gap-2">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                            <span key={name} className="ui-chip bg-primary/8 text-primary ring-1 ring-primary/15">
+                                                <span className="size-1.5 rounded-full bg-primary" />
                                                 {name}
                                             </span>
                                         ))}
                                     </div>
-
-                                    <div className="p-4 bg-primary/10 rounded-md flex gap-3">
-                                        <Info className="text-primary shrink-0 mt-0.5" size={15} />
-                                        <p className="text-xs text-base-content/70 leading-relaxed">
+                                    <div className="flex gap-3 rounded-2xl bg-info/8 p-4 ring-1 ring-info/15">
+                                        <Info className="mt-0.5 shrink-0 text-info" size={15} />
+                                        <p className="text-xs leading-relaxed text-base-content/70">
                                             Chaque établissement définit ses propres matières et coefficients, classe par classe
                                             (bouton « Matières » sur chaque classe). Les autres écoles ne sont pas concernées.
                                         </p>
                                     </div>
                                 </div>
                             )}
-                        </div>
+                        </Panel>
 
                         {/* TYPE D'ÉVALUATION */}
-                        {school.evaluation_type && <div className="bg-base-200 rounded-md p-6">
-                                <div className="flex items-center gap-2.5 mb-5">
-                                    <div className="p-1.5 bg-primary/10 text-primary rounded-md">
-                                        <LuClipboardCheck size={16} />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-sm font-semibold text-base-content">Type d'évaluation</h2>
-                                        <p className="text-xs text-base-content/50">Choisi par le chef d'établissement</p>
-                                    </div>
-                                </div>
-
-                                <div className='flex gap-4 flex-wrap items-center'>
-                                    <span className='font-medium text-primary text-sm px-4 py-2.5 rounded-md bg-primary/10'>{school.evaluation_type !== "skill" ? "Séquences" : "Compétences"}</span>
-                                </div>
-                        </div>}
+                        {school.evaluation_type && (
+                            <Panel icon={ClipboardCheck} title="Type d'évaluation" subtitle="Choisi par le chef d'établissement">
+                                <span className="ui-chip bg-primary/8 px-4 py-2 text-sm text-primary ring-1 ring-primary/15">
+                                    {school.evaluation_type !== "skill" ? "Par séquences" : "Par compétences"}
+                                </span>
+                            </Panel>
+                        )}
                     </div>
                 </div>
             ) : (
-                <Card5 icon={LuFileQuestion}>Informations non disponibles pour cette école</Card5>
+                <Card5 icon={FileQuestion}>Informations non disponibles pour cette école</Card5>
             )}
         </div>
     );

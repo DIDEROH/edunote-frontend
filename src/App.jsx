@@ -23,6 +23,9 @@ import SkillsConfig from './pages/SkillsConfig'
 import Staff from './pages/school/Staff'
 import Calendar from './pages/school/Calendar'
 import MySchool from './pages/school/MySchool'
+import YearTransition from './pages/school/YearTransition'
+import MarkHistory from './pages/MarkHistory'
+import MarkProgress from './pages/school/MarkProgress'
 import StudentPage from './pages/StudentPage'
 import EnrollmentStudent from './pages/EnrollmentStudent'
 import StudentIformations from './pages/StudentIformations'
@@ -76,6 +79,10 @@ function App() {
               <Route path='director/teachers' element={<RoleRoute allow={SCHOOL}><DirectorTeacherManagement /></RoleRoute>} />
               <Route path='calendar' element={<RoleRoute allow={SCHOOL} permission="calendar"><Calendar /></RoleRoute>} />
               <Route path='my-school' element={<RoleRoute allow={['director']} directorOnly><MySchool /></RoleRoute>} />
+              <Route path='year-transition' element={<RoleRoute allow={['director']} directorOnly><YearTransition /></RoleRoute>} />
+              {/* Direction (droit « Bulletins ») : toute l'école ; enseignant : ses classes (filtré par l'API) */}
+              <Route path='mark-history' element={<RoleRoute allow={[...SCHOOL, 'teacher']}><MarkHistory /></RoleRoute>} />
+              <Route path='mark-progress' element={<RoleRoute allow={SCHOOL} permission="bulletins"><MarkProgress /></RoleRoute>} />
 
               {/* École : élèves (consultation ; inscription avec le droit « élèves ») */}
               <Route path='students' element={<RoleRoute allow={SCHOOL}><StudentPage /></RoleRoute>} />

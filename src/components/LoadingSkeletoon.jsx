@@ -1,51 +1,45 @@
-export default function LoadingSkeleton() {
+import { useEffect, useState } from "react";
+
+/**
+ * Chargement d'une page : squelette qui scintille dans des panneaux, et, si
+ * l'attente se prolonge, un message de patience discret.
+ */
+export default function LoadingSkeleton({ message = "Chargement des données…" }) {
+  const [long, setLong] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLong(true), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 sm:p-6 animate-pulse">
+    <div className="mx-auto w-full max-w-7xl space-y-5" aria-busy="true" aria-live="polite">
+      <div className="space-y-3">
+        <div className="shimmer h-8 w-64 max-w-full opacity-60" />
+        <div className="shimmer h-4 w-96 max-w-full opacity-40" />
+      </div>
 
-      {/* Hero Card */}
-      <div className="bg-base-200 rounded-md p-4 sm:p-6">
-        <div className="skeleton h-48 sm:h-64 w-full rounded-md"></div>
-
-        <div className="mt-6 flex items-center gap-4">
-          <div className="skeleton h-14 w-14 rounded-full shrink-0"></div>
-
-          <div className="flex-1 space-y-3">
-            <div className="skeleton h-5 w-40 rounded-sm"></div>
-            <div className="skeleton h-4 w-28 rounded-sm"></div>
+      <div className="surface space-y-5 p-6">
+        <div className="flex items-center gap-4">
+          <div className="shimmer size-12 rounded-2xl" />
+          <div className="flex-1 space-y-2.5">
+            <div className="shimmer h-4 w-48" />
+            <div className="shimmer h-3 w-32" />
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => <div key={i} className="shimmer h-16" />)}
+        </div>
+        <div className="space-y-3">
+          {[0, 1, 2, 3, 4].map((i) => <div key={i} className="shimmer h-10" style={{ opacity: 1 - i * 0.15 }} />)}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="mt-6 bg-base-200 rounded-md p-4 sm:p-6">
-        <div className="space-y-4">
-          <div className="skeleton h-5 w-2/3 rounded-sm"></div>
-
-          <div className="skeleton h-4 w-full rounded-sm"></div>
-          <div className="skeleton h-4 w-full rounded-sm"></div>
-          <div className="skeleton h-4 w-5/6 rounded-sm"></div>
-
-          <div className="skeleton h-4 w-full rounded-sm"></div>
-          <div className="skeleton h-4 w-4/5 rounded-sm"></div>
-        </div>
-      </div>
-
-      {/* Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
-        {[1, 2].map((item) => (
-          <div
-            key={item}
-            className="bg-base-200 rounded-md p-5"
-          >
-            <div className="skeleton h-40 w-full rounded-md"></div>
-
-            <div className="mt-4 space-y-3">
-              <div className="skeleton h-5 w-1/2 rounded-sm"></div>
-              <div className="skeleton h-4 w-full rounded-sm"></div>
-              <div className="skeleton h-4 w-4/5 rounded-sm"></div>
-            </div>
-          </div>
-        ))}
+      <div
+        className={`glass-panel mx-auto flex w-fit items-center gap-3 px-4 py-2 text-xs text-white/70 transition-opacity duration-500 ${long ? "opacity-100" : "opacity-0"}`}
+      >
+        <span className="pulse-dot" />
+        {message} Merci de patienter un instant.
       </div>
     </div>
   );

@@ -64,10 +64,10 @@ export default function SchoolClassroomsPanel({ schoolId, classrooms = [], canMa
   const unconfigured = classrooms.filter((c) => !c.subjects?.length).length;
 
   return (
-    <div className="bg-base-200 rounded-md p-6">
+    <div className="surface p-6">
       <div className="flex flex-col gap-4 mb-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="p-1.5 bg-primary/10 text-primary rounded-md">
+          <div className="p-1.5 bg-primary/8 text-primary rounded-xl ring-1 ring-primary/15">
             <Layers size={16} />
           </div>
           <div>
@@ -76,13 +76,13 @@ export default function SchoolClassroomsPanel({ schoolId, classrooms = [], canMa
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 bg-base-300 text-base-content/70 text-xs font-medium rounded-sm">
+          <span className="ui-chip bg-base-300 text-base-content/70">
             {classrooms.length} classe(s)
           </span>
           {canManage && (
             <button
               onClick={openPicker}
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-xs font-medium text-primary-content transition-colors duration-150 hover:brightness-95"
+              className="ui-btn ui-btn-primary ui-btn-sm"
             >
               <Layers size={14} /> Choisir les classes
             </button>
@@ -116,7 +116,7 @@ export default function SchoolClassroomsPanel({ schoolId, classrooms = [], canMa
             const totalCoef = subjects.reduce((sum, s) => sum + (parseFloat(s.pivot?.coefficient) || 0), 0);
 
             return (
-              <div key={classroom.id} className="p-4 bg-base-100 rounded-md flex items-center justify-between gap-3">
+              <div key={classroom.id} className="p-4 bg-base-100 rounded-xl flex items-center justify-between gap-3 ring-1 ring-base-300/60">
                 <div className="min-w-0">
                   <span className="block truncate text-sm font-medium text-base-content">{classroom.name}</span>
                   {subjects.length > 0 ? (
@@ -124,7 +124,7 @@ export default function SchoolClassroomsPanel({ schoolId, classrooms = [], canMa
                       {subjects.length} matière(s) • total des coefficients : {totalCoef}
                     </span>
                   ) : (
-                    <span className="mt-1 inline-flex rounded-sm bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">
+                    <span className="ui-chip mt-1 bg-warning/10 text-warning">
                       Aucune matière
                     </span>
                   )}
@@ -132,7 +132,7 @@ export default function SchoolClassroomsPanel({ schoolId, classrooms = [], canMa
                 {canManage && (
                   <button
                     onClick={() => navigate(configurePath(classroom.id))}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-primary/10 px-3 py-2 text-xs font-medium text-primary transition-colors duration-150 hover:bg-primary/15"
+                    className="ui-btn bg-primary/10 text-primary ui-btn-sm shrink-0 hover:bg-primary/15"
                     title="Configurer les matières et coefficients"
                   >
                     <Settings2 size={14} /> Matières
@@ -146,11 +146,11 @@ export default function SchoolClassroomsPanel({ schoolId, classrooms = [], canMa
 
       {/* CHOIX DES CLASSES DANS LE CATALOGUE */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/40">
-          <div className="bg-base-200 w-full h-full sm:h-auto sm:max-w-xl sm:rounded-md overflow-hidden flex flex-col sm:max-h-[85vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-night/60 backdrop-blur-sm">
+          <div className="surface rounded-none sm:rounded-2xl w-full h-full sm:h-auto sm:max-w-xl overflow-hidden flex flex-col sm:max-h-[85vh]">
             <div className="p-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 text-primary rounded-md">
+                <div className="p-2 bg-primary/8 text-primary rounded-xl ring-1 ring-primary/15">
                   <Layers size={18} />
                 </div>
                 <div>
@@ -160,7 +160,7 @@ export default function SchoolClassroomsPanel({ schoolId, classrooms = [], canMa
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 hover:bg-base-300 text-base-content/50 hover:text-base-content rounded-md transition-colors duration-150"
+                className="ui-icon-btn ui-icon-btn-sm hover:text-base-content"
               >
                 <X size={18} />
               </button>
@@ -182,7 +182,7 @@ export default function SchoolClassroomsPanel({ schoolId, classrooms = [], canMa
                   placeholder="Rechercher une classe..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 bg-base-100 text-sm rounded-md outline-none"
+                  className="ui-field w-full pl-9 pr-4"
                 />
               </div>
             </div>
@@ -196,7 +196,7 @@ export default function SchoolClassroomsPanel({ schoolId, classrooms = [], canMa
                   <div
                     key={classroom.id}
                     onClick={() => toggle(classroom.id)}
-                    className={`p-4 rounded-md cursor-pointer flex items-center gap-4 transition-colors duration-150 ${
+                    className={`p-4 rounded-xl ring-1 ring-base-300/60 cursor-pointer flex items-center gap-4 transition-colors duration-150 ${
                       isSelected ? "bg-primary/10" : "bg-base-100 hover:bg-base-300"
                     }`}
                   >
@@ -224,7 +224,7 @@ export default function SchoolClassroomsPanel({ schoolId, classrooms = [], canMa
                 type="button"
                 onClick={save}
                 disabled={saving}
-                className="px-5 py-2.5 bg-primary disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors duration-150 hover:brightness-95 flex items-center gap-2"
+                className="ui-btn ui-btn-primary"
               >
                 <Save size={14} />
                 {saving ? "Enregistrement..." : "Enregistrer"}

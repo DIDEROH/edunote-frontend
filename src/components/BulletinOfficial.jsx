@@ -12,7 +12,7 @@ const BulletinOfficial = forwardRef(({bulletin}, ref) => {
   const tdStyle = "border border-slate-800 font-bold text-[8px]"
   return (
     // À l'impression, la marge de 0,7 cm vient de la feuille (PrintSheet) : pas de retrait en plus
-    <main ref={ref} className="bg-base-100 print:bg-white text-black p-3 print:p-0 w-full max-w-5xl print:max-w-none mx-auto text-[9px]">
+    <main ref={ref} className="bg-white print:bg-white text-black p-3 print:p-0 w-full max-w-5xl print:max-w-none mx-auto text-[9px]">
       {/* EN-TETE (jamais coupé entre deux pages) */}
       <header className="flex justify-between mb-2 break-inside-avoid">
         <aside className="flex flex-col items-center text-[6px]">

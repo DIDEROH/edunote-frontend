@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useOutletContext } from "react-router-dom";
+import { Link, useNavigate, useParams, useOutletContext } from "react-router-dom";
 import { api } from "../utils/AxiosClient";
 import { Building2, MapPin, Phone, Mail, History } from "lucide-react";
 import { toast } from "sonner";
@@ -16,15 +16,15 @@ import useNavbarRefresh from "../hooks/useNavbarRefresh";
 
 // --- SOUS-COMPOSANT : CARTE ÉTABLISSEMENT ---
 const SchoolCard = ({ school }) => {
-    if (!school) return <div className="p-6 bg-base-200 rounded-md text-base-content/50 text-center text-sm">Aucune information d'établissement</div>;
+    if (!school) return <div className="surface p-6 text-base-content/50 text-center text-sm">Aucune information d'établissement</div>;
 
     return (
-        <div className="bg-base-200 rounded-md p-6">
+        <div className="surface p-6">
             <div className="flex justify-between items-start mb-4">
-                <div className="p-2.5 bg-primary/10 rounded-md">
+                <div className="p-2.5 bg-primary/8 rounded-xl ring-1 ring-primary/15">
                     <Building2 size={20} className="text-primary" />
                 </div>
-                <span className="bg-base-300 text-base-content/70 text-xs font-medium px-2.5 py-1 rounded-sm">
+                <span className="ui-chip bg-base-300 text-base-content/70">
                     {school.code}
                 </span>
             </div>
@@ -57,7 +57,9 @@ export default function StudentIformations() {
     const showConfirm = useShowConfirm();
     const { setNavbarActions } = useOutletContext(); // Récupération de la fonction pour définir les actions de la navbar
     // Modification et suppression : directeur uniquement (comme l'API)
-    const canManage = useAuth().can("students");
+    const { can } = useAuth();
+    const canManage = can("students");
+    const canViewMarks = can("bulletins");
 
     useEffect(() => {
         const fetchStudentData = async () => {
@@ -158,17 +160,27 @@ export default function StudentIformations() {
     const currentEnrollment = student?.enrollments?.[0];
 
     return (
-        <main className="bg-base-100 min-h-screen pb-12">
+        <main className="pb-12">
             <PageHeader
                 title="Informations de l'élève"
                 subtitle={`Détails de l'élève ${student ? `${student.first_name} ${student.last_name}` : ''}`}
                 />
 
+            {/* Contestation d'une note : tous les changements de notes de cet élève */}
+            {canViewMarks && student && (
+                <Link
+                    to={`/mark-history?student_id=${student.id}&student_name=${encodeURIComponent(`${student.last_name} ${student.first_name}`)}`}
+                    className="ui-btn ui-btn-soft ui-btn-sm mb-4"
+                >
+                    <History size={14} /> Historique des notes de l'élève
+                </Link>
+            )}
+
             {loading ? <div className="p-10"><LoadingSkeletoon /></div> : (
                 <>
                 {showDeleteChoice && (
                     <dialog open className="modal modal-open">
-                        <div className="modal-box max-w-lg rounded-md bg-base-200">
+                        <div className="modal-box surface max-w-lg">
                             <h3 className="text-center text-base font-semibold text-base-content mb-4">Choisir l'action de suppression</h3>
                             <p className="text-sm text-base-content/60 mb-6 leading-relaxed">
                                 Voulez-vous supprimer l'élève et toutes ses données, ou seulement une de ses inscriptions ?
@@ -176,13 +188,13 @@ export default function StudentIformations() {
 
                             <div className="space-y-4">
                                 <button
-                                    className="btn btn-error w-full"
+                                    className="ui-btn ui-btn-danger-solid"
                                     onClick={handleDeleteStudent}
                                 >
                                     Supprimer l'élève et toutes ses données
                                 </button>
 
-                                <div className="bg-base-100 p-4 rounded-md">
+                                <div className="bg-base-100 p-4 rounded-xl ring-1 ring-base-300/60">
                                     <p className="text-sm font-medium text-base-content mb-3">Supprimer une inscription uniquement</p>
                                     {student?.enrollments?.length ? (
                                         <div className="space-y-2 max-h-80 overflow-y-auto">
@@ -191,7 +203,7 @@ export default function StudentIformations() {
                                                     key={enrol.id}
                                                     type="button"
                                                     onClick={() => handleDeleteEnrollment(enrol.id)}
-                                                    className="w-full text-left rounded-md px-4 py-3 bg-base-200 transition-colors duration-150 hover:bg-base-300"
+                                                    className="w-full rounded-xl bg-white px-4 py-3 text-left ring-1 ring-base-300/70 transition-colors duration-150 hover:bg-base-300"
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-sm text-base-content">{enrol.academic_year?.name || 'Année inconnue'} — {enrol.classroom?.name || 'Classe inconnue'}</span>
@@ -209,7 +221,7 @@ export default function StudentIformations() {
                             <div className="mt-6 text-center">
                                 <button
                                     type="button"
-                                    className="btn btn-ghost"
+                                    className="ui-btn ui-btn-soft"
                                     onClick={() => setShowDeleteChoice(false)}
                                 >
                                     Annuler
@@ -217,7 +229,7 @@ export default function StudentIformations() {
                             </div>
                         </div>
 
-                        <form method="dialog" className="modal-backdrop bg-black/40">
+                        <form method="dialog" className="modal-backdrop bg-night/60 backdrop-blur-sm">
                             <button onClick={() => setShowDeleteChoice(false)}>fermer</button>
                         </form>
                     </dialog>
@@ -243,11 +255,11 @@ export default function StudentIformations() {
                     {student?.enrollments && (
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 ml-1">
-                                <div className="p-1.5 bg-primary/10 text-primary rounded-md"><History size={16}/></div>
+                                <div className="p-1.5 bg-primary/8 text-primary rounded-xl ring-1 ring-primary/15"><History size={16}/></div>
                                 <h2 className="text-xs font-medium text-base-content/50">Historique des Inscriptions</h2>
                             </div>
 
-                            <div className="bg-base-200 rounded-md overflow-hidden">
+                            <div className="surface overflow-hidden">
                                 <Table>
                                     <Table.Head>
                                         <Th>#</Th>
@@ -266,7 +278,7 @@ export default function StudentIformations() {
                                                     {enrol.academic_year?.name}
                                                 </TdBody>
                                                 <TdBody>
-                                                    <span className="bg-base-300 px-2.5 py-1 rounded-sm text-xs font-medium text-base-content/70">
+                                                    <span className="ui-chip bg-base-300 text-base-content/70">
                                                         {enrol.classroom?.name}
                                                     </span>
                                                 </TdBody>

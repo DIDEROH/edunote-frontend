@@ -28,10 +28,10 @@ const SubjectForm = ({ initialData, onSubmit, onCancel, loading }) => {
   return (
     <form 
       onSubmit={handleSubmit(onSubmit)} 
-      className="mx-auto max-w-2xl bg-base-200 p-6 md:p-8 rounded-md"
+      className="surface mx-auto max-w-2xl p-6 md:p-8"
     >
       <div className="flex items-center gap-3 mb-8">
-        <div className={`p-3 rounded-md ${initialData ? 'bg-warning/10 text-warning' : 'bg-primary/10 text-primary'}`}>
+        <div className={`p-3 rounded-xl ${initialData ? 'bg-warning/10 text-warning' : 'bg-primary/10 text-primary'}`}>
           <BookOpen size={22} />
         </div>
         <div>
@@ -188,7 +188,7 @@ function Subjects() {
   }, [setNavbarActions, print]);
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="">
       <PrintableTable
         ref={printRef}
         title="Liste des matieres"
@@ -226,7 +226,7 @@ function Subjects() {
             </Card5>
           </div>
         ) : (
-          <div className="bg-base-200 rounded-md overflow-hidden">
+          <div className="surface overflow-hidden">
             <Table>
               <Table.Head>
                 <Th>Code</Th>

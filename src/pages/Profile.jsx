@@ -134,7 +134,7 @@ function Profile() {
 
           {/* Carte récapitulative */}
           <aside className="lg:col-span-4">
-            <div className="overflow-hidden rounded-md bg-base-200">
+            <div className="surface overflow-hidden">
               <div className="bg-primary px-6 py-7 text-primary-content">
                 <div className="flex items-center gap-4">
                   <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-white/15 text-xl font-semibold">
@@ -154,7 +154,7 @@ function Profile() {
                     {roles.length === 0 ? (
                       <span className="text-sm text-base-content/50">Aucun rôle attribué</span>
                     ) : roles.map((role) => (
-                      <span key={role} className="inline-flex items-center gap-1.5 rounded-sm bg-base-300 px-2.5 py-1 text-xs font-medium text-base-content">
+                      <span key={role} className="ui-chip bg-base-300 text-base-content">
                         <span className={`h-1.5 w-1.5 rounded-full ${getRoleConfig(role).dot}`} />
                         {getRoleConfig(role).label}
                       </span>
@@ -166,7 +166,7 @@ function Profile() {
                   <section>
                     <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-base-content/50">Établissement</h3>
                     <div className="flex items-start gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/8 text-primary ring-1 ring-primary/15">
                         <Building2 size={16} />
                       </div>
                       <div className="min-w-0">
@@ -189,9 +189,9 @@ function Profile() {
           <div className="space-y-6 lg:col-span-8">
 
             {/* Informations personnelles */}
-            <form onSubmit={profileForm.handleSubmit(onSaveProfile)} className="rounded-md bg-base-200 p-6 md:p-8">
+            <form onSubmit={profileForm.handleSubmit(onSaveProfile)} className="surface p-6 md:p-8">
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/8 text-primary ring-1 ring-primary/15">
                   <User size={18} />
                 </div>
                 <div>
@@ -221,8 +221,8 @@ function Profile() {
                       key={option.value}
                       type="button"
                       onClick={() => profileForm.setValue("gender", option.value, { shouldDirty: true })}
-                      className={`flex-1 rounded-md py-3 text-sm font-medium transition-colors duration-150 ${
-                        selectedGender === option.value ? "bg-primary/10 text-primary" : "bg-base-100 text-base-content/50 hover:text-base-content"
+                      className={`flex-1 rounded-full py-2.5 text-sm font-semibold ring-1 transition-all duration-200 ${
+                        selectedGender === option.value ? "bg-primary/8 text-primary ring-primary/40" : "bg-base-100 text-base-content/50 ring-base-300 hover:text-base-content"
                       }`}
                     >
                       {option.label}
@@ -239,7 +239,7 @@ function Profile() {
             </form>
 
             {/* Mot de passe */}
-            <form onSubmit={passwordForm.handleSubmit(onChangePassword)} className="rounded-md bg-base-200 p-6 md:p-8">
+            <form onSubmit={passwordForm.handleSubmit(onChangePassword)} className="surface p-6 md:p-8">
               <div className="mb-6 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-md bg-warning/10 text-warning">
                   <ShieldCheck size={18} />

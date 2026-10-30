@@ -92,12 +92,12 @@ export default function Schools() {
         searchPlaceholder="Rechercher une école, un directeur..."
       />
 
-      <div className="flex gap-1 overflow-x-auto rounded-md bg-base-200 p-1">
+      <div className="flex gap-1 overflow-x-auto bg-base-200 p-1 rounded-full ring-1 ring-base-300/70">
         {TABS.map((tab) => (
           <button key={tab.status} type="button" onClick={() => setSearchParams({ status: tab.status })}
-            className={`flex shrink-0 items-center gap-2 rounded-sm px-4 py-2 text-xs font-medium transition-colors duration-150 ${status === tab.status ? "bg-base-100 text-primary" : "text-base-content/60 hover:text-base-content"}`}>
+            className={`flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-200 ${status === tab.status ? "bg-white text-night shadow-sm" : "text-base-content/60 hover:text-base-content"}`}>
             {tab.label}
-            <span className={`rounded-sm px-1.5 py-0.5 text-[11px] ${tab.status === "pending" && counts.pending ? "bg-warning text-white" : "bg-base-300 text-base-content/60"}`}>
+            <span className={`rounded-full px-1.5 py-0.5 text-[11px] ${tab.status === "pending" && counts.pending ? "bg-warning text-white" : "bg-base-300 text-base-content/60"}`}>
               {counts[tab.status]}
             </span>
           </button>
@@ -109,7 +109,7 @@ export default function Schools() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {visible.map((school) => (
-            <article key={school.id} className="flex flex-col gap-4 rounded-md bg-base-200 p-5">
+            <article key={school.id} className="surface flex flex-col gap-4 p-5">
               <div className="flex items-start gap-3">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-base-100">
                   {school.logo ? <img src={school.logo} alt="" className="h-full w-full object-cover" /> : <Building2 size={22} className="text-base-content/30" />}
@@ -117,11 +117,11 @@ export default function Schools() {
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate text-sm font-semibold text-base-content">{school.name}</h3>
                   <p className="text-xs text-base-content/50">{school.code} · {school.city || "Ville non renseignée"}</p>
-                  <span className={`mt-1.5 inline-flex rounded-sm px-2 py-0.5 text-xs font-medium ${STATUS_CHIP[school.status]}`}>{school.status_label}</span>
+                  <span className={`ui-chip mt-1.5 ${STATUS_CHIP[school.status]}`}>{school.status_label}</span>
                 </div>
               </div>
 
-              <div className="space-y-1 rounded-md bg-base-100 p-3 text-xs text-base-content/70">
+              <div className="space-y-1 rounded-xl bg-base-100 p-3 text-xs text-base-content/70 ring-1 ring-base-300/60">
                 <p className="font-medium text-base-content">
                   <Crown size={12} className="mr-1 inline text-secondary" />
                   {school.director ? `${school.director.last_name} ${school.director.first_name}` : "Aucun directeur"}
@@ -147,7 +147,7 @@ export default function Schools() {
                 )}
                 {school.status === "active" && (
                   <>
-                    <Link to={`/schools/${school.id}`} className="inline-flex items-center gap-1.5 rounded-md bg-base-100 px-3 py-2 text-xs font-medium text-base-content transition-colors duration-150 hover:bg-base-300">
+                    <Link to={`/schools/${school.id}`} className="ui-btn ui-btn-soft ui-btn-sm">
                       <Eye size={14} /> Détails
                     </Link>
                     <ActionButton icon={Ban} onClick={() => setReasonFor({ school, action: "suspend" })}>Suspendre</ActionButton>
@@ -184,9 +184,9 @@ export default function Schools() {
 
       <Modal open={Boolean(notify)} onClose={() => setNotify(null)} icon={MessageCircle} title="Prévenir le directeur"
         subtitle={notify?.phone ? `Par WhatsApp au ${notify.phone}` : "Par WhatsApp"}>
-        <p className="whitespace-pre-wrap rounded-md bg-base-100 p-4 text-xs leading-relaxed text-base-content/70">{notify?.message}</p>
+        <p className="whitespace-pre-wrap rounded-xl bg-base-100 p-4 text-xs leading-relaxed text-base-content/70 ring-1 ring-base-300/60">{notify?.message}</p>
         <a href={notify?.whatsapp_url} target="_blank" rel="noreferrer" onClick={() => setNotify(null)}
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-success px-4 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95">
+          className="ui-btn ui-btn-success mt-4">
           <MessageCircle size={16} /> Envoyer sur WhatsApp
         </a>
       </Modal>
@@ -202,7 +202,7 @@ function ActionButton({ icon: Icon, tone, onClick, children }) {
 
   return (
     <button type="button" onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-xs font-medium transition-colors duration-150 ${tones[tone] ?? "bg-base-100 text-base-content hover:bg-base-300"}`}>
+      className={`ui-btn ui-btn-sm ${tones[tone] ?? "ui-btn-soft"}`}>
       <Icon size={14} /> {children}
     </button>
   );
@@ -216,9 +216,9 @@ function ReasonModal({ action, school, onClose, onConfirm }) {
     <Modal open onClose={onClose} icon={reject ? XCircle : Ban} title={reject ? "Refuser l'inscription" : "Suspendre l'établissement"} subtitle={school.name}
       footer={
         <>
-          <button type="button" onClick={onClose} className="rounded-md bg-base-100 px-5 py-2.5 text-sm font-medium text-base-content hover:bg-base-300">Annuler</button>
+          <button type="button" onClick={onClose} className="ui-btn ui-btn-soft">Annuler</button>
           <button type="button" disabled={reject && !reason.trim()} onClick={() => onConfirm(reason.trim() || null)}
-            className="rounded-md bg-error px-5 py-2.5 text-sm font-medium text-white hover:brightness-95 disabled:opacity-50">
+            className="ui-btn ui-btn-danger-solid">
             {reject ? "Refuser" : "Suspendre"}
           </button>
         </>
@@ -226,7 +226,7 @@ function ReasonModal({ action, school, onClose, onConfirm }) {
       <label className="block space-y-1.5">
         <span className="text-xs font-medium text-base-content/60">Motif {reject ? "(communiqué au directeur)" : "(facultatif)"}</span>
         <textarea rows={4} value={reason} onChange={(e) => setReason(e.target.value)}
-          className="w-full rounded-md bg-base-100 px-4 py-3 text-sm outline-none" placeholder={reject ? "ex : informations incomplètes, établissement introuvable..." : ""} />
+          className="ui-field w-full" placeholder={reject ? "ex : informations incomplètes, établissement introuvable..." : ""} />
       </label>
       {!reject && <p className="mt-3 text-xs text-base-content/50">Le personnel n'aura plus accès à l'établissement jusqu'à sa réactivation. Ses données sont conservées.</p>}
     </Modal>
@@ -265,9 +265,9 @@ function DirectorModal({ school, onClose, onChanged }) {
     <Modal open onClose={onClose} icon={Crown} title="Changer de directeur" subtitle={school.name}
       footer={!result && (
         <>
-          <button type="button" onClick={onClose} className="rounded-md bg-base-100 px-5 py-2.5 text-sm font-medium text-base-content hover:bg-base-300">Annuler</button>
+          <button type="button" onClick={onClose} className="ui-btn ui-btn-soft">Annuler</button>
           <button type="button" onClick={submit} disabled={mode === "member" && !userId}
-            className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-content hover:brightness-95 disabled:opacity-50">
+            className="ui-btn ui-btn-primary">
             {mode === "member" ? "Nommer directeur" : "Créer le lien"}
           </button>
         </>
@@ -275,18 +275,18 @@ function DirectorModal({ school, onClose, onChanged }) {
       {result ? (
         <div className="space-y-4">
           <p className="text-sm text-base-content/70">Envoyez ce lien au nouveau chef d'établissement : il prendra la direction en l'ouvrant (valable 7 jours).</p>
-          <p className="break-all rounded-md bg-base-100 p-3 text-xs text-base-content/70">{result.link}</p>
+          <p className="break-all rounded-xl bg-base-100 p-3 text-xs text-base-content/70 ring-1 ring-base-300/60">{result.link}</p>
           <a href={result.whatsapp_url} target="_blank" rel="noreferrer"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-success px-4 py-2.5 text-sm font-medium text-white hover:brightness-95">
+            className="ui-btn ui-btn-success">
             <MessageCircle size={16} /> Envoyer sur WhatsApp
           </a>
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="flex rounded-md bg-base-100 p-1">
+          <div className="flex rounded-xl bg-base-100 p-1 ring-1 ring-base-300/60">
             {[["member", "Un membre de l'école"], ["outsider", "Une autre personne"]].map(([value, label]) => (
               <button key={value} type="button" onClick={() => setMode(value)}
-                className={`flex-1 rounded-sm py-2 text-xs font-medium transition-colors duration-150 ${mode === value ? "bg-base-200 text-primary" : "text-base-content/50"}`}>
+                className={`flex-1 rounded-full py-2 text-xs font-semibold transition-all duration-200 ${mode === value ? "bg-white text-primary shadow-sm ring-1 ring-base-300" : "text-base-content/50"}`}>
                 {label}
               </button>
             ))}
@@ -295,7 +295,7 @@ function DirectorModal({ school, onClose, onChanged }) {
             members === null ? <LoadingSkeleton /> : members.length === 0 ? (
               <p className="text-sm text-base-content/60">Aucun autre membre dans cet établissement : invitez une autre personne.</p>
             ) : (
-              <select value={userId} onChange={(e) => setUserId(e.target.value)} className="w-full rounded-md bg-base-100 px-4 py-3 text-sm outline-none">
+              <select value={userId} onChange={(e) => setUserId(e.target.value)} className="ui-field w-full">
                 <option value="">Choisir une personne...</option>
                 {members.map((m) => (
                   <option key={m.user.id} value={m.user.id}>{m.user.last_name} {m.user.first_name} — {m.user.email}</option>
@@ -305,9 +305,9 @@ function DirectorModal({ school, onClose, onChanged }) {
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <input value={outsider.name} onChange={(e) => setOutsider({ ...outsider, name: e.target.value })} placeholder="Nom (facultatif)"
-                className="rounded-md bg-base-100 px-4 py-3 text-sm outline-none" />
+                className="ui-field" />
               <input value={outsider.phone} onChange={(e) => setOutsider({ ...outsider, phone: e.target.value })} placeholder="WhatsApp (facultatif)" inputMode="tel"
-                className="rounded-md bg-base-100 px-4 py-3 text-sm outline-none" />
+                className="ui-field" />
             </div>
           )}
           <p className="text-xs text-base-content/50">L'ancien directeur reste dans l'établissement comme modérateur avec tous les droits ; le nouveau pourra les lui retirer.</p>

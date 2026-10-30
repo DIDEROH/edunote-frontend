@@ -32,6 +32,8 @@ export async function flushOutbox() {
           method: entry.method,
           url: entry.url,
           data: entry.data,
+          // Heure de la saisie sur l'appareil, gardée dans l'historique des notes
+          headers: { "X-Offline-Saved-At": String(entry.createdAt) },
           offlineCache: false,
         });
 

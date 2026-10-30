@@ -105,10 +105,10 @@ export default function Staff() {
         subtitle="Invitez votre personnel par WhatsApp, choisissez leurs rôles et les droits de vos modérateurs."
       />
 
-      <section className="rounded-md bg-base-200 p-6">
+      <section className="surface p-6">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="rounded-md bg-primary/10 p-1.5 text-primary"><Users size={16} /></div>
+            <div className="rounded-xl bg-primary/8 p-1.5 text-primary ring-1 ring-primary/15"><Users size={16} /></div>
             <div>
               <h2 className="text-sm font-semibold text-base-content">Membres de l'établissement</h2>
               <p className="text-xs text-base-content/50">{data.members.length} personne(s)</p>
@@ -118,7 +118,7 @@ export default function Staff() {
             <button
               type="button"
               onClick={() => setInviteOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-xs font-medium text-primary-content transition-colors duration-150 hover:brightness-95"
+              className="ui-btn ui-btn-primary ui-btn-sm"
             >
               <UserPlus size={14} /> Inviter par WhatsApp
             </button>
@@ -129,7 +129,7 @@ export default function Staff() {
           {data.members.map((member) => {
             const isMemberDirector = member.roles.includes("director");
             return (
-              <article key={member.user.id} className="flex flex-col gap-3 rounded-md bg-base-100 p-4">
+              <article key={member.user.id} className="flex flex-col gap-3 rounded-xl bg-base-100 p-4 ring-1 ring-base-300/60">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-base-content">
@@ -144,18 +144,18 @@ export default function Staff() {
                     {(canStaff || isDirector) && !isMemberDirector && (
                       <>
                         <button type="button" title="Modifier les rôles" onClick={() => setEditing(member)}
-                          className="rounded-md p-2 text-base-content/50 transition-colors duration-150 hover:bg-base-300 hover:text-primary">
+                          className="ui-icon-btn ui-icon-btn-sm hover:text-primary">
                           <Pencil size={15} />
                         </button>
                         <button type="button" title="Retirer de l'établissement" onClick={() => remove(member)}
-                          className="rounded-md p-2 text-base-content/50 transition-colors duration-150 hover:bg-error/10 hover:text-error">
+                          className="ui-icon-btn ui-icon-btn-sm hover:text-error">
                           <Trash2 size={15} />
                         </button>
                       </>
                     )}
                     {isDirector && isMemberDirector && (
                       <button type="button" title="Être aussi enseignant" onClick={() => setEditing(member)}
-                        className="rounded-md p-2 text-base-content/50 transition-colors duration-150 hover:bg-base-300 hover:text-primary">
+                        className="ui-icon-btn ui-icon-btn-sm hover:text-primary">
                         <Pencil size={15} />
                       </button>
                     )}
@@ -164,7 +164,7 @@ export default function Staff() {
 
                 <div className="flex flex-wrap gap-1.5">
                   {member.roles.map((role) => (
-                    <span key={role} className={`rounded-sm px-2 py-0.5 text-xs font-medium ${ROLE_CHIPS[role]?.className ?? ""}`}>
+                    <span key={role} className={`ui-chip ${ROLE_CHIPS[role]?.className ?? ""}`}>
                       {ROLE_CHIPS[role]?.label ?? role}
                     </span>
                   ))}
@@ -196,9 +196,9 @@ export default function Staff() {
       </section>
 
       {canStaff && data.invitations.length > 0 && (
-        <section className="rounded-md bg-base-200 p-6">
+        <section className="surface p-6">
           <div className="mb-4 flex items-center gap-2.5">
-            <div className="rounded-md bg-primary/10 p-1.5 text-primary"><Link2 size={16} /></div>
+            <div className="rounded-xl bg-primary/8 p-1.5 text-primary ring-1 ring-primary/15"><Link2 size={16} /></div>
             <div>
               <h2 className="text-sm font-semibold text-base-content">Invitations en attente</h2>
               <p className="text-xs text-base-content/50">Liens envoyés qui n'ont pas encore été utilisés</p>
@@ -206,7 +206,7 @@ export default function Staff() {
           </div>
           <div className="space-y-2">
             {data.invitations.map((invitation) => (
-              <div key={invitation.id} className="flex items-center justify-between gap-3 rounded-md bg-base-100 p-3">
+              <div key={invitation.id} className="flex items-center justify-between gap-3 rounded-xl bg-base-100 p-3 ring-1 ring-base-300/60">
                 <div className="min-w-0 text-sm">
                   <span className="font-medium text-base-content">{invitation.name || "Sans nom"}</span>
                   {invitation.phone && <span className="ml-2 text-xs text-base-content/50">{invitation.phone}</span>}
@@ -215,7 +215,7 @@ export default function Staff() {
                   </span>
                 </div>
                 <button type="button" onClick={() => revoke(invitation)} title="Annuler l'invitation"
-                  className="rounded-md p-2 text-base-content/50 transition-colors duration-150 hover:bg-error/10 hover:text-error">
+                  className="ui-icon-btn ui-icon-btn-sm hover:text-error">
                   <X size={15} />
                 </button>
               </div>
@@ -226,9 +226,9 @@ export default function Staff() {
 
       <Modal open={Boolean(passwordResult)} onClose={() => setPasswordResult(null)} icon={KeyRound}
         title="Mot de passe provisoire" subtitle={passwordResult?.name}>
-        <p className="whitespace-pre-wrap rounded-md bg-base-100 p-4 text-xs leading-relaxed text-base-content/70">{passwordResult?.text}</p>
+        <p className="whitespace-pre-wrap rounded-xl bg-base-100 p-4 text-xs leading-relaxed text-base-content/70 ring-1 ring-base-300/60">{passwordResult?.text}</p>
         <a href={passwordResult?.whatsapp_url} target="_blank" rel="noreferrer" onClick={() => setPasswordResult(null)}
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md bg-success px-4 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95">
+          className="ui-btn ui-btn-success mt-4">
           <MessageCircle size={16} /> Envoyer sur WhatsApp
         </a>
         <p className="mt-3 text-xs text-base-content/50">Ce mot de passe ne sera plus affiché après fermeture de cette fenêtre.</p>
@@ -251,7 +251,7 @@ function PermissionsPicker({ labels, value, onChange }) {
   return (
     <div className="space-y-2">
       {Object.entries(labels).map(([key, label]) => (
-        <label key={key} className="flex cursor-pointer items-center gap-3 rounded-md bg-base-100 p-3 text-sm text-base-content transition-colors duration-150 hover:bg-base-300">
+        <label key={key} className="flex cursor-pointer items-center gap-3 rounded-xl bg-base-100 p-3 text-sm text-base-content transition-colors duration-150 hover:bg-base-300 ring-1 ring-base-300/60">
           <input type="checkbox" className="checkbox checkbox-primary checkbox-sm" checked={value.includes(key)} onChange={() => toggle(key)} />
           {label}
         </label>
@@ -263,7 +263,7 @@ function PermissionsPicker({ labels, value, onChange }) {
 
 function RoleToggle({ checked, onChange, label, hint, disabled }) {
   return (
-    <label className={`flex items-start gap-3 rounded-md p-3 transition-colors duration-150 ${checked ? "bg-primary/10" : "bg-base-100"} ${disabled ? "opacity-50" : "cursor-pointer hover:bg-base-300"}`}>
+    <label className={`flex items-start gap-3 rounded-xl p-3 ring-1 transition-colors duration-150 ${checked ? "bg-primary/8 ring-primary/30" : "bg-base-100 ring-base-300/60"} ${disabled ? "opacity-50" : "cursor-pointer hover:bg-base-300"}`}>
       <input type="checkbox" className="checkbox checkbox-primary checkbox-sm mt-0.5" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
       <span>
         <span className="block text-sm font-medium text-base-content">{label}</span>
@@ -327,14 +327,14 @@ function InviteModal({ open, onClose, isDirector, labels, onInvited }) {
           <div className="rounded-md bg-success/10 p-4 text-sm text-base-content/80">
             Invitation prête. Envoyez-la depuis votre téléphone : la personne crée son compte et rejoint directement votre établissement.
           </div>
-          <p className="whitespace-pre-wrap rounded-md bg-base-100 p-4 text-xs leading-relaxed text-base-content/70">{result.text}</p>
+          <p className="whitespace-pre-wrap rounded-xl bg-base-100 p-4 text-xs leading-relaxed text-base-content/70 ring-1 ring-base-300/60">{result.text}</p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <a href={result.whatsapp_url} target="_blank" rel="noreferrer"
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-success px-4 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:brightness-95">
+              className="ui-btn ui-btn-success">
               <MessageCircle size={16} /> Envoyer sur WhatsApp
             </a>
             <button type="button" onClick={copy}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-base-100 px-4 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300">
+              className="ui-btn ui-btn-soft">
               {copied ? <Check size={16} /> : <Copy size={16} />} {copied ? "Copié" : "Copier le message"}
             </button>
           </div>
@@ -348,12 +348,12 @@ function InviteModal({ open, onClose, isDirector, labels, onInvited }) {
             <label className="space-y-1.5">
               <span className="text-xs font-medium text-base-content/60">Nom (facultatif)</span>
               <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="ex : M. Ndongo"
-                className="w-full rounded-md bg-base-100 px-4 py-3 text-sm outline-none" />
+                className="ui-field w-full" />
             </label>
             <label className="space-y-1.5">
               <span className="text-xs font-medium text-base-content/60">Numéro WhatsApp (facultatif)</span>
               <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="6XX XX XX XX" inputMode="tel"
-                className="w-full rounded-md bg-base-100 px-4 py-3 text-sm outline-none" />
+                className="ui-field w-full" />
             </label>
           </div>
           <p className="text-xs text-base-content/50">Sans numéro, WhatsApp vous laissera choisir le contact.</p>
@@ -374,7 +374,7 @@ function InviteModal({ open, onClose, isDirector, labels, onInvited }) {
           )}
 
           <button type="submit" disabled={sending}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-content transition-colors duration-150 hover:brightness-95 disabled:opacity-60">
+            className="ui-btn ui-btn-primary">
             <Link2 size={16} /> {sending ? "Création..." : "Créer le lien d'invitation"}
           </button>
         </form>
@@ -408,9 +408,9 @@ function EditRolesModal({ member, isDirector, canStaff, labels, onClose, onSaved
     <Modal open onClose={onClose} icon={Pencil} title="Rôles et droits" subtitle={fullName(member.user)}
       footer={
         <>
-          <button type="button" onClick={onClose} className="rounded-md bg-base-100 px-5 py-2.5 text-sm font-medium text-base-content transition-colors duration-150 hover:bg-base-300">Annuler</button>
+          <button type="button" onClick={onClose} className="ui-btn ui-btn-soft">Annuler</button>
           <button type="button" onClick={save} disabled={saving}
-            className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-content transition-colors duration-150 hover:brightness-95 disabled:opacity-60">
+            className="ui-btn ui-btn-primary">
             {saving ? "Enregistrement..." : "Enregistrer"}
           </button>
         </>

@@ -44,17 +44,25 @@ export const useNavigationPages = () => {
             pages.push({ name: 'Calendrier', to: '/calendar', icon: 'Terms' });
         }
         if (can('bulletins')) {
-            pages.push({ name: 'Bulletins', to: '/report-card', icon: 'ReportCard' });
+            pages.push(
+                { name: 'Suivi de la saisie', to: '/mark-progress', icon: 'Progress' },
+                { name: 'Bulletins', to: '/report-card', icon: 'ReportCard' },
+                { name: 'Historique des notes', to: '/mark-history', icon: 'History' },
+            );
         }
         if (isSchoolDirector) {
-            pages.push({ name: 'Mon établissement', to: '/my-school', icon: 'Others' });
+            pages.push(
+                { name: 'Passage d\'année', to: '/year-transition', icon: 'YearTransition' },
+                { name: 'Mon établissement', to: '/my-school', icon: 'Others' },
+            );
         }
     }
 
     if (has('teacher')) {
         pages.push(
             { name: 'Hub des notes', to: '/marks/hub', icon: 'HubMark' },
-            { name: 'Saisie des notes', to: '/marks/entry', icon: 'MarkEntry' }
+            { name: 'Saisie des notes', to: '/marks/entry', icon: 'MarkEntry' },
+            { name: 'Historique des notes', to: '/mark-history', icon: 'History' }
         );
     }
 

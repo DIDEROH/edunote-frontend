@@ -7,6 +7,7 @@ import AuthCard from "../components/ui/AuthCard";
 import TextInput from "../components/ui/TextInput";
 import { CtaNeon } from "../components/ui/ButtonsComponents";
 import { useAuth } from "../context/AuthContext";
+import { ArrowRight } from "lucide-react";
 
 function Login() {
   const navigate = useNavigate();
@@ -92,15 +93,14 @@ function Login() {
           })}
         />
 
-        <div className="flex justify-end -mt-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
           <Link to="/forgot-password" className="text-xs font-medium text-primary hover:underline">
             Mot de passe oublié ?
           </Link>
+          <CtaNeon type="submit" disabled={isSubmitting} icon={isSubmitting ? undefined : ArrowRight}>
+            {isSubmitting ? <><span className="ui-spinner" /> Connexion…</> : "Se connecter"}
+          </CtaNeon>
         </div>
-
-        <CtaNeon type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? <span>Connexion... <span className="loading"></span></span> : <span>Se connecter</span>}
-        </CtaNeon>
       </form>
     </AuthCard>
   );

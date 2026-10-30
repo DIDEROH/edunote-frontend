@@ -58,13 +58,11 @@ function ResetPassword() {
           </Link>
         }
       >
-        <CtaNeon
-          type="button"
-          className="w-full"
-          onAction={() => navigate("/forgot-password")}
-        >
-          Recevoir un code
-        </CtaNeon>
+        <div className="flex justify-end">
+          <CtaNeon type="button" onAction={() => navigate("/forgot-password")}>
+            Recevoir un code
+          </CtaNeon>
+        </div>
       </AuthCard>
     );
   }
@@ -110,9 +108,11 @@ function ResetPassword() {
           })}
         />
 
-        <CtaNeon type="submit" disabled={isSubmitting} className="w-full">
+        <div className="flex justify-end">
+          <CtaNeon type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Enregistrement..." : "Réinitialiser le mot de passe"}
         </CtaNeon>
+        </div>
       </form>
     </AuthCard>
   );

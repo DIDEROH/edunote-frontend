@@ -180,12 +180,12 @@ function SkillsConfig() {
   const currentSubject = subjects?.find((s) => String(s.id) === String(selectedSubject));
 
   return (
-    <main className="min-h-screen bg-base-100">
+    <main className="">
       <PageHeader title="Compétences" subtitle="Compétences évaluées par classe et par matière dans votre établissement." />
       <section className="max-w-5xl mx-auto p-3 md:p-6">
         <div className="mb-6 flex flex-col md:flex-row gap-4">
           <select
-            className="flex-1 p-3 rounded-md bg-base-200 text-sm font-medium text-base-content outline-none"
+            className="ui-field flex-1 font-medium"
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
           >
@@ -195,7 +195,7 @@ function SkillsConfig() {
             ))}
           </select>
           <select
-            className="flex-1 p-3 rounded-md bg-base-200 text-sm font-medium text-base-content outline-none"
+            className="ui-field flex-1 font-medium"
             value={selectedClassroom}
             onChange={(e) => setSelectedClassroom(e.target.value)}
           >
@@ -206,7 +206,7 @@ function SkillsConfig() {
           </select>
         </div>
 
-        <div className="bg-base-200 rounded-md overflow-hidden">
+        <div className="surface overflow-hidden">
           <div className="p-5 flex flex-col md:flex-row gap-4 justify-between md:items-center">
             <div className="flex items-center gap-4">
               <div className="bg-warning/10 text-warning p-3 rounded-md">
@@ -223,7 +223,7 @@ function SkillsConfig() {
               <button
                 onClick={saveSkills}
                 disabled={!selectedSubject || !selectedClassroom || loading}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-md bg-primary text-white text-sm font-medium transition-colors duration-150 hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="ui-btn ui-btn-primary"
               >
                 {loading ? <RefreshCcw size={16} className="animate-spin" /> : <Save size={16} />}
                 Enregistrer
@@ -231,7 +231,7 @@ function SkillsConfig() {
               <button
                 onClick={addSkill}
                 disabled={!selectedSubject || !selectedClassroom}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-md bg-primary/10 text-primary text-sm font-medium transition-colors duration-150 hover:bg-primary/15 disabled:opacity-50"
+                className="ui-btn bg-primary/10 text-primary hover:bg-primary/15"
               >
                 <Plus size={16} />
                 Ajouter
@@ -248,7 +248,7 @@ function SkillsConfig() {
                 onDragEnter={(e) => handleDragEnter(e, index)}
                 onDragEnd={handleDragEnd}
                 onDragOver={(e) => e.preventDefault()}
-                className="bg-base-100 rounded-md p-4 transition-colors duration-150 hover:bg-base-300 cursor-move"
+                className="bg-base-100 rounded-xl p-4 transition-colors duration-150 hover:bg-base-300 cursor-move ring-1 ring-base-300/60"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -264,7 +264,7 @@ function SkillsConfig() {
                   value={skill.name}
                   onChange={(e) => updateSkill(index, "name", e.target.value)}
                   placeholder="Exemple : Résoudre un problème"
-                  className="w-full bg-base-200 rounded-md px-4 py-3 text-sm font-medium text-base-content outline-none"
+                  className="ui-field w-full font-medium"
                 />
                 <div className="mt-4 flex justify-between items-center">
                   <div className="flex items-center gap-2 bg-base-200 rounded-md px-4 py-2">

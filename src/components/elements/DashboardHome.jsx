@@ -20,8 +20,8 @@ const DashboardHome = () => {
 
   // Compte sans rôle exploitable (ex. inscription récente en attente de validation)
   return (
-    <div className="mx-auto max-w-xl rounded-md bg-base-200 p-8 md:p-10 text-center">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary">
+    <div className="surface mx-auto max-w-xl p-8 text-center md:p-10">
+      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
         <Hourglass size={26} />
       </div>
       <h1 className="mt-5 text-lg font-semibold text-base-content">

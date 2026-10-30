@@ -63,17 +63,17 @@ export default function SchoolStatusScreen({ school }) {
       <p className="text-sm leading-relaxed text-base-content/70">{content.text}</p>
 
       {school.rejection_reason && school.status !== "pending" && (
-        <div className="rounded-md bg-warning/10 p-4 text-sm text-base-content/80">
+        <div className="rounded-2xl bg-warning/10 p-4 text-sm text-base-content/80 ring-1 ring-warning/20">
           <span className="font-medium">Motif : </span>{school.rejection_reason}
         </div>
       )}
 
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="flex flex-wrap gap-2.5">
         <button
           type="button"
           onClick={check}
           disabled={checking}
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-content transition-colors duration-150 hover:brightness-95 disabled:opacity-60"
+          className="ui-btn ui-btn-primary"
         >
           <RefreshCw size={16} className={checking ? "animate-spin" : ""} /> Vérifier à nouveau
         </button>
@@ -81,7 +81,7 @@ export default function SchoolStatusScreen({ school }) {
           href={`https://wa.me/${EDUNOTE_WHATSAPP}?text=${whatsappText}`}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-success/10 px-4 py-2.5 text-sm font-medium text-success transition-colors duration-150 hover:bg-success/15"
+          className="ui-btn ui-btn-success"
         >
           <MessageCircle size={16} /> Contacter EduNote
         </a>

@@ -74,9 +74,11 @@ export default function Invitation() {
     return (
       <AuthCard icon={School} title={title} description={description}>
         <p className="text-sm text-base-content/70">Vous êtes connecté(e) en tant que <strong>{userName}</strong>.</p>
-        <CtaNeon type="button" onAction={join} disabled={joining} className="w-full">
+        <div className="flex justify-end">
+          <CtaNeon type="button" onAction={join} disabled={joining}>
           {joining ? "Validation..." : "Rejoindre l'établissement"}
         </CtaNeon>
+        </div>
       </AuthCard>
     );
   }
@@ -88,7 +90,7 @@ export default function Invitation() {
       description={description}
       footer={<span className="text-xs">Lien valable jusqu'au {new Date(invitation.expires_at).toLocaleDateString("fr-FR")}.</span>}
     >
-      <div className="flex rounded-md bg-base-100 p-1" role="tablist">
+      <div className="flex rounded-full bg-base-100 p-1 ring-1 ring-base-300" role="tablist">
         {[["register", "Je crée mon compte"], ["login", "J'ai déjà un compte"]].map(([value, label]) => (
           <button
             key={value}
@@ -96,7 +98,7 @@ export default function Invitation() {
             role="tab"
             aria-selected={mode === value}
             onClick={() => setMode(value)}
-            className={`flex-1 rounded-sm py-2 text-xs font-medium transition-colors duration-150 ${mode === value ? "bg-base-200 text-primary" : "text-base-content/50 hover:text-base-content"}`}
+            className={`flex-1 rounded-full py-2 text-xs font-semibold transition-all duration-200 ${mode === value ? "bg-white text-primary shadow-sm ring-1 ring-base-300" : "text-base-content/50 hover:text-base-content"}`}
           >
             {label}
           </button>
@@ -154,9 +156,11 @@ function RegisterForm({ token, defaultName, onDone }) {
           required: "La confirmation est requise.",
           validate: (value) => value === password || "Les mots de passe ne correspondent pas.",
         })} />
-      <CtaNeon type="submit" disabled={isSubmitting} className="w-full">
+      <div className="flex justify-end">
+          <CtaNeon type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Création..." : "Créer mon compte et rejoindre"}
       </CtaNeon>
+        </div>
     </form>
   );
 }
@@ -179,9 +183,11 @@ function LoginForm({ onLoggedIn }) {
         {...register("login", { required: "Saisissez votre numéro de téléphone ou votre e-mail." })} />
       <TextInput id="login-password" label="Mot de passe" type="password" icon={FiLock} error={errors.password}
         {...register("password", { required: "Le mot de passe est requis." })} />
-      <CtaNeon type="submit" disabled={isSubmitting} className="w-full">
+      <div className="flex justify-end">
+          <CtaNeon type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Connexion..." : "Se connecter et rejoindre"}
       </CtaNeon>
+        </div>
     </form>
   );
 }

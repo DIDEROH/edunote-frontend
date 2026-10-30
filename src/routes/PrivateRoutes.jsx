@@ -1,12 +1,12 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import LoadingSkeletoon from "../components/LoadingSkeletoon";
+import AppSplash from "../components/ui/AppSplash";
 import SchoolStatusScreen from "../components/SchoolStatusScreen";
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading, user, hasRole } = useAuth();
 
-  if (loading) return <LoadingSkeletoon />;
+  if (loading) return <AppSplash />;
 
   if (!isAuthenticated) return <Navigate to="/login" />;
 

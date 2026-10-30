@@ -59,7 +59,7 @@ function TeacherMarkHub() {
   }
 
   return (
-    <main className="min-h-screen bg-base-100">
+    <main className="">
       <PageHeader
         title="Espace enseignant"
         subtitle="Suivez rapidement les grilles de notes que vous pouvez saisir."
@@ -68,13 +68,13 @@ function TeacherMarkHub() {
       <div className="mt-6">
 
         {mappedAssignments.length === 0 ? (
-          <div className="rounded-md bg-base-200 p-10 text-center text-sm text-base-content/60">
+          <div className="surface p-10 text-center text-sm text-base-content/60">
             Vous n'avez aucune affectation active pour le moment.
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {mappedAssignments.map((assignment) => (
-              <div key={assignment.id} className="rounded-md p-5 bg-base-200 flex flex-col items-center text-center">
+              <div key={assignment.id} className="surface p-5 flex flex-col items-center text-center">
                 <div className="mb-2 text-xs font-medium text-base-content/50 uppercase">{assignment.school}</div>
                 <h3 className="text-base font-semibold text-base-content">{assignment.label}</h3>
                 <p className="mt-1 text-sm text-base-content/60">{assignment.year}</p>
