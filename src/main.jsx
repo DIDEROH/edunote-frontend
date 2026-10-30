@@ -20,6 +20,8 @@ createRoot(document.getElementById('root')).render(
           <Toaster
             richColors
             position='bottom-center'
+            offset={{ bottom: 'var(--toast-bottom, 24px)' }}
+            mobileOffset={{ bottom: 'var(--toast-bottom, 16px)' }}
             closeButton
             toastOptions={{ style: { fontFamily: 'var(--font-sans)', borderRadius: '1rem' } }}
           />

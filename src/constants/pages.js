@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
  * - EduNote (admin) : validation des établissements, statistiques, catalogues communs ;
  * - école (directeur, modérateurs) : selon les droits accordés par le directeur ;
  * - enseignant : saisie des notes.
+ * `short` : libellé de la barre du bas (téléphone) quand `name` est trop long.
  */
 export const useNavigationPages = () => {
     const { roles, loading, can, isSchoolDirector, school } = useAuth();
@@ -19,19 +20,19 @@ export const useNavigationPages = () => {
 
     if (has('admin')) {
         pages.push(
-            { name: 'Tableau de bord', to: '/home', icon: 'Dashboard' },
-            { name: 'Établissements', to: '/schools', icon: 'Schools' },
-            { name: 'Catalogue des classes', to: '/classrooms', icon: 'Classrooms' },
-            { name: 'Catalogue des matières', to: '/subjects', icon: 'Subjects' },
+            { name: 'Tableau de bord', short: 'Accueil', to: '/home', icon: 'Dashboard' },
+            { name: 'Établissements', short: 'Écoles', to: '/schools', icon: 'Schools' },
+            { name: 'Catalogue des classes', short: 'Classes', to: '/classrooms', icon: 'Classrooms' },
+            { name: 'Catalogue des matières', short: 'Matières', to: '/subjects', icon: 'Subjects' },
         );
     }
 
     // Gestion de l'école : directeur et modérateurs (école validée)
     if ((has('director') || has('moderator')) && school?.status === 'active') {
         pages.push(
-            { name: 'Tableau de bord', to: '/home', icon: 'Dashboard' },
+            { name: 'Tableau de bord', short: 'Accueil', to: '/home', icon: 'Dashboard' },
             { name: 'Élèves', to: '/students', icon: 'Students' },
-            { name: 'Classes et matières', to: '/my-classes', icon: 'Classrooms' },
+            { name: 'Classes et matières', short: 'Classes', to: '/my-classes', icon: 'Classrooms' },
         );
         if (can('classes') && school?.evaluation_type === 'skill') {
             pages.push({ name: 'Compétences', to: '/skills', icon: 'Skills' });
@@ -45,24 +46,24 @@ export const useNavigationPages = () => {
         }
         if (can('bulletins')) {
             pages.push(
-                { name: 'Suivi de la saisie', to: '/mark-progress', icon: 'Progress' },
+                { name: 'Suivi de la saisie', short: 'Suivi', to: '/mark-progress', icon: 'Progress' },
                 { name: 'Bulletins', to: '/report-card', icon: 'ReportCard' },
-                { name: 'Historique des notes', to: '/mark-history', icon: 'History' },
+                { name: 'Historique des notes', short: 'Historique', to: '/mark-history', icon: 'History' },
             );
         }
         if (isSchoolDirector) {
             pages.push(
-                { name: 'Passage d\'année', to: '/year-transition', icon: 'YearTransition' },
-                { name: 'Mon établissement', to: '/my-school', icon: 'Others' },
+                { name: 'Passage d\'année', short: 'Passage', to: '/year-transition', icon: 'YearTransition' },
+                { name: 'Mon établissement', short: 'Mon école', to: '/my-school', icon: 'Others' },
             );
         }
     }
 
     if (has('teacher')) {
         pages.push(
-            { name: 'Hub des notes', to: '/marks/hub', icon: 'HubMark' },
-            { name: 'Saisie des notes', to: '/marks/entry', icon: 'MarkEntry' },
-            { name: 'Historique des notes', to: '/mark-history', icon: 'History' }
+            { name: 'Hub des notes', short: 'Notes', to: '/marks/hub', icon: 'HubMark' },
+            { name: 'Saisie des notes', short: 'Saisie', to: '/marks/entry', icon: 'MarkEntry' },
+            { name: 'Historique des notes', short: 'Historique', to: '/mark-history', icon: 'History' }
         );
     }
 

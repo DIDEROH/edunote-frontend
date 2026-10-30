@@ -731,6 +731,14 @@ body {
   background-color: transparent;
 }
 
+/* Notifications (sonner, main.jsx) au-dessus de la barre du bas du téléphone,
+   seulement quand elle est affichée (sous lg, dans le cadre de l'application) */
+@media (max-width: 63.99rem) {
+  :root:has(.bottom-dock) {
+    --toast-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+  }
+}
+
 /* Impression (bulletins, listes) : toujours sur fond blanc */
 @media print {
   html,
