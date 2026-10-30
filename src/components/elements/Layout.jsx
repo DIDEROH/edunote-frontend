@@ -217,7 +217,7 @@ export default function Layout() {
             <button type="button" onClick={() => setPaletteOpen(true)}
               className="ml-1 hidden items-center gap-2 rounded-full bg-white/6 py-1.5 pr-1.5 pl-3 text-xs text-white/50 ring-1 ring-white/10 transition-colors hover:bg-white/10 hover:text-white/80 sm:flex md:ml-4">
               <Search size={14} />
-              <span>Rechercher une page</span>
+              <span>Rechercher…</span>
               <kbd className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-white/60">Ctrl K</kbd>
             </button>
 
@@ -241,7 +241,7 @@ export default function Layout() {
                 </button>
               )}
 
-              <button type="button" onClick={() => setPaletteOpen(true)} className="ui-icon-btn sm:hidden" aria-label="Rechercher une page">
+              <button type="button" onClick={() => setPaletteOpen(true)} className="ui-icon-btn sm:hidden" aria-label="Rechercher">
                 <Search size={17} />
               </button>
 
