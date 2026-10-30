@@ -83,7 +83,7 @@ function Profile() {
       await api.put(`/users/${user.id}`, {
         firstName: values.firstName,
         lastName: values.lastName,
-        email: values.email,
+        email: values.email?.trim() || null,
         phone: values.phone || null,
         address: values.address || null,
         birth_date: values.birth_date || null,
@@ -203,8 +203,8 @@ function Profile() {
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <InputComponent nom="Nom" name="firstName" register={profileForm.register} errors={profileForm.formState.errors} req={true} type="text" placeholder="Nom" icone={<User size={16} />} />
                 <InputComponent nom="Prénom" name="lastName" register={profileForm.register} errors={profileForm.formState.errors} req={true} type="text" placeholder="Prénom" icone={<User size={16} />} />
-                <InputComponent nom="Adresse e-mail" name="email" register={profileForm.register} errors={profileForm.formState.errors} req={true} type="email" placeholder="exemple@ecole.cm" icone={<Mail size={16} />} />
-                <InputComponent nom="Téléphone" name="phone" register={profileForm.register} errors={profileForm.formState.errors} req={false} type="tel" placeholder="6xx xxx xxx" icone={<Phone size={16} />} />
+                <InputComponent nom="Téléphone (sert à vous connecter)" name="phone" register={profileForm.register} errors={profileForm.formState.errors} req={false} type="tel" placeholder="6xx xxx xxx" icone={<Phone size={16} />} />
+                <InputComponent nom="Adresse e-mail (facultatif)" name="email" register={profileForm.register} errors={profileForm.formState.errors} req={false} type="email" placeholder="exemple@ecole.cm" icone={<Mail size={16} />} />
                 <InputComponent nom="Date de naissance" name="birth_date" register={profileForm.register} errors={profileForm.formState.errors} req={false} type="date" icone={<CalendarDays size={16} />} />
                 <InputComponent nom="Lieu de naissance" name="birth_place" register={profileForm.register} errors={profileForm.formState.errors} req={false} type="text" placeholder="Lieu" icone={<Hash size={16} />} />
                 <div className="md:col-span-2">

@@ -57,7 +57,7 @@ export default function StudentIformations() {
     const showConfirm = useShowConfirm();
     const { setNavbarActions } = useOutletContext(); // Récupération de la fonction pour définir les actions de la navbar
     // Modification et suppression : directeur uniquement (comme l'API)
-    const canManage = useAuth().hasRole("director");
+    const canManage = useAuth().can("students");
 
     useEffect(() => {
         const fetchStudentData = async () => {

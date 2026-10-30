@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import { Outlet, useLocation } from 'react-router-dom'; // 👈 Ajout de useNavigate pour le bouton retour
 import { Menu, X, Search, User2, Pencil, Plus, Filter, Printer, ArrowLeft, Trash2, WifiOff, RefreshCw, Download, FileSpreadsheet } from 'lucide-react';
 import { FiLogOut, FiInfo } from 'react-icons/fi';
-import { LuBookMarked, LuCalendarRange, LuChartColumnIncreasing, LuClipboardPen, LuFileText, LuLayoutDashboard, LuPresentation, LuSettings, LuUserRound, LuUsers } from 'react-icons/lu';
+import { LuAward, LuBookMarked, LuCalendarRange, LuChartColumnIncreasing, LuClipboardPen, LuFileText, LuLayoutDashboard, LuPresentation, LuSettings, LuUserRound, LuUsers } from 'react-icons/lu';
 import { TbSchool } from 'react-icons/tb';
 import { PiStudent } from 'react-icons/pi';
 import Logo from './Logo';
@@ -117,7 +117,8 @@ export default function Layout() {
     Others: <LuSettings size={SIZE_ICON} />,
     Personnel: <LuUserRound size={SIZE_ICON} />,
     MarkEntry: <LuClipboardPen size={SIZE_ICON} />,
-    HubMark: <LuChartColumnIncreasing size={SIZE_ICON} />
+    HubMark: <LuChartColumnIncreasing size={SIZE_ICON} />,
+    Skills: <LuAward size={SIZE_ICON} />
   };
 
   return (
@@ -182,8 +183,8 @@ export default function Layout() {
               <div className="text-center min-w-30 whitespace-nowrap">
                 <p>{Appname} Version {VERSION}</p>
                 <p className="italic">Par Durinfo</p>
-                <a href="tel:+237697630127">
-                  +237 697 630 127
+                <a href="tel:+237680680053">
+                  +237 680 680 053
                 </a>
               </div>
             </div>

@@ -7,7 +7,7 @@ import StudentImportModal from '../components/students/StudentImportModal'
 import convertToWebp from '../utils/imageToWebp'
 import { toast } from 'sonner'
 import InputComponent from '../components/InputComponent'
-import { useHasRole } from '../hooks/UseHasRole'
+import { useAuth } from '../context/AuthContext'
 import PageHeader from '../components/elements/PageHeader'
 import useNavbarRefresh from '../hooks/useNavbarRefresh'
 import { useConfirm } from '../providers/ConfirmProvider'
@@ -16,7 +16,8 @@ export default function EnrollmentStudent() {
   const { id } = useParams()
   const isEditMode = Boolean(id)
   const navigate = useNavigate()
-  const isDirector = useHasRole('director')
+  // Inscrire / modifier un élève : droit « élèves » (directeur, ou modérateur qui l'a reçu)
+  const isDirector = useAuth().can('students')
 
   const confirm = useConfirm()
 
@@ -83,7 +84,7 @@ export default function EnrollmentStudent() {
 
   useEffect(() => {
     if (!isDirector) {
-      toast.error('Seul le directeur peut effectuer cette opération.')
+      toast.error("Vous n'avez pas le droit d'inscrire ou de modifier des élèves.")
       navigate('/403')
       return
     }

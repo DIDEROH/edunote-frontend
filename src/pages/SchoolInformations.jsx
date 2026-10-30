@@ -5,24 +5,21 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import LoadingSkeleton from '../components/LoadingSkeletoon'
 import { LuClipboardCheck, LuFileQuestion } from 'react-icons/lu'
-import { useAuth } from '../context/AuthContext'
-import { CtaGradient } from '../components/ui/ButtonsComponents'
 import { BookOpen, Info } from 'lucide-react'
 import SchoolClassroomsPanel from '../components/schools/SchoolClassroomsPanel'
 import useNavbarRefresh from '../hooks/useNavbarRefresh'
 
+/**
+ * Fiche d'un établissement pour l'équipe EduNote (consultation) : classes,
+ * matières et mode d'évaluation sont gérés par le chef d'établissement.
+ */
 function SchoolInformations() {
     const { setNavbarActions } = useOutletContext();
     const { id } = useParams();
     const navigate = useNavigate();
-    const { hasRole } = useAuth();
 
     const [loading, setLoading] = useState(true);
     const [school, setSchool] = useState(null);
-    const [reloadKey, setReloadKey] = useState(0);
-
-    // Seuls l'administrateur et le directeur de l'école ont les droits de configuration
-    const canManage = hasRole('admin') || hasRole('director');
 
     // Récupération de l'école, de ses classes et de SES matières par classe
     useEffect(() => {
@@ -34,9 +31,7 @@ function SchoolInformations() {
             .finally(() => { if (!ignore) setLoading(false); });
 
         return () => { ignore = true; };
-    }, [id, reloadKey]);
-
-    const reload = () => setReloadKey((key) => key + 1);
+    }, [id]);
 
     // Actualiser : la fiche reste affichée pendant le rechargement
     useNavbarRefresh(() => api.get(`/schools/${id}`).then(({ data }) => setSchool(data)));
@@ -49,14 +44,6 @@ function SchoolInformations() {
     // Matières enseignées dans l'établissement (toutes classes confondues)
     const taughtSubjects = [...new Set((school?.classrooms || []).flatMap((c) => (c.subjects || []).map((s) => s.name)))].sort();
 
-    const handleToggleEvaluation = async (schoolId) => {
-        api.patch(`/schools/${schoolId}/toggle-evaluation`)
-        .then(({ data }) => {
-            reload();
-            toast.success(data?.message)
-        })
-        .catch(error => toast.error(error.message))
-    };
 
     return (
         <div className="max-w-7xl mx-auto space-y-6">
@@ -76,9 +63,7 @@ function SchoolInformations() {
                         <SchoolClassroomsPanel
                             schoolId={school.id}
                             classrooms={school.classrooms || []}
-                            canManage={canManage}
-                            onChanged={reload}
-                            configurePath={(classroomId) => `/schools/${school.id}/classrooms/${classroomId}`}
+                            canManage={false}
                         />
 
                         {/* MATIÈRES ENSEIGNÉES DANS L'ÉCOLE */}
@@ -127,15 +112,12 @@ function SchoolInformations() {
                                     </div>
                                     <div>
                                         <h2 className="text-sm font-semibold text-base-content">Type d'évaluation</h2>
-                                        <p className="text-xs text-base-content/50">Ne peut être modifiée au cours de l'année scolaire</p>
+                                        <p className="text-xs text-base-content/50">Choisi par le chef d'établissement</p>
                                     </div>
                                 </div>
 
                                 <div className='flex gap-4 flex-wrap items-center'>
                                     <span className='font-medium text-primary text-sm px-4 py-2.5 rounded-md bg-primary/10'>{school.evaluation_type !== "skill" ? "Séquences" : "Compétences"}</span>
-                                    <CtaGradient onAction={() => handleToggleEvaluation(school.id)}>
-                                        Basculer vers l'évaluation par {school.evaluation_type === "skill" ? "Séquences" : "Compétences"}
-                                    </CtaGradient>
                                 </div>
                         </div>}
                     </div>

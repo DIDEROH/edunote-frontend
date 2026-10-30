@@ -4,7 +4,7 @@ export const ROLE_CONFIG = {
     dot: "bg-error",
   },
   MODERATOR: {
-    label: "Assistant d'établissement",
+    label: "Modérateur",
     dot: "bg-warning",
   },
   TEACHER: {

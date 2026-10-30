@@ -148,6 +148,12 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: !!user,
         // On vérifie en minuscules pour correspondre au stockage
         hasRole: (roleName) => roles.includes(roleName.toLowerCase()),
+        // École gérée (directeur / modérateur), avec son statut de validation
+        school: user?.school ?? null,
+        isSchoolDirector: Boolean(user?.is_school_director),
+        // Droits de gestion dans l'école : tous pour le directeur, ceux accordés au modérateur
+        permissions: user?.permissions ?? [],
+        can: (permission) => Boolean(user?.permissions?.includes(permission)),
       }}
     >
       {children}

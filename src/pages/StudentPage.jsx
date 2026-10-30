@@ -18,10 +18,10 @@ import useNavbarRefresh from "../hooks/useNavbarRefresh";
 
 function StudentsPage() {
     const { setNavbarActions } = useOutletContext();
-    const { hasRole } = useAuth();
+    const { can } = useAuth();
     // Seul l'admin voit plusieurs écoles ; seul le directeur inscrit des élèves (comme l'API)
-    const isAdmin = hasRole("admin");
-    const canEnroll = hasRole("director");
+    // Inscrire et importer : droit « élèves » (directeur, ou modérateur qui l'a reçu)
+    const canEnroll = can("students");
     const navigate = useNavigate();
     const { printRef, print } = usePrintable("Liste des eleves");
 
@@ -31,7 +31,6 @@ function StudentsPage() {
     
     // Options des filtres
     const [classrooms, setClassrooms] = useState([]);
-    const [schools, setSchools] = useState([]);
     const [showFiltersModal, setShowFiltersModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
 
@@ -48,7 +47,6 @@ function StudentsPage() {
 
     // Filtres centralisés
     const [filters, setFilters] = useState({
-        school_id: "",
         classroom_id: "",
         sexe: "",
     });
@@ -63,7 +61,6 @@ function StudentsPage() {
         const payload = {
             search: query,
             page: page,
-            school_id: filters.school_id,
             classroom_id: filters.classroom_id,
             sex: filters.sexe // Correspondance avec le paramètre attendu par votre API ('sex')
         };
@@ -84,15 +81,11 @@ function StudentsPage() {
             .finally(() => { if (!silent) setLoading(false); });
     }, [filters]); // Dépendance mise à jour sur l'objet filters complet
 
-    // Chargement global initial des options de filtrage (Écoles, Classes)
+    // Options de filtrage : classes de l'établissement
     const fetchFilterOptions = async () => {
         try {
-            const [classRes, schoolRes] = await Promise.all([
-                api.get("/classrooms"),
-                isAdmin ? api.get("/schools") : Promise.resolve({ data: [] })
-            ]);
+            const classRes = await api.get("/classrooms");
             setClassrooms(classRes.data);
-            setSchools(schoolRes.data);
         } catch {
             toast.error("Impossible de charger les options de filtrage.");
         }
@@ -109,7 +102,6 @@ function StudentsPage() {
 
     const handleResetFilters = () => {
         setFilters({
-            school_id: "",
             classroom_id: "",
             sexe: ""
         });
@@ -322,21 +314,6 @@ function StudentsPage() {
                         </div>
 
                         <div className="space-y-5 p-6">
-                            {/* Filtre Ecole (admin uniquement : directeur et assistant n'ont qu'une école) */}
-                            {isAdmin && (
-                                <div>
-                                    <label className="mb-2 block text-sm font-medium text-base-content/70">École</label>
-                                    <select
-                                        value={filters.school_id}
-                                        onChange={(e) => setFilters(prev => ({ ...prev, school_id: e.target.value }))}
-                                        className="w-full rounded-md bg-base-100 py-2.5 px-4 text-sm outline-none"
-                                    >
-                                        <option value="">Toutes les écoles</option>
-                                        {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                                    </select>
-                                </div>
-                            )}
-
                             {/* Filtre Classe */}
                             <div>
                                 <label className="mb-2 block text-sm font-medium text-base-content/70">Classe</label>

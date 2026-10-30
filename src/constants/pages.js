@@ -1,74 +1,63 @@
 import { useAuth } from "../context/AuthContext";
 
-// On crée une fonction réutilisable pour obtenir les pages selon l'utilisateur actuel
+/**
+ * Menu selon le rôle :
+ * - EduNote (admin) : validation des établissements, statistiques, catalogues communs ;
+ * - école (directeur, modérateurs) : selon les droits accordés par le directeur ;
+ * - enseignant : saisie des notes.
+ */
 export const useNavigationPages = () => {
-    const { roles, loading } = useAuth(); // 👈 Récupération de loading pour éviter les sauts d'affichage
+    const { roles, loading, can, isSchoolDirector, school } = useAuth();
 
     // Si le contexte charge encore les données de l'utilisateur, on retourne une liste vide temporairement
     if (loading) {
         return [];
     }
 
-    // 🟢 Utilisation des slugs en minuscules configurés dans Laravel et stockés dans React
-    const isAdmin = Array.isArray(roles) && roles.includes('admin');
-    const isTeacher = Array.isArray(roles) && roles.includes('teacher');
-    const isDirector = Array.isArray(roles) && roles.includes('director');
-    const isModerator = Array.isArray(roles) && roles.includes('moderator');
+    const has = (role) => Array.isArray(roles) && roles.includes(role);
+    const pages = [];
 
-
-    // Base des pages visibles par tout le monde connecté
-    const pages = []; 
-    
-    // Les access des admins et directeurs
-    if (isDirector || isAdmin) {
+    if (has('admin')) {
         pages.push(
-            { name: 'Tableau de bord', to: '/home', icon: 'Dashboard' }
-        )
-    }
-    
-    // Les access des admins et directeurs
-    if (isDirector) {
-        pages.push(
-            { name: 'Classes et matières', to: '/my-classes', icon: 'Classrooms' },
-            { name: 'Affectations enseignants', to: '/director/teachers', icon: 'Teachers' },
-        )
-    }
-    
-    // Les access des admins, directeurs et moderateurs
-    if (isAdmin || isModerator || isDirector) {
-        pages.push(
-            { name: 'Élèves', to: '/students', icon: 'Students' },
-            { name: 'Bulletins', to: '/report-card', icon: 'ReportCard' },
-        )
-    }
-    
-    if (isAdmin) {
-        pages.push(
-            { name: 'Écoles', to: '/schools', icon: 'Schools' },
-            { name: 'Classes', to: '/classrooms', icon: 'Classrooms' },
-            { name: 'Matières et Compétences', to: '/pedagogie', icon: 'Subjects' }
+            { name: 'Tableau de bord', to: '/home', icon: 'Dashboard' },
+            { name: 'Établissements', to: '/schools', icon: 'Schools' },
+            { name: 'Catalogue des classes', to: '/classrooms', icon: 'Classrooms' },
+            { name: 'Catalogue des matières', to: '/subjects', icon: 'Subjects' },
         );
     }
 
-    if (isTeacher) {
+    // Gestion de l'école : directeur et modérateurs (école validée)
+    if ((has('director') || has('moderator')) && school?.status === 'active') {
+        pages.push(
+            { name: 'Tableau de bord', to: '/home', icon: 'Dashboard' },
+            { name: 'Élèves', to: '/students', icon: 'Students' },
+            { name: 'Classes et matières', to: '/my-classes', icon: 'Classrooms' },
+        );
+        if (can('classes') && school?.evaluation_type === 'skill') {
+            pages.push({ name: 'Compétences', to: '/skills', icon: 'Skills' });
+        }
+        pages.push(
+            { name: 'Personnel', to: '/staff', icon: 'Personnel' },
+            { name: 'Affectations', to: '/director/teachers', icon: 'Teachers' },
+        );
+        if (can('calendar')) {
+            pages.push({ name: 'Calendrier', to: '/calendar', icon: 'Terms' });
+        }
+        if (can('bulletins')) {
+            pages.push({ name: 'Bulletins', to: '/report-card', icon: 'ReportCard' });
+        }
+        if (isSchoolDirector) {
+            pages.push({ name: 'Mon établissement', to: '/my-school', icon: 'Others' });
+        }
+    }
+
+    if (has('teacher')) {
         pages.push(
             { name: 'Hub des notes', to: '/marks/hub', icon: 'HubMark' },
             { name: 'Saisie des notes', to: '/marks/entry', icon: 'MarkEntry' }
         );
     }
 
-    
-    // if (isDirector) {
-    //     pages.push(
-    //         { name: 'Vérouillage des trimestres', to: '/term', icon: 'Terms' }
-    //     );
-    // }
-
-    if (isAdmin) {
-        pages.push(
-            {name: 'Autres', to: '/others', icon: 'Others'}
-        )
-    }
-
-    return pages;
+    // Un même lien n'apparaît qu'une fois (ex. tableau de bord)
+    return pages.filter((page, index) => pages.findIndex((p) => p.to === page.to) === index);
 };

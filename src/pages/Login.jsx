@@ -18,9 +18,10 @@ function Login() {
 
   const { login } = useAuth();
 
-  const onSubmit = async ({ email, password }) => {
+  // Identifiant : e-mail ou numéro de téléphone
+  const onSubmit = async ({ login: identifier, password }) => {
     try {
-      const response = await api.postNoAuth("/login", { email, password });
+      const response = await api.postNoAuth("/login", { login: identifier.trim(), password });
 
       // 1. On vérifie d'abord si le backend a renvoyé un message d'erreur personnalisé
       if (response.data?.message) {
@@ -55,27 +56,27 @@ function Login() {
       description="Connectez-vous pour accéder à votre espace de gestion scolaire."
       footer={
         <>
-          Vous n'avez pas encore de compte ?{' '}
+          Chef d'établissement ?{' '}
           <Link to="/register" className="font-medium text-primary">
-            Créer un compte
+            Inscrire mon établissement
           </Link>
+          <p className="mt-2 text-xs text-base-content/50">
+            Personnel d'une école : utilisez le lien d'invitation reçu par WhatsApp.
+          </p>
         </>
       }
     >
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
         <TextInput
-          id="email"
-          label="Adresse e-mail"
-          type="email"
-          placeholder="exemple@ecole.cm"
+          id="login"
+          label="Téléphone ou adresse e-mail"
+          type="text"
+          autoComplete="username"
+          placeholder="6XX XX XX XX ou exemple@ecole.cm"
           icon={FiUser}
-          error={errors.email}
-          {...register("email", {
-            required: "L'adresse e-mail est requise.",
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: "Format d'e-mail invalide.",
-            },
+          error={errors.login}
+          {...register("login", {
+            required: "Saisissez votre numéro de téléphone ou votre e-mail.",
           })}
         />
 

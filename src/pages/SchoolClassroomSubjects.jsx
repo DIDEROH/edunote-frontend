@@ -73,6 +73,9 @@ function SchoolClassroomSubjects() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [globalSubjects, setGlobalSubjects] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  // Matière absente du catalogue commun : créée pour l'établissement seulement
+  const [newSubject, setNewSubject] = useState({ name: "", code: "" });
+  const [creatingSubject, setCreatingSubject] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
 
   // Copie depuis une autre classe de l'école
@@ -112,6 +115,23 @@ function SchoolClassroomSubjects() {
     );
     applyProgramme(programme, !replace);
   } : null);
+
+  const createSchoolSubject = async (event) => {
+    event.preventDefault();
+    setCreatingSubject(true);
+    try {
+      const { data } = await api.post("/subjects", { name: newSubject.name.trim(), code: newSubject.code.trim() });
+      setGlobalSubjects((prev) => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+      setNewSubject({ name: "", code: "" });
+      // Ajoutée directement au programme de la classe
+      setTempAssignments((prev) => [...prev, { id: data.id, name: data.name, code: data.code, coefficient: 1, group: "Général" }]);
+      toast.success(`${data.name} créée et ajoutée au programme`);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setCreatingSubject(false);
+    }
+  };
 
   const openLibrary = async () => {
     setIsModalOpen(true);
@@ -455,7 +475,10 @@ function SchoolClassroomSubjects() {
                   <div key={subject.id} className={`p-4 rounded-md flex items-center justify-between bg-base-100 ${isSelected ? "opacity-60" : ""}`}>
                     <div>
                       <span className="text-sm font-medium text-base-content">{subject.name}</span>
-                      <span className="block text-xs text-primary mt-0.5">CODE : {subject.code}</span>
+                      <span className="block text-xs text-primary mt-0.5">
+                        CODE : {subject.code}
+                        {subject.own && <span className="ml-2 rounded-sm bg-secondary/10 px-1.5 py-0.5 text-secondary">Votre établissement</span>}
+                      </span>
                     </div>
                     {isSelected ? (
                       <span className="text-xs bg-success/10 text-success font-medium px-2.5 py-1.5 rounded-sm flex items-center gap-1.5">
@@ -473,6 +496,23 @@ function SchoolClassroomSubjects() {
                   </div>
                 );
               })}
+
+              {/* Matière absente du catalogue : créée pour l'établissement */}
+              {!modalLoading && (
+                <form onSubmit={createSchoolSubject} className="space-y-2 rounded-md bg-base-100 p-4">
+                  <p className="text-xs font-medium text-base-content/60">Matière absente du catalogue ? Créez-la pour votre établissement :</p>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input value={newSubject.name} onChange={(e) => setNewSubject({ ...newSubject, name: e.target.value })} placeholder="Nom (ex : Langue nationale)"
+                      className="flex-1 rounded-md bg-base-200 px-3 py-2 text-sm outline-none" />
+                    <input value={newSubject.code} onChange={(e) => setNewSubject({ ...newSubject, code: e.target.value })} placeholder="Code"
+                      className="w-full rounded-md bg-base-200 px-3 py-2 text-sm uppercase outline-none sm:w-28" />
+                    <button type="submit" disabled={creatingSubject || !newSubject.name.trim() || !newSubject.code.trim()}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-content transition-colors duration-150 hover:brightness-95 disabled:opacity-50">
+                      <Plus size={12} /> Créer et ajouter
+                    </button>
+                  </div>
+                </form>
+              )}
 
               {filteredGlobalSubjects.length === 0 && !modalLoading && (
                 <div className="text-center py-6 text-base-content/40 text-sm">Aucune matière trouvée.</div>

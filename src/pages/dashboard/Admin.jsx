@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
+import { Clock } from "lucide-react";
 import {
     FaUserGraduate,
     FaSchool,
@@ -95,6 +96,18 @@ function Admin() {
 
                 {/* Header */}
                 <Header user={dashboard?.general?.user} period={dashboard.period} />
+
+                {/* Inscriptions d'établissements à valider */}
+                {dashboard?.general?.pending_schools > 0 && (
+                    <Link to="/schools?status=pending"
+                        className="flex items-center justify-between gap-4 rounded-md bg-warning/10 p-4 text-sm text-base-content transition-colors duration-150 hover:bg-warning/15">
+                        <span className="flex items-center gap-3">
+                            <Clock size={18} className="text-warning" />
+                            <span><strong>{dashboard.general.pending_schools}</strong> inscription(s) d'établissement à valider</span>
+                        </span>
+                        <span className="text-xs font-medium text-warning">Voir</span>
+                    </Link>
+                )}
 
                 {/* KPI */}
                 <section className="p-3 flex overflow-x-auto snap-x snap-mandatory pb-3 sm:grid sm:grid-cols-2 xl:grid-cols-4 gap-5 scrollbar-none">

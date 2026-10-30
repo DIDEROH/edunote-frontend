@@ -15,7 +15,7 @@ import useNavbarRefresh from "../hooks/useNavbarRefresh";
  * enseignées et leurs coefficients (propres à son école).
  */
 function MySchoolClasses() {
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const schoolId = user?.school?.id;
 
   const [classrooms, setClassrooms] = useState([]);
@@ -54,7 +54,7 @@ function MySchoolClasses() {
         <SchoolClassroomsPanel
           schoolId={schoolId}
           classrooms={classrooms}
-          canManage
+          canManage={can("classes")}
           onChanged={() => setReloadKey((key) => key + 1)}
           configurePath={(classroomId) => `/my-classes/${classroomId}`}
         />

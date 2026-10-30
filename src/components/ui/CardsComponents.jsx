@@ -226,6 +226,8 @@ function InfoItem({ icon, label, value }) {
 }
 
 function SchoolCard({ data }) {
+  // Directeur : membre « director » de l'école
+  const director = data?.active_director ?? data?.director_membership?.user;
   return (
     <div className="w-full overflow-hidden rounded-md bg-base-200">
       {/* Header */}
@@ -269,7 +271,7 @@ function SchoolCard({ data }) {
           </div>
         </section>
 
-        {data?.active_director && (
+        {director && (
           <section>
             <h3 className="mb-4 text-xs font-semibold uppercase tracking-wide text-base-content/50">
               Responsable
@@ -279,11 +281,11 @@ function SchoolCard({ data }) {
               <InfoItem
                 icon={<LuUserRound size={16} />}
                 label="Nom"
-                value={data?.active_director?.first_name + " " +data?.active_director?.last_name }
+                value={director?.first_name + " " +director?.last_name }
               />
-              <InfoItem icon={<LuPhone size={16} />} label="Téléphone" value={data?.active_director?.phone} />
-              <InfoItem icon={<LuMail size={16} />} label="Email" value={data?.active_director?.email} />
-              <InfoItem icon={<LuHouse size={16} />} label="Adresse" value={data?.active_director?.address} />
+              <InfoItem icon={<LuPhone size={16} />} label="Téléphone" value={director?.phone} />
+              <InfoItem icon={<LuMail size={16} />} label="Email" value={director?.email} />
+              <InfoItem icon={<LuHouse size={16} />} label="Adresse" value={director?.address} />
             </div>
           </section>
         )}

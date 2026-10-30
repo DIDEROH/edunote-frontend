@@ -11,20 +11,18 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import Invitation from './pages/Invitation'
 import DashboardHome from './components/elements/DashboardHome'
-import Others from './pages/Others'
-import AcademicYear from './pages/AcademicYear'
-import School from './pages/School'
+import Schools from './pages/admin/Schools'
 import SchoolInformations from './pages/SchoolInformations'
-import UsersPage from './pages/UsersPage'
-import DirectorsList from './pages/DirectorsList'
-import TeacherList from './pages/TeacherList'
 import Classroom from './pages/Classroom'
 import Subjects from './pages/Subjects'
 import SchoolClassroomSubjects from './pages/SchoolClassroomSubjects'
 import MySchoolClasses from './pages/MySchoolClasses'
-import Pedagogie from './pages/Pedagogie'
 import SkillsConfig from './pages/SkillsConfig'
+import Staff from './pages/school/Staff'
+import Calendar from './pages/school/Calendar'
+import MySchool from './pages/school/MySchool'
 import StudentPage from './pages/StudentPage'
 import EnrollmentStudent from './pages/EnrollmentStudent'
 import StudentIformations from './pages/StudentIformations'
@@ -35,7 +33,9 @@ import Forbidden from './pages/Forbidden'
 import Bulletins from './pages/ReportCards/Bulletins'
 import Visualiser from './pages/ReportCards/Visualiser'
 import Profile from './pages/Profile'
-import ModeratorsList from './pages/ModeratorsList'
+
+// Gestion de l'école : chef d'établissement et modérateurs (droits accordés par le directeur)
+const SCHOOL = ['director', 'moderator']
 
 function App() {
 
@@ -44,9 +44,12 @@ function App() {
       <AxiosProvider>
           <Routes>
             <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+            {/* Inscription d'un chef d'établissement avec son école */}
             <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
             <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
             <Route path="/reset-password" element={<GuestRoute><ResetPassword /></GuestRoute>} />
+            {/* Lien d'invitation reçu par WhatsApp (connecté ou non) */}
+            <Route path="/invitation/:token" element={<Invitation />} />
 
             <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
 
@@ -57,56 +60,36 @@ function App() {
               {/* Profil de l'utilisateur connecté (tous les rôles) */}
               <Route path="profile" element={<Profile />} />
 
-              {/* Les routes pour autres (admin) */}
-              <Route path="others" element={<RoleRoute allow={['admin']}><Others /></RoleRoute>} />
-
-              {/* Routes  pour la gestion des annees scolaires (admin) */}
-              <Route path='academic-years' element={<RoleRoute allow={['admin']}><AcademicYear /></RoleRoute>} />
-
-              {/* Routes des ecoles (admin) */}
-              <Route path='schools' element={<RoleRoute allow={['admin']}><School /></RoleRoute>} />
+              {/* EduNote : validation des établissements et catalogues communs */}
+              <Route path='schools' element={<RoleRoute allow={['admin']}><Schools /></RoleRoute>} />
               <Route path='schools/:id' element={<RoleRoute allow={['admin']}><SchoolInformations /></RoleRoute>} />
-
-              {/* La gestion des utilisateurs (admin) */}
-              <Route path='users' element={<RoleRoute allow={['admin']}><UsersPage /></RoleRoute>} />
-
-
-              {/* Directeur (admin) */}
-              <Route path='director-list' element={<RoleRoute allow={['admin']}><DirectorsList /></RoleRoute>} />
-
-              {/* Assistants d'établissement (admin) */}
-              <Route path='moderator-list' element={<RoleRoute allow={['admin']}><ModeratorsList /></RoleRoute>} />
-
-              {/* Les enseignants  */}
-              <Route path='teacher-list' element={<RoleRoute allow={['admin']}><TeacherList /></RoleRoute>} />
-              <Route path='director/teachers' element={<RoleRoute allow={['director']}><DirectorTeacherManagement /></RoleRoute>} />
-              <Route path='marks/entry' element={<RoleRoute allow={['teacher']}><TeacherMarkEntry /></RoleRoute>} />
-              <Route path='marks/hub' element={<RoleRoute allow={['teacher']}><TeacherMarkHub /></RoleRoute>} />
-
-              {/* les salles de classes (admin) */}
               <Route path='classrooms' element={<RoleRoute allow={['admin']}><Classroom /></RoleRoute>} />
-              {/* Matières et coefficients d'une classe, propres à chaque école */}
-              <Route path='schools/:schoolId/classrooms/:classroomId' element={<RoleRoute allow={['admin']}><SchoolClassroomSubjects /></RoleRoute>} />
-              <Route path='my-classes' element={<RoleRoute allow={['director']}><MySchoolClasses /></RoleRoute>} />
-              <Route path='my-classes/:classroomId' element={<RoleRoute allow={['director']}><SchoolClassroomSubjects /></RoleRoute>} />
-
-              {/* Matieres et competences (admin) */}
-              <Route path='pedagogie' element={<RoleRoute allow={['admin']}><Pedagogie /></RoleRoute>} />
-              <Route path='skills' element={<RoleRoute allow={['admin']}><SkillsConfig /></RoleRoute>} />
-
-              {/* Les matieres (admin) */}
               <Route path='subjects' element={<RoleRoute allow={['admin']}><Subjects /></RoleRoute>} />
 
-              {/* Les eleves : consultation (admin, directeur, assistant) ; inscription et modification par le directeur uniquement (comme l'API) */}
-              <Route path='students' element={<RoleRoute allow={['admin', 'director', 'moderator']}><StudentPage /></RoleRoute>} />
-              <Route path='students/create' element={<RoleRoute allow={['director']}><EnrollmentStudent /></RoleRoute>} />
-              <Route path='students/edit/:id' element={<RoleRoute allow={['director']}><EnrollmentStudent /></RoleRoute>} />
-              <Route path='students/:id' element={<RoleRoute allow={['admin', 'director', 'moderator']}><StudentIformations /></RoleRoute>} />
+              {/* École : classes, matières et coefficients, compétences */}
+              <Route path='my-classes' element={<RoleRoute allow={SCHOOL}><MySchoolClasses /></RoleRoute>} />
+              <Route path='my-classes/:classroomId' element={<RoleRoute allow={SCHOOL} permission="classes"><SchoolClassroomSubjects /></RoleRoute>} />
+              <Route path='skills' element={<RoleRoute allow={SCHOOL} permission="classes"><SkillsConfig /></RoleRoute>} />
 
+              {/* École : personnel, affectations, calendrier, paramètres */}
+              <Route path='staff' element={<RoleRoute allow={SCHOOL}><Staff /></RoleRoute>} />
+              <Route path='director/teachers' element={<RoleRoute allow={SCHOOL}><DirectorTeacherManagement /></RoleRoute>} />
+              <Route path='calendar' element={<RoleRoute allow={SCHOOL} permission="calendar"><Calendar /></RoleRoute>} />
+              <Route path='my-school' element={<RoleRoute allow={['director']} directorOnly><MySchool /></RoleRoute>} />
 
-              {/* Les bulletins (admin, directeur, assistant) */}
-              <Route path='report-card' element={<RoleRoute allow={['admin', 'director', 'moderator']}><Bulletins /></RoleRoute>} />
-              <Route path='report-card/visualiser' element={<RoleRoute allow={['admin', 'director', 'moderator']}><Visualiser /></RoleRoute>} />
+              {/* École : élèves (consultation ; inscription avec le droit « élèves ») */}
+              <Route path='students' element={<RoleRoute allow={SCHOOL}><StudentPage /></RoleRoute>} />
+              <Route path='students/create' element={<RoleRoute allow={SCHOOL} permission="students"><EnrollmentStudent /></RoleRoute>} />
+              <Route path='students/edit/:id' element={<RoleRoute allow={SCHOOL} permission="students"><EnrollmentStudent /></RoleRoute>} />
+              <Route path='students/:id' element={<RoleRoute allow={SCHOOL}><StudentIformations /></RoleRoute>} />
+
+              {/* École : bulletins */}
+              <Route path='report-card' element={<RoleRoute allow={SCHOOL} permission="bulletins"><Bulletins /></RoleRoute>} />
+              <Route path='report-card/visualiser' element={<RoleRoute allow={SCHOOL} permission="bulletins"><Visualiser /></RoleRoute>} />
+
+              {/* Enseignants */}
+              <Route path='marks/entry' element={<RoleRoute allow={['teacher']}><TeacherMarkEntry /></RoleRoute>} />
+              <Route path='marks/hub' element={<RoleRoute allow={['teacher']}><TeacherMarkHub /></RoleRoute>} />
 
             </Route>
 

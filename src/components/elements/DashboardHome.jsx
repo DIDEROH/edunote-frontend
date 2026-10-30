@@ -1,4 +1,3 @@
-import { Navigate } from "react-router-dom";
 import { Hourglass } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Admin from "../../pages/dashboard/Admin";
@@ -15,10 +14,9 @@ const DashboardHome = () => {
   }
 
   if (hasRole("admin")) return <Admin />;
+  // Directeur et modérateurs : tableau de bord de leur établissement
+  if (hasRole("director") || hasRole("moderator")) return <Director />;
   if (hasRole("teacher")) return <TeacherMarkHub />;
-  if (hasRole("director")) return <Director />;
-  // L'assistant d'établissement n'a pas de tableau de bord : il arrive sur les élèves de son école
-  if (hasRole("moderator")) return <Navigate to="/students" replace />;
 
   // Compte sans rôle exploitable (ex. inscription récente en attente de validation)
   return (
@@ -30,9 +28,9 @@ const DashboardHome = () => {
         Bienvenue{userName ? `, ${userName}` : ""}
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-base-content/60">
-        Votre compte est créé mais aucun rôle ne vous a encore été attribué.
-        Un administrateur doit vous affecter un rôle (enseignant, chef d'établissement
-        ou assistant) pour accéder à votre espace.
+        Votre compte n'est rattaché à aucun établissement. Ouvrez le lien
+        d'invitation envoyé par votre établissement, ou inscrivez votre propre
+        établissement si vous en êtes le chef.
       </p>
     </div>
   );

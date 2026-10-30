@@ -6,6 +6,7 @@ import axiosClient from '../utils/AxiosClient'
 import useShowConfirm from '../hooks/UseShowConfirm'
 import PageHeader from '../components/elements/PageHeader'
 import useNavbarRefresh from '../hooks/useNavbarRefresh'
+import { useAuth } from '../context/AuthContext'
 
 function DirectorTeacherManagement() {
     const [loading, setLoading] = useState(true)
@@ -17,6 +18,8 @@ function DirectorTeacherManagement() {
     const [searchTerm, setSearchTerm] = useState("")
     const [editingId, setEditingId] = useState(null)
     const showConfirm = useShowConfirm()
+    // Créer / modifier / retirer : droit « affectations » ; sinon consultation
+    const canEdit = useAuth().can('assignments')
 
     const [formData, setFormData] = useState({
         user_id: '',
@@ -145,7 +148,7 @@ function DirectorTeacherManagement() {
         <main className="min-h-screen bg-base-100 pb-20">
             <PageHeader title="Affectations" subtitle="Gérez les enseignants par classe et matière" />
             <section className="max-w-7xl mx-auto mt-6 grid grid-cols-1 xl:grid-cols-12 gap-6">
-                <div className="lg:col-span-4">
+                {canEdit && <div className="lg:col-span-4">
                     <div className="bg-base-200 p-6 rounded-md sticky top-24">
                         <h2 className="text-base-content font-semibold text-base mb-5 flex items-center gap-2">
                             {editingId ? <Edit2 className="text-warning" size={18}/> : <Plus className="text-primary" size={18}/>}
@@ -213,9 +216,9 @@ function DirectorTeacherManagement() {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>}
 
-                <div className="lg:col-span-8">
+                <div className={canEdit ? "lg:col-span-8" : "xl:col-span-12"}>
                     <div className="bg-base-200 rounded-md overflow-hidden">
                         <div className="p-6 flex flex-col md:flex-row justify-between items-center gap-4">
                             <h2 className="font-medium text-sm text-base-content flex items-center gap-2">
@@ -240,8 +243,8 @@ function DirectorTeacherManagement() {
                                             </div>
                                         </div>
                                         <div className="flex gap-1">
-                                            <button onClick={() => handleEditStart(as)} className="p-2 text-warning hover:bg-warning/10 rounded-md transition-colors duration-150"><Edit2 size={16} /></button>
-                                            <button onClick={() => handleDelete(as.id)} className="p-2 text-error hover:bg-error/10 rounded-md transition-colors duration-150"><Trash2 size={16} /></button>
+                                            {canEdit && <button onClick={() => handleEditStart(as)} className="p-2 text-warning hover:bg-warning/10 rounded-md transition-colors duration-150"><Edit2 size={16} /></button>}
+                                            {canEdit && <button onClick={() => handleDelete(as.id)} className="p-2 text-error hover:bg-error/10 rounded-md transition-colors duration-150"><Trash2 size={16} /></button>}
                                         </div>
                                     </div>
                                 </div>
@@ -273,8 +276,8 @@ function DirectorTeacherManagement() {
                                             </td>
                                             <td className="p-4">
                                                 <div className="flex justify-center gap-1">
-                                                    <button onClick={() => handleEditStart(as)} className="p-2 text-warning hover:bg-warning/10 rounded-md transition-colors duration-150"><Edit2 size={16} /></button>
-                                                    <button onClick={() => handleDelete(as.id)} className="p-2 text-error hover:bg-error/10 rounded-md transition-colors duration-150"><Trash2 size={16} /></button>
+                                                    {canEdit && <button onClick={() => handleEditStart(as)} className="p-2 text-warning hover:bg-warning/10 rounded-md transition-colors duration-150"><Edit2 size={16} /></button>}
+                                                    {canEdit && <button onClick={() => handleDelete(as.id)} className="p-2 text-error hover:bg-error/10 rounded-md transition-colors duration-150"><Trash2 size={16} /></button>}
                                                 </div>
                                             </td>
                                         </tr>

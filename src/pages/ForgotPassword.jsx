@@ -111,6 +111,11 @@ function EmailStep({ defaultEmail, onSubmit }) {
           {isSubmitting ? "Envoi en cours..." : "Recevoir le code"}
         </CtaNeon>
       </form>
+
+      <p className="rounded-md bg-base-100 p-3 text-center text-xs leading-relaxed text-base-content/60">
+        Votre compte n'a pas d'adresse e-mail ? Demandez à votre chef d'établissement de vous envoyer
+        un nouveau mot de passe par WhatsApp (Personnel → « Nouveau mot de passe »).
+      </p>
     </AuthCard>
   );
 }

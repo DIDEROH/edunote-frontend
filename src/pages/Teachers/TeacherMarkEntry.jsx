@@ -14,21 +14,25 @@ import useNavbarRefresh from "../../hooks/useNavbarRefresh";
 
 const DRAFT_PREFIX = "edunote_marks_draft";
 
-// Affectations de l'enseignant, séquences et trimestres
+// Affectations de l'enseignant, puis séquences et trimestres de l'année en cours
+// de CHAQUE école où il enseigne (chaque école gère son propre calendrier)
 async function fetchMetaData(userId) {
-  const [assignmentsRes, sequencesRes, termsRes] = await Promise.all([
-    axiosClient.get(`/teachers/${userId}/assignments`),
-    axiosClient.get("/sequences"),
-    axiosClient.get("/terms"),
-  ]);
+  const { data } = await axiosClient.get(`/teachers/${userId}/assignments`);
+  const assignments = data.data || [];
+  const schoolIds = [...new Set(assignments.map((a) => a.school_id))];
 
-  return {
-    assignments: assignmentsRes.data.data || [],
-    sequences: sequencesRes.data.data || sequencesRes.data || [],
-    terms: termsRes.data.data || termsRes.data || [],
-    loading: false,
-  };
+  const calendars = Object.fromEntries(await Promise.all(schoolIds.map(async (schoolId) => {
+    const [sequencesRes, termsRes] = await Promise.all([
+      axiosClient.get("/sequences", { params: { school_id: schoolId } }),
+      axiosClient.get("/terms", { params: { school_id: schoolId } }),
+    ]);
+    return [schoolId, { sequences: sequencesRes.data || [], terms: termsRes.data || [] }];
+  })));
+
+  return { assignments, calendars, loading: false };
 }
+
+const EMPTY_CALENDAR = { sequences: [], terms: [] };
 
 const markText = (mark) => (mark !== null && mark !== undefined ? String(mark) : "");
 
@@ -83,8 +87,7 @@ export default function TeacherMarkEntry() {
   // ==========================================
   const [metaData, setMetaData] = useState({
     assignments: [],
-    sequences: [],
-    terms: [],
+    calendars: {}, // { [école]: { sequences, terms } }
     loading: true,
   });
 
@@ -137,6 +140,8 @@ export default function TeacherMarkEntry() {
   );
 
   const evaluationMode = selectedAssignment?.school?.evaluation_type || "sequence";
+  // Séquences et trimestres de l'école de l'affectation choisie
+  const calendar = metaData.calendars[selectedAssignment?.school_id] || EMPTY_CALENDAR;
   const isSequenceMode = evaluationMode === "sequence";
   const isCompetenceMode = evaluationMode === "skill";
 
@@ -199,6 +204,17 @@ export default function TeacherMarkEntry() {
     // Si on change d'affectation, on réinitialise la grille
     if (key === "assignmentId") {
       resetGrid();
+
+      // Autre école : ses séquences et trimestres sont différents, la période est à rechoisir
+      const next = metaData.assignments.find((a) => String(a.id) === String(value));
+      if (next && next.school_id !== selectedAssignment?.school_id) {
+        setFilters((prev) => ({ ...prev, assignmentId: value, sequenceId: "", termId: "" }));
+        setSearchParams((prevParams) => {
+          prevParams.delete("sequenceId");
+          prevParams.delete("termId");
+          return prevParams;
+        });
+      }
     }
   };
 
@@ -524,7 +540,7 @@ export default function TeacherMarkEntry() {
                   onChange={(e) => updateFilter("sequenceId", e.target.value)}
                 >
                   <option value="">Sélectionner...</option>
-                  {metaData.sequences.map((seq) => (
+                  {calendar.sequences.map((seq) => (
                     <option key={seq.id} value={seq.id}>{seq.name} ({seq.term?.name})</option>
                   ))}
                 </select>
@@ -540,7 +556,7 @@ export default function TeacherMarkEntry() {
                   onChange={(e) => updateFilter("termId", e.target.value)}
                 >
                   <option value="">Sélectionner...</option>
-                  {metaData.terms.map((term) => (
+                  {calendar.terms.map((term) => (
                     <option key={term.id} value={term.id}>{term.name}</option>
                   ))}
                 </select>

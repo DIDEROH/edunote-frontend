@@ -181,7 +181,7 @@ function SkillsConfig() {
 
   return (
     <main className="min-h-screen bg-base-100">
-      <PageHeader />
+      <PageHeader title="Compétences" subtitle="Compétences évaluées par classe et par matière dans votre établissement." />
       <section className="max-w-5xl mx-auto p-3 md:p-6">
         <div className="mb-6 flex flex-col md:flex-row gap-4">
           <select

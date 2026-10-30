@@ -5,7 +5,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../utils/AxiosClient";
-import { useHasRole } from "../../hooks/UseHasRole";
 import PageHeader from "../../components/elements/PageHeader";
 import { prepareBulletins } from "../../utils/bulletinPreparation";
 import useNavbarRefresh from "../../hooks/useNavbarRefresh";
@@ -16,13 +15,7 @@ const stillListed = (list, id) => !id || (list || []).some((item) => String(item
 export default function Bulletins() {
     const navigate = useNavigate();
     
-    const isAdmin = useHasRole('admin');
-    const isDirector = useHasRole('director');
-    const isModerator = useHasRole('moderator');
-    // Directeur ou assistant : l'école est déduite côté serveur de leur affectation
-    const isSchoolStaff = !isAdmin && (isDirector || isModerator);
-
-    const [schools, setSchools] = useState([]);
+    // Directeur ou modérateur (droit « bulletins ») : l'école est déduite côté serveur
     const [classrooms, setClassrooms] = useState([]);
     const [students, setStudents] = useState([]);
     const [isLoadingStudents, setIsLoadingStudents] = useState(false);
@@ -30,48 +23,30 @@ export default function Bulletins() {
     // Par défaut : l'enseignant n'a pas accès au scope 'school'
     const [scope, setScope] = useState('classroom'); 
     
-    const [schoolId, setSchoolId] = useState("");
     const [classroomId, setClassroomId] = useState("");
     const [studentId, setStudentId] = useState("");
     
     const [term, setTerm] = useState("");
+    // Trimestres de l'année en cours de l'établissement (calendrier propre à l'école)
+    const [terms, setTerms] = useState([]);
 
-    // 1. Chargement initial des écoles si Admin, ou chargement direct des classes selon le rôle
+    // 1. Classes et trimestres de l'établissement
     useEffect(() => {
-        // L'admin a besoin de charger tous les établissements
-        if (isAdmin) {
-            api.get("/schools")
-                .then(({ data }) => setSchools(data || []))
-                .catch(err => toast.error(err.message));
-        }
-
-        // Directeur ou assistant : /classrooms ne renvoie que les classes de leur école
-        if (isSchoolStaff) {
-            api.get("/classrooms")
-                .then(({ data }) => setClassrooms(data || []))
-                .catch(err => toast.error(err.message));
-        }
-    }, [isAdmin, isSchoolStaff]);
-
-    // 2. Pour l'Admin : charger les classes d'un établissement dès qu'il est sélectionné
-    useEffect(() => {
-        if (isAdmin && schoolId) {
-            api.get(`/schools/${schoolId}/classrooms`)
-                .then(({ data }) => {
-                    setClassrooms(data || []);
-                    setClassroomId(""); // Reset de la classe sélectionnée
-                    setStudentId(""); // Reset de l'élève
-                })
-                .catch(err => toast.error(err.message));
-        }
-    }, [schoolId, isAdmin]);
+        let ignore = false;
+        api.get("/classrooms")
+            .then(({ data }) => { if (!ignore) setClassrooms(data || []); })
+            .catch(err => toast.error(err.message));
+        api.get("/terms")
+            .then(({ data }) => { if (!ignore) setTerms(data || []); })
+            .catch(err => toast.error(err.message));
+        return () => { ignore = true; };
+    }, []);
 
     // 3. Charger les élèves d'une classe lorsque le scope est 'student'
     useEffect(() => {
         if (scope === 'student' && classroomId) {
             setIsLoadingStudents(true);
-            // Une classe peut être partagée par plusieurs écoles : l'admin précise la sienne
-            api.get(`/classrooms/${classroomId}/students`, { params: isAdmin && schoolId ? { school_id: schoolId } : {} })
+            api.get(`/classrooms/${classroomId}/students`)
                 .then(({ data }) => {
                     setStudents(data || []);
                     setStudentId(""); // Reset
@@ -82,9 +57,9 @@ export default function Bulletins() {
             setStudents([]);
             setStudentId("");
         }
-    }, [classroomId, scope, isAdmin, schoolId]);
+    }, [classroomId, scope]);
 
-    // Actualiser : établissements, classes et élèves, sans perdre la sélection en cours
+    // Actualiser : classes, trimestres et élèves, sans perdre la sélection en cours
     useNavbarRefresh(() => {
         const applyClassrooms = ({ data }) => {
             setClassrooms(data || []);
@@ -92,11 +67,10 @@ export default function Bulletins() {
         };
 
         return Promise.all([
-            isAdmin && api.get("/schools").then(({ data }) => setSchools(data || [])),
-            isSchoolStaff && api.get("/classrooms").then(applyClassrooms),
-            isAdmin && schoolId && api.get(`/schools/${schoolId}/classrooms`).then(applyClassrooms),
+            api.get("/classrooms").then(applyClassrooms),
+            api.get("/terms").then(({ data }) => setTerms(data || [])),
             scope === 'student' && classroomId && api
-                .get(`/classrooms/${classroomId}/students`, { params: isAdmin && schoolId ? { school_id: schoolId } : {} })
+                .get(`/classrooms/${classroomId}/students`)
                 .then(({ data }) => {
                     setStudents(data || []);
                     if (!stillListed(data, studentId)) setStudentId("");
@@ -106,12 +80,10 @@ export default function Bulletins() {
 
     const isFormValid = useMemo(() => {
         if (!term) return false;
-        // L'admin choisit l'établissement ; directeur et assistant travaillent sur le leur
-        if (isAdmin && !schoolId) return false;
         if (!classroomId) return false;
         if (scope === 'student' && !studentId) return false;
         return true;
-    }, [scope, schoolId, classroomId, studentId, term, isAdmin]);
+    }, [scope, classroomId, studentId, term]);
 
     const handleGenerate = () => {
         if (!isFormValid) return;
@@ -119,7 +91,6 @@ export default function Bulletins() {
         // On construit l'URL de destination avec des paramètres de requête sécurisés (Query Params)
         const queryParams = new URLSearchParams({
             scope,
-            school_id: schoolId || '',
             classroom_id: classroomId || '',
             student_id: studentId || '',
             term
@@ -134,7 +105,7 @@ export default function Bulletins() {
     // classe un par un et les garde en cache (ex. avant l'impression en
     // masse de fin de trimestre) ; l'affichage est ensuite immédiat.
     // ------------------------------------------------------------------
-    const canRunBackground = (isAdmin || isSchoolStaff) && scope === 'classroom' && !!classroomId && !!term;
+    const canRunBackground = scope === 'classroom' && !!classroomId && !!term;
     const [batchState, setBatchState] = useState(null); // null | { status, busy, total, processed, failed, progress_percent }
     const preparationRef = useRef(null);
 
@@ -151,7 +122,7 @@ export default function Bulletins() {
 
         try {
             const batch = await prepareBulletins(
-                { school_id: schoolId || undefined, classroom_id: classroomId, term },
+                { classroom_id: classroomId, term },
                 { onProgress: setBatchState, signal: controller.signal }
             );
             if (batch.status === 'completed') {
@@ -202,32 +173,16 @@ export default function Bulletins() {
 
                 {/* 2. FILTRES CASCADANTS */}
                 <div className="space-y-0 relative">
-                    {/* Sélecteur d'école : visible uniquement par l'admin central */}
-                    {isAdmin && (
-                        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                            <label className={labelClass}>2. Établissement</label>
-                            <select 
-                                value={schoolId} 
-                                onChange={(e) => setSchoolId(e.target.value)}
-                                className={inputClass}
-                            >
-                                <option value="">Sélectionner l'établissement...</option>
-                                {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                            </select>
-                        </div>
-                    )}
-
                     {/* Sélecteur de classe : visible pour "Classe" ou "Élève" */}
                     {(scope === 'classroom' || scope === 'student') && (
                         <div className="animate-in fade-in slide-in-from-top-2 duration-300">
                             <label className={labelClass}>
-                                {isAdmin ? "3. Salle de classe" : "2. Salle de classe"}
+                                2. Salle de classe
                             </label>
                             <select 
                                 value={classroomId} 
                                 onChange={(e) => setClassroomId(e.target.value)}
                                 className={inputClass}
-                                disabled={isAdmin && !schoolId}
                             >
                                 <option value="">Choisir la classe...</option>
                                 {classrooms.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -239,7 +194,7 @@ export default function Bulletins() {
                     {scope === 'student' && (
                         <div className="animate-in fade-in slide-in-from-top-2 duration-300">
                             <label className={labelClass}>
-                                {isAdmin ? "4. Choix de l'élève" : "3. Choix de l'élève"}
+                                3. Choix de l'élève
                             </label>
                             <select 
                                 value={studentId} 
@@ -261,9 +216,7 @@ export default function Bulletins() {
                     <label className={labelClass}>Période</label>
                     <select className={inputClass} value={term} onChange={(e) => setTerm(e.target.value)}>
                         <option value="">Choisir...</option>
-                        <option value="1">1er Trimestre</option>
-                        <option value="2">2ème Trimestre</option>
-                        <option value="3">3ème Trimestre</option>
+                        {terms.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </select>
                 </div>
 

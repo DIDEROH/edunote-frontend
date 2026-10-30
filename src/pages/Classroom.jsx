@@ -133,8 +133,8 @@ function Classroom() {
             <div className="mx-4 mt-4 flex items-start gap-3 rounded-md bg-primary/10 p-4 text-sm text-base-content/70">
                 <Info size={16} className="mt-0.5 shrink-0 text-primary" />
                 <p>
-                    Chaque établissement choisit ses classes dans ce catalogue, puis définit lui-même les matières
-                    enseignées et leurs coefficients (Écoles → fiche de l'école, ou « Classes et matières » pour un directeur).
+                    Catalogue commun : chaque établissement y choisit ses classes, puis définit lui-même les matières
+                    enseignées et leurs coefficients (« Classes et matières » dans l'espace de l'école).
                 </p>
             </div>
 
